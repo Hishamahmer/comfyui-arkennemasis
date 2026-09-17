@@ -8,7 +8,7 @@ Operational documentation, workflow setup guides, and technical references for t
 
 | Guide | Scope | Description |
 | :--- | :--- | :--- |
-| [**1. Arkennemasis MCP Guide**](01_arkennemasis_mcp_guide.md) | Agent Control / Web UI | Connecting Claude Desktop, Codex CLI, and ChatGPT Web to ComfyUI, live browser canvas bridge, and connection diagnostics. |
+| [**1. Arkennemasis MCP Guide**](01_arkennemasis_mcp_guide.md) | Web AI & Tailscale Funnel | Primary gateway connecting ChatGPT Web to local ComfyUI via Tailscale Funnel (unlimited web usage vs Codex CLI limits), live browser canvas bridge, and client setup. |
 | [**2. Property Walkthrough AI Guide**](02_property_walkthrough_guide.md) | Video Production | Photo directory formatting, choosing LLM scriptwriters, narrator voice setup, and rendering automated listing videos. |
 | [**3. MiniMax H3 Story Creation Guide**](03_minimaxh3_story_creation_guide.md) | Video Production | Writing story briefs, multi-scene execution loops, narration dubbing, audio fitting, and subtitle assembly. |
 | [**4. ChatGPT Codex & API Providers Guide**](04_codex_chatgpt_free_image_gen_guide.md) | Image & LLM | Free `gpt-image-2` image generation with ChatGPT Plus subscriptions (`codex login`), fallback Replicate keys, and shared settings. |

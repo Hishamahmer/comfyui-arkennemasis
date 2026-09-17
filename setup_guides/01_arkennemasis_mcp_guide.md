@@ -1,6 +1,6 @@
 # Arkennemasis MCP — Gateway & Canvas Bridge Guide
 
-Control your local ComfyUI instance from external AI clients (Claude Desktop, Codex CLI, ChatGPT Web, Claude Web, Cursor).
+Control your local ComfyUI instance directly from Web AI clients (ChatGPT Web, Claude Web) via secure Tailscale Funnel, with optional local desktop client support.
 
 ---
 
@@ -57,7 +57,31 @@ When you open ComfyUI (`http://127.0.0.1:8188`), check the **bottom-left corner*
 
 ## 4. Connecting AI Clients
 
-### A. Local Clients via Stdio (Recommended for Codex & Claude Desktop)
+### A. Primary Purpose: Web AI Clients via Tailscale Funnel (ChatGPT Web / Claude Web) [RECOMMENDED]
+
+**This is the primary purpose and core architecture of Arkennemasis MCP.** It connects the web version of ChatGPT (`chatgpt.com`) directly to your local ComfyUI instance without manual port forwarding, dynamic DNS, or firewall hassle — letting you build, edit, and control workflows with virtually unlimited usage while completely avoiding restrictive Codex CLI rate limits.
+
+1. **Verify Connection:**
+   * Ensure ComfyUI is running and the bottom-left badge shows **Connection: online**.
+2. **Retrieve Your Private Funnel URL:**
+   * Open `mcp_service/.local/connection.txt` to find your persistent, authenticated HTTPS Tailscale Funnel endpoint:
+     ```
+     https://hisham.tailb871a6.ts.net/mcp/s/<your-private-token>
+     ```
+3. **Connect in ChatGPT Web / Claude Web:**
+   * In your web AI client's MCP connector or Actions setup, add a new server using your Funnel URL.
+   * **Authentication:** Select **No Auth** (your private URL contains an embedded cryptographic token that authenticates your session securely).
+4. **Full Web Canvas Control Without Usage Limits:**
+   * **Inspect & Navigate:** Ask ChatGPT Web to examine the current workflow on your open ComfyUI tab.
+   * **Build & Rewire:** Ask ChatGPT Web to add nodes, rewire links, change parameters, and configure settings directly on your live screen.
+   * **Execute & Monitor:** Queue prompts, check render status, and review errors right in the web conversation.
+   * **Zero Limit Anxiety:** Because you are on the web interface with your standard subscription, you don't burn Codex CLI quotas or pay per-token developer API bills.
+
+---
+
+### B. Secondary / Local Method: Local Desktop Clients via Stdio (Codex CLI / Claude Desktop)
+
+For local terminal development or desktop agent tools running on the same host machine:
 
 #### **Claude Desktop Configuration (`claude_desktop_config.json`)**:
 ```json
@@ -82,24 +106,6 @@ args = ['E:\ComfyUI_windows_portable_nvidia\ComfyUI_windows_portable\ComfyUI\cus
 startup_timeout_sec = 30
 tool_timeout_sec = 60
 ```
-
-### B. Web AI Clients via Tailscale Funnel (ChatGPT Web / Claude Web)
-
-This is the **primary superpower** of Arkennemasis MCP: using the ChatGPT Web interface (`chatgpt.com`) to bypass restrictive Codex CLI usage caps.
-
-1. Ensure the BAT is running and the ComfyUI badge shows **Connection: online**.
-2. Open `mcp_service/.local/connection.txt` to find your complete fixed secret URL:
-   ```
-   https://hisham.tailb871a6.ts.net/mcp/s/<your-private-token>
-   ```
-3. In ChatGPT Web / Claude Web:
-   * Add a custom MCP tool connector or Action pointing to your secret Funnel URL.
-   * **Authentication:** Select **No Auth** (the unique cryptographic path token authenticates your session securely).
-4. **Full Web Canvas Control Without Usage Limits:**
-   * **Inspect & Navigate:** Ask ChatGPT Web to examine the current workflow on your open ComfyUI tab.
-   * **Build & Rewire:** Ask ChatGPT Web to add nodes, rewire links, change parameters, and configure settings directly on your live screen.
-   * **Execute & Monitor:** Queue prompts, check render status, and review errors right in the web conversation.
-   * **Zero Limit Anxiety:** Because you are on the web interface with your standard subscription, you don't burn Codex CLI quotas or pay per-token developer API bills.
 
 ---
 
