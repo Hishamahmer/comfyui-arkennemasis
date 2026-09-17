@@ -15,9 +15,23 @@ If you have an active ChatGPT Plus subscription ($20/month), you can generate `g
    codex login
    ```
 3. Complete the web authentication prompt.
-4. Your credentials will be saved in `~/.codex/auth.json`.
+4. Your credentials will be saved in `~/.codex/auth.json` (or `$CODEX_HOME/auth.json`).
 5. ComfyUI's **`arkennemasis Codex Image Gen`** and **`arkennemasis Codex LLM`** nodes will automatically detect and authenticate with your ChatGPT account.
 6. **No API key is required**, and generations bill against your existing monthly plan instead of per-image API charges.
+
+### Multiple Accounts:
+Give each account its own folder and point `codex_home` at the one you want:
+```powershell
+$env:CODEX_HOME = "C:\CodexAccounts\work"
+codex login
+```
+Different nodes on the same ComfyUI canvas can point to different accounts simultaneously.
+
+### Token Handling & Refresh:
+An expired access token is refreshed automatically against `https://auth.openai.com/oauth/token` and saved back atomically to disk, preserving existing keys and rotated refresh tokens. Set `allow_refresh` to `false` if you wish to fail immediately instead of writing back.
+
+> [!NOTE]
+> Availability is account-dependent: not every ChatGPT tier can call the hosted image tool. If your account plan cannot, the node outputs a clear explanation rather than crashing with an obscure HTTP error.
 
 ---
 

@@ -121,95 +121,18 @@ them.
 
 ### arkennemasis/**Variation** — the product-variation pipeline
 
-A client's variation spreadsheet plus one locked base photograph in; a verified,
-consistently framed image library out. Any product, any number of variation axes. The
-guarantee is not "good images" — it is that **every delivered image shows the same
-physical object, differing only in the specified attribute**.
+A client's variation spreadsheet plus one locked base photograph in; a verified, consistently framed image library out. Any product, any number of variation axes. The guarantee is that **every delivered image shows the same physical object, differing only in the specified attribute**.
 
-**35 nodes, described here as a pipeline rather than one by one** — they are stages of a
-single machine and are wired for you by the workflow, not picked individually off a menu.
-There are two paths: the **ten-stage pipeline** below, for when a client hands you a messy
-sheet and the prompts still have to be worked out, and a shorter **CSV catalogue** path
-(`Catalogue Load` / `Fan-Out` / `Save` / `Board`) for when the prompts already exist and
-one row means one image.
+* **35 modular pipeline nodes:** Covers intake (`Sheet Probe`, `Variation Intake`), references (`Spec Library`), geometry (`Plate Lock`, `Region Mask`), recipe compilation, substitution prompt generation, CIELAB recoloring, automated ΔE2000 quality verification, and store export.
+* **Two execution paths:** The full ten-stage pipeline for unformatted client sheets, and a shorter CSV catalogue path when prompts already exist.
 
-Choose the short one only when the answers are already written. It gives up the
-measurement, the bounded retry, the durable job records, the drift audit and the human
-gate — which are the ten-stage version's whole reason to exist.
+👉 **Full architecture & setup guide:** See [setup_guides/06_product_variation_pipeline_guide.md](setup_guides/06_product_variation_pipeline_guide.md).
 
-> **The prompts are not in this repo.** The compiler brief, the two locks and the critic's
-> rubric live in `variation/prompts_local.py`, which is git-ignored. The nodes work
-> without it; the prompt boxes just come up empty, and the wording is yours to write. A
-> saved workflow carries its own copy, so a graph someone shares with you runs as-is.
+### arkennemasis/**Audio** — Qwen3-TTS Voice Cloning
 
-**A colour's specification format is a property of the VALUE, not the axis.** Four are
-supported and a real client sheet mixes them inside a single axis:
+Local, offline voice cloning. Input text and a 5–20s voice reference sample to clone any voice. Runs in an isolated child subprocess (`vendor/tts_env`) with pinned dependencies, completely preventing conflicts with ComfyUI's main Python packages.
 
-| Format | `spec_type` | Reference sent? | Colour auto-checked? |
-|---|---|---|---|
-| hex only | `hex` | no — a flat swatch would ask for a flat fill | yes |
-| hex + description | `hex` | no | yes |
-| reference image | `reference_image` | yes | no — there is no target |
-| reference image + hex | `reference_image` | yes | yes |
-
-A bare word with neither is rejected: a word is a request for an opinion, and the model
-gives a different opinion every time it is asked. `ref_url` accepts an `http(s)` URL, a
-`file://` URL, or a bare local path.
-
-Nothing in `variation/` knows what a product is. No region names, no axis names, no
-counts, no filename patterns: all of those arrive from the recipe or the intake mapping,
-and the cell generator is a cartesian product over however many axes the recipe declares.
-
-| Node | What it does | Out |
-|---|---|---|
-| Sheet Probe | reads any client sheet (CSV/TSV/JSON) without interpreting it, and proposes a column mapping | `STRING` |
-| Variation Intake | normalises whatever arrived into VARIANTS / SPECS / PRODUCT and runs every pre-generation validation. **Fails loudly rather than guessing** — a guessed material makes a plausible image that is wrong | `STRING`, `BOOLEAN`, `INT` |
-| Spec Library | downloads, caches and content-hashes every reference; renders a swatch per hex. Per client, accumulates across products | `STRING`, `IMAGE` |
-| Plate Lock | freezes one base photo and measures it: hash, dimensions, colour profile, per-region boxes, proportion ratios. After this it is never regenerated | `IMAGE`, `MASK`, `STRING` |
-| Region Mask | pulls one named region's mask back out of the locked plate, resolving the cell's own target region by itself | `MASK`, `STRING`, `BOOLEAN` |
-| Recipe Brief | the fixed, **product-neutral** Tier 0 meta-prompt — it discovers regions by looking at the photograph | `STRING` |
-| Recipe Compile | validates the model's JSON, merges the library, and **injects both locks and the tolerances as constants** — anything the model wrote there is discarded | `STRING`, `BOOLEAN` |
-| Recipe Gate | the one human checkpoint. Blocks everything downstream until a name is typed. Guards the `paints` field, which is where a wrong answer wastes a whole run | `STRING` |
-| Cell Matrix / Cell At | the cartesian product of **N** axes × plates, then one cell by index. Two nested loops over exactly two axes is a defect, not a simplification | `STRING`, `IMAGE`, `INT` |
-| Prompt Build | assembles one prompt by **pure substitution** — change instruction, then invariants, then both locks, the last three byte-identical across the run. Never calls a model | `STRING` |
-| Prompt Audit | proves every prompt in the run shared one constant block, and fails if not. Prompt variance is *the* mechanism by which a set drifts | `BOOLEAN`, `INT` |
-| Gen Route | picks the deterministic or the generative path per axis. Both inputs lazy, so the branch not taken is **never evaluated** — no API call at all | `IMAGE`, `STRING` |
-| Region Recolour | retints a masked region to an exact hex in CIELAB while keeping the plate's own shading. Free, instant, and **cannot drift by construction** | `IMAGE`, `INT` |
-| Verify Candidate | measures product identity, frame match, colour ΔE2000, bleed and hygiene, then returns pass / soft / hard. The step that used to live in the operator's head | `STRING`, `BOOLEAN`, `FLOAT` |
-| Calibrate | derives tolerances from a real labelled set instead of guesswork, and reports the operator's true current pass rate. No generation spend | `STRING`, `FLOAT` |
-| Job Skip / Job Record / Run Report | durable per-cell records on disk. Job Skip's generate branch is **lazy**, so a finished cell is never re-generated and never re-billed | `IMAGE`, `STRING`, `FLOAT` |
-| Deliver | the format ladder (PNG / white-background JPG / WebP / thumb) filed one directory level per axis. Overwrites in place — no `_v2`, no timestamps | `STRING` |
-| Review Board | an HTML contact sheet whose approve/reject buttons write **straight into the job records**, plus an `.excalidraw` matrix for the client | `STRING` |
-| Store Export | the variation CSV with `meta:attribute_pa_{axis}` columns and each row's image — what turns a folder of images into "the variations are live" | `STRING`, `INT` |
-
-Full instructions, the measured behaviour, and the five verification lessons that cost
-real debugging:
-`claude/workflow-runbooks/variation-pipeline/RUNBOOK.md` in the portable install.
-
-### Qwen3-TTS — why it needs a one-off setup
-
-**Qwen3-TTS runs in a subprocess, and that is deliberate.** It is written against
-`transformers==4.57.3`; a normal ComfyUI install is on 5.x, and a dozen other node packs
-depend on that. Every published wrapper for this model tells you to downgrade — **don't**.
-The pin is also self-contradictory: `qwen-tts` 0.1.1 hardcodes 4.57.3 while its own
-tokenizer imports `check_model_inputs`, which only exists in 5.x.
-
-So the node keeps a private dependency tree in `vendor/tts_env` and puts it first on
-`sys.path` in a **child process** — same interpreter, same torch, same CUDA, only the one
-conflicting package differs, and only there. `vendor/` is **not** committed (114 MB, and
-redistributing someone else's package is a deliberate decision, not a `git add .`), so a
-fresh clone has to create it once. The command is in
-[`common/qwen_tts_node.py`](common/qwen_tts_node.py)'s docstring.
-
-Models go in `ComfyUI/models/qwen-tts/<model folder>`. A ***Base*** model is **clone-only**
-— it has no preset voices, so `reference_audio` must be connected or the node stops
-immediately and says so. For preset voices, use a *CustomVoice* model.
-
-Generation is retried up to three times with fresh seeds: the model occasionally never
-emits end-of-speech and generates until something stops it, which is a property of the
-sampled path, so re-running the same seed reproduces it exactly. The node also rejects a
-result far longer than the text can account for. It refuses to fall back to CPU — that
-still produces correct audio, roughly 40× slower, which reads exactly like a hang.
+👉 **Full setup & installation guide:** See [setup_guides/05_local_voice_cloning_qwen3_tts_guide.md](setup_guides/05_local_voice_cloning_qwen3_tts_guide.md).
 
 ### Captions
 
@@ -321,154 +244,18 @@ Image(s) ────────────► Replicate LLM (image_1..4)   �
 Optional params (`quality`, `aspect_ratio`, `reasoning_effort`, …) left on **`default`** are
 not sent, so the model's own defaults apply. `timeout_seconds = 0` waits indefinitely.
 
-### Driving many Image Gen nodes from one place
+## Advanced Utilities & Execution Controls
 
-ComfyUI **rejects a `STRING` link into a `COMBO` widget**, so a shared `aspect_ratio` or
-`quality` cannot be wired straight into the widgets. **Image Gen Settings** bundles them
-into one typed value instead — wire its output into each node's optional `settings` socket:
+Arkennemasis provides dedicated utility nodes to manage execution flow, prevent runaway costs, and organize outputs:
 
-```
-Image Gen Settings ─┬─► Image Gen #1 (settings)
-                    ├─► Image Gen #2 (settings)
-                    └─► … 24 more
-```
+* **Shared Image Settings (`Image Gen Settings`)**: Drives aspect ratio, quality, moderation, and timeouts across multiple generator nodes simultaneously.
+* **Rate Limits & Concurrency (`run_mode`)**: Switches between sequential execution (`one at a time`) to avoid 429 rate limit bans, and parallel execution (`all at once`, `max_concurrent`).
+* **Automated Backoff Retries**: Automatically retries 429 rate limits, 5xx server drops, and interrupted network streams with exponential backoff.
+* **Lazy Branch Gating (`Shot Selector`)**: Evaluates only the first N branches; unselected branches are never evaluated and never billed.
+* **Auto-Numbered Output Folders (`Run Folder`)**: Generates dynamically incremented run folders (`run_001`, `run_002`) so outputs stay grouped.
+* **Caption Sidecars (`Text File Save`)**: Writes `<filename>.txt` caption pairing files alongside generated images.
 
-Any field left on **`use node's own`** (`-1` for `timeout_seconds`, blank for `api_token`)
-falls through to that node's own widget, so you can share most settings and still override
-one node locally.
-
-`settings` is a *socket*, not a widget, so adding it did not shift any existing
-`widgets_values` index.
-
-`number_of_images` is deliberately **not** shared. Multiplying it across every wired node
-is rarely what you want, and in a graph that names files deterministically the extra images
-all land on the same filename and overwrite each other. Set it per node if you need it.
-
-### Rate limits and concurrency
-
-ComfyUI runs `async def` nodes **concurrently**, so several API nodes in one graph create
-their predictions in the same millisecond. Replicate drops to *"6 requests per minute with
-a burst of 1"* while an account holds **under $5 credit**, so parallel calls reliably return
-**429**.
-
-Both API nodes therefore have a **`run_mode`** widget:
-
-| `run_mode` | Behaviour |
-|---|---|
-| **`one at a time`** (default) | an asyncio lock serialises **every** arkennemasis API node in the graph |
-| **`all at once`** | the original concurrent behaviour — faster when your rate limit allows it |
-
-`max_concurrent` sets how many calls `all at once` may actually have in flight (default
-**2**, `0` = uncapped).
-
-### Retries — what is retried, and what is not
-
-A node exception aborts the **whole ComfyUI prompt**, so on a 24-image batch one bad
-minute of network throws away every shot still queued. `common/throttle.with_retry`
-therefore retries anything that got **no complete answer**:
-
-| Retried | Not retried |
-|---|---|
-| `429` — backs off exponentially, honouring `Retry-After` or the *"resets in ~Ns"* hint | a moderation refusal |
-| `500 / 502 / 503 / 504` | a malformed request (`400`) |
-| a dropped or truncated connection (`RemoteProtocolError`, read timeouts, *"incomplete chunked read"*) | an expired or wrong login (`401 / 403`) |
-| an SSE stream that ends with no completion event | an account without the image tool |
-
-Dropped connections retry after a couple of seconds — waiting a minute does not make a
-socket healthier. Rate limits keep the long backoff. Six attempts, then the original
-error is raised.
-
-The Codex node also tells a **finished** image apart from a `partial_images` preview, so a
-stream cut short mid-render can never be saved as if it were the final result.
-
-### Running only some of many expensive branches
-
-**Shot Selector** sits between each generator and its consumers. Give every copy the same
-`how_many` / `seed` / `total_shots` / `selection` and a unique `shot_index`; each copy
-derives the *same* chosen set independently, so no extra wiring is needed.
-
-`selection` picks how the set is chosen:
-
-| Mode | Behaviour | Use it when |
-|---|---|---|
-| `first N in order` *(default)* | runs slots `1..N` | the first branches are the ones you are iterating on — `how_many = 5` runs the first five, no seed needed |
-| `random from seed` | an unbiased sample of the whole set | you want a representative spread across every branch without paying for all of them |
-
-`seed` only matters in `random from seed`.
-
-`image` is a **lazy** input, so an unselected branch is never evaluated — the API node
-upstream is never called, and never billed. Unselected returns `ExecutionBlocker(None)`,
-which silently skips everything downstream.
-
-> **Caveat:** ComfyUI blocks any node that has a blocked input, so a partial run also skips
-> nodes that gather *every* branch (collect/unpack pairs). Give each branch its own save if
-> you want partial runs to produce output.
-
-### One output folder per run
-
-**Run Folder** resolves `<parent_dir>/<folder_name>_<NNN>` for the current run, picking the
-next free number (it scans existing siblings, so a manual `_009` yields `_010`). Wire
-`folder_path` into every save node so a run's outputs land together and nothing is
-overwritten.
-
-It exists because save nodes that support time tokens evaluate them **at save time** — a
-graph writing 24 images over an hour would scatter them across several `[time(%H-%M)]`
-folders. `IS_CHANGED` returns NaN so the path is recomputed each queued run rather than
-served from cache; only the saves re-execute, so re-running does **not** re-bill an
-upstream API node.
-
-### Image generation with a ChatGPT login (no API key)
-
-**Codex Image Gen** reuses the OAuth credentials the Codex CLI already wrote — the very
-same login, not a copy:
-
-```
-codex login          # once, in a terminal; opens the browser
-```
-
-It reads `$CODEX_HOME/auth.json`, else `~/.codex/auth.json`. **No OAuth flow is
-implemented in ComfyUI** — logging in stays the CLI's job. `codex logout` and the node
-stops working; log in as someone else and the node follows.
-
-**Multiple accounts:** give each its own folder and point `codex_home` at the one you
-want. Different nodes can use different accounts in the same graph.
-
-```powershell
-$env:CODEX_HOME = "C:\CodexAccounts\work"
-codex login
-```
-
-The node's `account` output and its console line both name the signed-in email, so you
-can always see which account produced an image. **Codex Login Status** reports it without
-generating anything.
-
-Token handling: an expired access token is refreshed against
-`https://auth.openai.com/oauth/token` and **saved back atomically**, preserving every
-other key in the file. That write matters — the endpoint may return a *rotated* refresh
-token, and dropping it would break the login on the next rotation. Set `allow_refresh`
-off to fail instead of ever writing.
-
-> Availability is account-dependent: not every ChatGPT plan can call the hosted image
-> tool. If yours cannot, the node says so plainly instead of dumping an HTTP error.
-
-### Caption sidecars
-
-**Text File Save** writes `<folder_path>/<filename>.<extension>`. Give it the same folder
-and filename stem the image save uses and you get the pairing kohya / ai-toolkit /
-diffusers expect:
-
-```
-shot_001.png
-shot_001.txt
-```
-
-Wire the generating image into `images`: it binds the caption to that branch, so a branch
-skipped by a gate writes no orphan `.txt`.
-
-**Caption rule for character LoRAs:** anything you caption is *excluded* from what the LoRA
-learns. Caption the variable parts — pose, expression, wardrobe, background — and never the
-face, hair colour or eye colour. This is why feeding it a VLM description of the finished
-image is usually wrong: a VLM writes exactly the identity features you must not caption.
+👉 **Full technical guide:** See [setup_guides/07_advanced_utilities_and_concurrency.md](setup_guides/07_advanced_utilities_and_concurrency.md).
 
 ## Notes
 
@@ -561,80 +348,11 @@ backend. It owns no model and no API client: it calls `codex_provider`'s LLM and
 nodes like any other consumer would. That is the shape to copy for the next pipeline —
 providers stay thin and swappable, use cases compose them.
 
-## Adding a module — 3 steps
+## Developer & Contributing Guide
 
-**1.** New folder with a `nodes.py` ending in the two standard dicts:
+To add new providers or nodes to the pack, see the developer guide for the 3-step module registration process, shared helpers (`resolve_key`, `with_retry`, `serial_lock`), permanent class keys rule, and activity badge integration:
 
-```python
-NODE_CLASS_MAPPINGS = {"OllamaLLM": OllamaLLM}
-NODE_DISPLAY_NAME_MAPPINGS = {"OllamaLLM": "arkennemasis Ollama LLM"}
-```
-
-**2.** Give each node class its menu placement:
-
-```python
-class OllamaLLM:
-    CATEGORY = "arkennemasis/LLM"      # or /Image Gen, /Utility, /Video Gen, /Audio …
-```
-
-**3.** Register it in `__init__.py`:
-
-```python
-def _ollama():
-    from .ollama_provider.nodes import (
-        NODE_CLASS_MAPPINGS as c, NODE_DISPLAY_NAME_MAPPINGS as d,
-    )
-    return c, d
-
-_load("ollama provider", _ollama)      # next to the existing _load calls
-```
-
-`_load()` isolates failures: if a module raises (missing dependency, upstream API change)
-it logs `[arkennemasis] 'ollama provider' not loaded: …` and **every other module keeps
-working**. Someone who only wants the Ollama nodes never needs a Replicate account.
-
-### Reuse instead of rewriting
-
-| Need | Use |
-|---|---|
-| API key from field / env / `.env` | `from ..common.keys import resolve_key` |
-| ComfyUI image → send to an API | `collect_images_to_data_uris(img1, img2, …)` |
-| API response → ComfyUI `IMAGE` | `bytes_list_to_image_tensor(output_to_bytes_list(out))` |
-| stream / list / str → clean text | `output_to_text(out)` |
-| long API call without freezing the UI | copy the `async run()` + `asyncio.to_thread(self._blocking, …)` pattern in `replicate_provider/nodes.py` |
-| serialise calls across nodes | `async with serial_lock(): …` (`common/throttle.py`) |
-| survive a 429, a 5xx or a dropped connection | `with_retry(lambda: client…create(…))` — retries only calls that got no complete answer; refusals and bad requests raise straight away |
-| mark your own exception retryable | set `retryable = True` on it; `common/throttle.is_transient` honours it |
-| skip an expensive branch entirely | lazy input + `check_lazy_status` returning `[]`, then `ExecutionBlocker(None)` — see `common/shot_selector.py` |
-| one output folder per run | `next_run_folder(parent, name)` (`common/run_folder.py`) |
-| reuse a `codex login` session | `codex_provider/auth.py` (`get_access_token`, `request_headers`) |
-| write a sidecar file atomically | `common/text_file_save.py` (`.part` + `os.replace`) |
-| activity badge on a node | add the class key to `ANIMATED_NODES` in `web/activity.js` |
-
-### Four rules
-
-1. **Class keys are permanent.** `"OllamaLLM"` is the ID saved inside every workflow —
-   renaming it breaks those workflows ("missing node" on load). Display names and
-   categories are cosmetic and safe to change anytime.
-2. **New dependencies go in `requirements.txt` and are imported *inside* the function**,
-   not at module top level — so a user missing that package loses only that node.
-3. **Append new widgets at the end** of the `optional` block. A workflow stores widget
-   values as a positional list, so inserting one in the middle shifts every later value and
-   silently corrupts saved workflows. Adding a *socket* (a non-widget type) is always safe.
-4. **Every node that makes the user wait gets the activity badge.** If it calls a network
-   API, polls, or otherwise takes more than a moment, add its class key to
-   `ANIMATED_NODES` in `web/activity.js` — otherwise the graph looks frozen and people
-   re-queue it. Instant nodes stay out: a spinner that appears and vanishes in one frame
-   is just flicker.
-
-   ```js
-   const ANIMATED_NODES = new Set([
-     "ReplicateOpenAILLM",
-     "ReplicateOpenAIGPTImage2",
-     "ArkCodexImageGen",
-     "YourNewLongRunningNode",   // <- add it here
-   ]);
-   ```
+👉 **Developer Guide:** See [setup_guides/08_developer_and_contributing_guide.md](setup_guides/08_developer_and_contributing_guide.md).
 
 ## License
 
