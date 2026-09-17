@@ -1,6 +1,6 @@
 # arkennemasis — ComfyUI Nodes
 
-**Arkennemasis MCP:** [setup and usage](docs/mcp/README.md) ·
+**Setup Guides:** [Browse all setup guides](setup_guides/README.md) · **Arkennemasis MCP:** [setup and usage](setup_guides/01_arkennemasis_mcp_guide.md) ·
 [architecture](docs/mcp/architecture.md). An optional gateway for inspecting,
 editing and running local workflows from MCP clients. This installation uses a
 fixed private URL through Tailscale Funnel. The usual ComfyUI BAT starts its
@@ -31,7 +31,6 @@ API key.
 | **A talking-head news video, every morning, by itself** | It finds a story, writes it, speaks it, animates a presenter, cuts them out and stands them in front of a screenshot of the article. It remembers what it already covered. |
 | **A narrated film from one brief** | Write the idea once. It plans the scenes, renders each one, makes every shot last as long as its voice-over, then joins them with music and subtitles. |
 | **A product photo library from a spreadsheet** | One photo of the product plus a list of colours or finishes in, a full set of images out — same object every time, only the named part changing. |
-| **A training dataset for a character LoRA** | One photo in, 24 shots out, each with its caption file. Ready-made workflow included. |
 | **The same picture, many versions** | Different hair, different language, different pose. You supply the list of variants; the pack runs them and puts every result on one board to compare. |
 
 **You bring the words, the pack brings the machine.** Nothing here tells a model what to
