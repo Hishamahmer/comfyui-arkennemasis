@@ -4,15 +4,24 @@ Control your local ComfyUI instance from external AI clients (Claude Desktop, Co
 
 ---
 
+> [!TIP]
+> ### 💡 The Killer Feature: Unlimited ComfyUI Control via ChatGPT Web
+> Developer tools like Codex CLI and API plans have **separate, restrictive usage limits** that can max out quickly during heavy workflow iteration.
+> In contrast, **ChatGPT Web (`chatgpt.com`)** offers expansive, virtually unlimited interaction on standard Plus, Team, and Pro subscriptions.
+> By connecting Arkennemasis MCP's secure Tailscale Funnel endpoint to **ChatGPT Web**, you can create, control, edit, rewire, and trigger your local ComfyUI workflows directly through normal browser conversations — **without worrying about hitting Codex CLI rate caps or burning developer credits**.
+
+---
+
 ## 1. What Makes Arkennemasis MCP Different?
 
 Standard ComfyUI MCP implementations are usually simple HTTP scripts that perform blind JSON file editing on disk. Arkennemasis MCP is fundamentally different:
 
 | Feature | Standard ComfyUI MCP | Arkennemasis MCP |
 | :--- | :--- | :--- |
+| **Web Interface AI Access** | Requires manual port forwarding or risky public exposure. | **Built-in Tailscale Funnel.** Secure HTTPS bridge enabling **ChatGPT Web (`chatgpt.com`)** access with zero router configuration. |
+| **Usage Limits & Quotas** | Stuck with Codex CLI / API tokens with strict hourly/weekly caps. | **Bypass CLI Caps with ChatGPT Web.** Chat, build, and debug workflows in the web UI using your regular ChatGPT subscription. |
 | **Canvas Editing** | Blind disk edits. You must reload or refresh the page to see changes. | **Live Browser Canvas Bridge.** Directly manipulates nodes and links in your open browser tab in real time with visual feedback and frontend undo. |
 | **Startup Lifecycle** | Requires manual terminal commands every time. | **Tied to ComfyUI BAT.** Starts automatically when you run `run_nvidia_gpu.bat` and stops when the BAT window is closed. |
-| **Web AI Access** | Requires manual port forwarding or risky public exposure. | **Built-in Tailscale Funnel.** Provides a persistent, authenticated external HTTPS URL without exposing raw ComfyUI port 8188. |
 | **Safety & Sandboxing** | Open or arbitrary execution risks. | **Scoped & Opt-In.** Canvas sharing is disabled by default per tab. No arbitrary OS shell access; private tokens and credentials are masked. |
 | **Tools & Diagnostics** | Basic queue-only functionality. | **20+ Engineering Tools.** Source code search/patching, Git inspection/commits, model inventory, log inspection, and graceful session restarts. |
 | **Process Isolation** | Can conflict with ComfyUI Python packages. | **Isolated Runtime.** Runs its own dependencies (`.runtime/`) under system Python, leaving ComfyUI's torch and portable Python pristine. |
@@ -76,14 +85,21 @@ tool_timeout_sec = 60
 
 ### B. Web AI Clients via Tailscale Funnel (ChatGPT Web / Claude Web)
 
+This is the **primary superpower** of Arkennemasis MCP: using the ChatGPT Web interface (`chatgpt.com`) to bypass restrictive Codex CLI usage caps.
+
 1. Ensure the BAT is running and the ComfyUI badge shows **Connection: online**.
 2. Open `mcp_service/.local/connection.txt` to find your complete fixed secret URL:
    ```
    https://hisham.tailb871a6.ts.net/mcp/s/<your-private-token>
    ```
-3. In your web AI client's MCP connector:
-   * **Server URL:** Paste the full URL from `connection.txt`.
-   * **Authentication:** Select **No Auth** (possession of the private URL token authenticates the connection).
+3. In ChatGPT Web / Claude Web:
+   * Add a custom MCP tool connector or Action pointing to your secret Funnel URL.
+   * **Authentication:** Select **No Auth** (the unique cryptographic path token authenticates your session securely).
+4. **Full Web Canvas Control Without Usage Limits:**
+   * **Inspect & Navigate:** Ask ChatGPT Web to examine the current workflow on your open ComfyUI tab.
+   * **Build & Rewire:** Ask ChatGPT Web to add nodes, rewire links, change parameters, and configure settings directly on your live screen.
+   * **Execute & Monitor:** Queue prompts, check render status, and review errors right in the web conversation.
+   * **Zero Limit Anxiety:** Because you are on the web interface with your standard subscription, you don't burn Codex CLI quotas or pay per-token developer API bills.
 
 ---
 

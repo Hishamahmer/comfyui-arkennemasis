@@ -1,12 +1,16 @@
 # arkennemasis — ComfyUI Nodes
 
-**Setup Guides:** [Browse all setup guides](setup_guides/README.md) · **Arkennemasis MCP:** [setup and usage](setup_guides/01_arkennemasis_mcp_guide.md) ·
-[architecture](docs/mcp/architecture.md). An optional gateway for inspecting,
-editing and running local workflows from MCP clients. This installation uses a
-fixed private URL through Tailscale Funnel. The usual ComfyUI BAT starts its
-connection; closing that BAT window stops it. The ComfyUI badge shows connection
-readiness separately from canvas sharing.
-Temporary tunnels and externally configured OAuth are also supported.
+> [!TIP]
+> ### 🚀 The Killer Feature: Unlimited ComfyUI Control via ChatGPT Web
+> **Bypass Codex CLI Rate Limits:** Developer CLI tools like Codex have separate, restrictive usage quotas that max out quickly when iterating on complex workflows.
+> In contrast, **ChatGPT Web (`chatgpt.com`)** offers expansive, virtually unlimited conversational capacity on standard Plus, Team, and Pro subscriptions.
+>
+> Arkennemasis MCP bridges your local ComfyUI instance straight to **ChatGPT Web** via a built-in, secure Tailscale Funnel:
+> * **Create, Control & Edit:** Ask ChatGPT Web to construct entire workflows, wire nodes, tweak parameters, and fix graphs directly on your live canvas.
+> * **Live Browser Sync:** Real-time updates reflect inside your open ComfyUI browser tab with visual feedback and full frontend undo support.
+> * **Zero Usage Anxiety:** Create and iterate freely all day without worrying about hitting Codex CLI caps or burning through API credits!
+>
+> 📖 **Full MCP Guide:** [Arkennemasis MCP Setup & Usage](setup_guides/01_arkennemasis_mcp_guide.md) · [All Setup Guides](setup_guides/README.md)
 
 One pack, one menu (**arkennemasis**), many AI use cases. **76 nodes** today:
 
@@ -28,6 +32,7 @@ API key.
 
 | You want | The pack gives you |
 |---|---|
+| **Live ComfyUI control via ChatGPT Web** | Connect ChatGPT Web to ComfyUI via Arkennemasis MCP. Create, inspect, rewire, and trigger your live canvas directly from chat without hitting Codex CLI rate limits. |
 | **A talking-head news video, every morning, by itself** | It finds a story, writes it, speaks it, animates a presenter, cuts them out and stands them in front of a screenshot of the article. It remembers what it already covered. |
 | **A narrated film from one brief** | Write the idea once. It plans the scenes, renders each one, makes every shot last as long as its voice-over, then joins them with music and subtitles. |
 | **A product photo library from a spreadsheet** | One photo of the product plus a list of colours or finishes in, a full set of images out — same object every time, only the named part changing. |
