@@ -61,18 +61,11 @@ There is no API key field and no OAuth flow in ComfyUI — the node reads the Co
 own login. Drop in **Codex Login Status** to confirm the account and plan before you run
 anything. Full details in [What each path needs](#what-each-path-needs).
 
-## 🎬 Ready-made workflow: character LoRA training dataset
+## 🎬 Ready-made workflows
 
-[`example workflows/`](example%20workflows/) ships a complete
-**Character Dataset (GPT-Image-2) - Codex** workflow: drop in **one photo of a person** and
-it produces a **25-image LoRA training dataset** — 24 generated shots plus the real
-reference tile, each with a matching caption `.txt`, in an auto-numbered folder. Ready to
-feed straight into LoRA training.
-
-All 24 shots are distinct looks — street candid, studio campaign, black-and-white
-editorial, festive ethnic wear, automotive, poolside, snow and more — with 24 different
-outfits, so the model learns the *person* rather than the clothes or the room. No GPU
-needed; every generation is an API call.
+[`example workflows/`](example%20workflows/) ships complete production workflows ready to drag and drop into ComfyUI:
+- **Property Walkthrough AI** — generates a narrated, captioned property walkthrough video from a folder of listing photos.
+- **Story Creation using MiniMax H3** — plans scenes from a brief, renders each shot with MiniMax H3, dubs narration, times subtitles, and joins into a finished film.
 
 ---
 
