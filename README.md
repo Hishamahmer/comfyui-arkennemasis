@@ -8,13 +8,13 @@ connection; closing that BAT window stops it. The ComfyUI badge shows connection
 readiness separately from canvas sharing.
 Temporary tunnels and externally configured OAuth are also supported.
 
-One pack, one menu (**arkennemasis**), many AI use cases. **75 nodes** today:
+One pack, one menu (**arkennemasis**), many AI use cases. **76 nodes** today:
 
 | Category | | |
 |---|---|---|
 | **Variation** | 35 | a client's spreadsheet plus one photo → a verified, consistently-framed product image library |
 | **Utility** | 17 | web capture, masks, compositing, boards, captions, image and text helpers |
-| **Video** | 10 | per-shot generation, dubbing, measured captions, narration-fitted assembly |
+| **Video** | 11 | per-shot generation, dubbing, measured captions, narration-fitted assembly |
 | **Avatar** | 6 | find a story, write it, speak it, and put a presenter in front of it |
 | **Image Gen · LLM · Audio** | 7 | `gpt-image-2`, GPT-5 text + vision, local TTS |
 
@@ -97,6 +97,7 @@ needed; every generation is an API call.
 | arkennemasis/**Audio** | arkennemasis Qwen3-TTS (voice clone) | local Qwen3-TTS. Text in, speech out; give it 5–30 s of someone speaking and it clones that voice. Runs in a subprocess — see below | `AUDIO`, `STRING` |
 | arkennemasis/**Video** | arkennemasis Video Dub (narration over a clip) | swaps a clip's own soundtrack for a narration track, per clip. MiniMax H3 always generates audio and cannot be asked for silence, so the voice has to *replace* it | `VIDEO`, `STRING` |
 | arkennemasis/**Video** | arkennemasis Narration Length (fit the shot to the voice) | measures a rendered narration and returns the shot length that covers it, snapped to H3's frame grid. Wire between the TTS node and the scene node and every shot outlasts its own voice-over | `INT`, `FLOAT`, `STRING` |
+| arkennemasis/**Video** | arkennemasis Narration Fit (stretch or compress speech) | stretches or compresses rendered voice-over via pitch-preserving ffmpeg atempo to land exactly on target_seconds | `AUDIO`, `STRING` |
 | arkennemasis/**Video** | arkennemasis Caption Style (font + subtitle style) | one of five subtitle styles, any installed font, colours, outline, box, size, 3×3 position — and an on/off switch | `ARK_CAPTION_STYLE` |
 | arkennemasis/**Video** | arkennemasis Video Assemble (clips + music + subs) | joins every clip, levels each one's speech, ducks a music bed, burns the captions | `STRING`, `VIDEO` |
 | arkennemasis/**Video** | arkennemasis Load Clips (finished clips from disk) | reads a run's finished clips back as a VIDEO list — join a film whose render was interrupted, without re-rendering | `VIDEO` list |
