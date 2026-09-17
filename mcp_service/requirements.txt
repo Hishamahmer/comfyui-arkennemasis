@@ -1,0 +1,5 @@
+# Installed only into mcp_service/.runtime, never into ComfyUI's Python environment.
+mcp==2.0.0
+httpx>=0.28,<1
+PyJWT[crypto]>=2.10,<3
+uvicorn>=0.30,<1

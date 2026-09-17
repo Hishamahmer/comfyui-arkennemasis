@@ -61,8 +61,20 @@ def _resize(nhwc, height, width):
 
 
 def fit_background(background, canvas_h, canvas_w, mode):
-    """One background frame, resized to the canvas by the chosen rule."""
-    _, src_h, src_w, _ = background.shape
+    """Background frames, resized to the canvas by the chosen rule.
+
+    Takes ONE frame or a whole batch. The batch case matters: a moving background is
+    fitted chunk by chunk, so this is called with up to CHUNK frames at a time and every
+    allocation here has to be sized from the input rather than assumed to be one frame.
+    """
+    frames, src_h, src_w, _ = background.shape
+
+    # Already the right size — the common case when an upstream node emits canvas-sized
+    # frames. Returning early skips an identity interpolate and a full copy per chunk,
+    # which on a minute of 720x1280 is two passes over ~20 GB.
+    if src_h == canvas_h and src_w == canvas_w:
+        return background
+
     if mode == STRETCH:
         return _resize(background, canvas_h, canvas_w)
 
@@ -73,7 +85,7 @@ def fit_background(background, canvas_h, canvas_w, mode):
     new_h, new_w = max(1, round(src_h * scale)), max(1, round(src_w * scale))
     resized = _resize(background, new_h, new_w)
 
-    canvas = torch.zeros((1, canvas_h, canvas_w, 3), dtype=torch.float32)
+    canvas = torch.zeros((frames, canvas_h, canvas_w, 3), dtype=torch.float32)
     if mode == COVER:
         top = max(0, (new_h - canvas_h) // 2)
         left = max(0, (new_w - canvas_w) // 2)

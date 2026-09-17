@@ -59,3 +59,8 @@ variation/prompts_local.py
 
 # Example workflows are kept locally only, not published.
 example workflows/
+
+# Arkennemasis MCP: installation secrets, snapshots, logs and isolated dependencies.
+mcp_service/.local/
+mcp_service/.runtime/
+.pytest_cache/

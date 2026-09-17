@@ -35,6 +35,7 @@ TITLE_SIZE = 34
 CAPTION_SIZE = 15
 GAP = 28
 CAPTION_H = 46
+PAIR_GAP = 14      # between the input and the result inside one paired cell
 TITLE_H = 110
 PAD = 40
 BG = "#ffffff"
@@ -177,11 +178,31 @@ class ArkOptionBoard:
                     "forceInput": True,
                     "tooltip": "Heading printed at the top of the board.",
                 }),
+                # Appended LAST, deliberately: an optional socket added at the end cannot
+                # move an existing one, and every canvas that does not wire it keeps
+                # exactly the layout it had.
+                "results_per_row": ("INT", {
+                    "default": 1, "min": 1, "max": 12,
+                    "tooltip": "How many results share one row against a single input. "
+                               "1 gives input|result pairs. 2+ gives input | option 1 | "
+                               "option 2 - which is the layout that actually shows what "
+                               "a workflow DOES, because its variants sit beside each "
+                               "other against the same input instead of being scattered "
+                               "across the sheet.",
+                }),
+                "before_images": ("IMAGE", {
+                    "tooltip": "Optional. The INPUT of each run, in the same order as "
+                               "`images`. Wire it and every tile becomes a pair - input "
+                               "on the left, result on the right - which is the only "
+                               "layout that lets a reviewer judge drift rather than "
+                               "just judge the picture.",
+                }),
             },
         }
 
     def run(self, images, out_dir="boards", filename="options", columns=0,
-            tile_size=420, write_preview_png=True, labels=None, title=None):
+            tile_size=420, write_preview_png=True, labels=None, title=None,
+            before_images=None, results_per_row=1):
         import numpy as np
         import torch
         from PIL import Image, ImageDraw, ImageFont
@@ -192,6 +213,7 @@ class ArkOptionBoard:
         columns = int(_one(columns, 0) or 0)
         tile_size = int(_one(tile_size, 420) or 420)
         write_preview_png = bool(_one(write_preview_png, True))
+        per_row = max(1, int(_one(results_per_row, 1) or 1))
         heading = _one(title, "") or "Options"
 
         # `images` is every result of the run. Flattened and unbatched in one place, so
@@ -202,6 +224,19 @@ class ArkOptionBoard:
                 "ArkOptionBoard got no images. Wire the batch chain's image node into "
                 "`images` — and check the batch node's `limit` is not 0.")
 
+        # Optional "before" frames. A short list is padded rather than allowed to slide
+        # out of step - a pair board whose left column drifts by one is worse than no pair
+        # board at all, because every judgement it invites is then wrong.
+        befores = _frames(before_images) if before_images is not None else []
+        paired = bool(befores)
+        # `rows` groups the results; each row shows ONE input followed by its results.
+        rows_of = [frames[i:i + per_row] for i in range(0, len(frames), per_row)]
+        if paired and len(befores) < len(rows_of):
+            print("[arkennemasis] option board: %d before-image(s) for %d row(s); "
+                  "the rest are shown without one." % (len(befores), len(rows_of)))
+        while paired and len(befores) < len(rows_of):
+            befores.append(None)
+
         captions = labels if isinstance(labels, list) else ([labels] if labels else [])
         captions = [str(c) for c in captions]
         # A missing caption is numbered rather than blank: on a board of forty tiles,
@@ -209,11 +244,25 @@ class ArkOptionBoard:
         while len(captions) < len(frames):
             captions.append("Option %d" % (len(captions) + 1))
 
+        # With several results per row the caption splits: the part before the em dash is
+        # the workflow (one per row), the part after is the option (one per tile). That is
+        # exactly the shape `compose_run` already emits, so nothing upstream changes.
+        row_caps, tile_tags = [], []
+        for i in range(0, len(captions), per_row):
+            chunk = captions[i:i + per_row]
+            heads = [c.split(" — ")[0] for c in chunk]
+            tails = [c.split(" — ", 1)[1] if " — " in c else c for c in chunk]
+            row_caps.append(heads[0] if len(set(heads)) == 1 else " / ".join(chunk))
+            tile_tags.append(tails if len(set(heads)) == 1 else chunk)
+
         count = len(frames)
         if columns <= 0:
             # Roughly square, but never so wide that a row does not fit on a screen.
             columns = min(6, max(1, int(round(count ** 0.5))))
-        rows = (count + columns - 1) // columns
+        n_cells = len(rows_of)
+        if per_row > 1:
+            columns = max(1, min(columns or 2, n_cells))
+        rows = (n_cells + columns - 1) // columns
 
         # Tiles are uniform so the grid reads as a grid; each image is letterboxed into
         # its tile rather than stretched, because a squashed variant is a variant you
@@ -223,24 +272,44 @@ class ArkOptionBoard:
         tile_h = int(tile_w / widest) if widest >= 1 else tile_size
         tile_w, tile_h = max(48, tile_w), max(48, tile_h)
 
-        cell_w = tile_w + GAP
+        # A cell holds the input (when given) plus this row's results, side by side
+        # under one caption.
+        across = (1 if paired else 0) + per_row
+        pair_w = tile_w * across + PAIR_GAP * (across - 1)
+        cell_w = pair_w + GAP
         cell_h = tile_h + CAPTION_H + GAP
         board_w = PAD * 2 + columns * cell_w - GAP
         board_h = PAD * 2 + TITLE_H + rows * cell_h - GAP
 
         # ── one layout pass, used by both renderers ─────────────────────────
+        def _fit(frame, box_x, box_y):
+            """Letterbox one frame into a tile - never stretched, because a squashed
+            variant is a variant you judge wrongly."""
+            scale = min(tile_w / frame.width, tile_h / frame.height)
+            w, h = max(1, int(frame.width * scale)), max(1, int(frame.height * scale))
+            return {"frame": frame, "w": w, "h": h,
+                    "x": box_x + (tile_w - w) // 2, "y": box_y + (tile_h - h) // 2}
+
         placements = []
-        for index, frame in enumerate(frames):
+        for index, group in enumerate(rows_of):
             column, row = index % columns, index // columns
             x = PAD + column * cell_w
             y = PAD + TITLE_H + row * cell_h
-            scale = min(tile_w / frame.width, tile_h / frame.height)
-            w, h = max(1, int(frame.width * scale)), max(1, int(frame.height * scale))
+            tiles, slot = [], 0
+            if paired:
+                before = befores[index]
+                if before is not None:
+                    tiles.append(dict(_fit(before, x, y), tag="input"))
+                slot = 1
+            tags = tile_tags[index] if per_row > 1 else ["result"] * len(group)
+            for k, frame in enumerate(group):
+                tx = x + (slot + k) * (tile_w + PAIR_GAP)
+                tiles.append(dict(_fit(frame, tx, y),
+                                  tag=tags[k] if k < len(tags) else ""))
             placements.append({
-                "frame": frame, "caption": captions[index],
-                "x": x + (tile_w - w) // 2, "y": y + (tile_h - h) // 2,
-                "w": w, "h": h,
-                "cap_x": x, "cap_y": y + tile_h + 10, "cap_w": tile_w,
+                "tiles": tiles,
+                "caption": row_caps[index] if per_row > 1 else captions[index],
+                "cap_x": x, "cap_y": y + tile_h + 10, "cap_w": pair_w,
             })
 
         destination = _output_dir(out_dir)
@@ -257,10 +326,16 @@ class ArkOptionBoard:
         board = Board(source="arkennemasis/option-board")
         board.text(PAD, PAD, heading, size=TITLE_SIZE, bold=True, width=board_w - PAD * 2)
         board.text(PAD, PAD + TITLE_SIZE * 1.5,
-                   "%d option%s" % (count, "" if count == 1 else "s"),
-                   size=CAPTION_SIZE + 2, colour=MUTED, width=400)
+                   "%d option%s%s" % (count, "" if count == 1 else "s",
+                                       ("  -  input first, then its options"
+                                        if paired else "")),
+                   size=CAPTION_SIZE + 2, colour=MUTED, width=600)
         for place in placements:
-            board.image(place["x"], place["y"], place["w"], place["h"], place["frame"])
+            for tile in place["tiles"]:
+                board.image(tile["x"], tile["y"], tile["w"], tile["h"], tile["frame"])
+                if tile["tag"]:
+                    board.text(tile["x"], tile["y"] - CAPTION_SIZE - 4, tile["tag"],
+                               size=CAPTION_SIZE - 2, colour=MUTED, width=tile["w"])
             board.text(place["cap_x"], place["cap_y"], place["caption"],
                        size=CAPTION_SIZE, colour=INK, width=place["cap_w"])
         excalidraw_path = os.path.join(destination, "%s.excalidraw" % stem)
@@ -273,11 +348,18 @@ class ArkOptionBoard:
         caption_font = _font(CAPTION_SIZE + 2)
         draw.text((PAD, PAD), heading, font=title_font, fill=(30, 30, 30))
         draw.text((PAD, PAD + int(TITLE_SIZE * 1.5)),
-                  "%d option%s" % (count, "" if count == 1 else "s"),
+                  "%d option%s%s" % (count, "" if count == 1 else "s",
+                                      ("  -  input first, then its options"
+                                       if paired else "")),
                   font=caption_font, fill=(134, 142, 150))
         for place in placements:
-            sheet.paste(place["frame"].resize((place["w"], place["h"]), Image.LANCZOS),
-                        (place["x"], place["y"]))
+            for tile in place["tiles"]:
+                sheet.paste(tile["frame"].resize((tile["w"], tile["h"]), Image.LANCZOS),
+                            (tile["x"], tile["y"]))
+                if tile["tag"]:
+                    draw.text((tile["x"], max(0, tile["y"] - CAPTION_SIZE - 4)),
+                              tile["tag"], font=_font(CAPTION_SIZE - 2),
+                              fill=(134, 142, 150))
             draw.text((place["cap_x"], place["cap_y"]),
                       _ellipsise(draw, place["caption"], caption_font, place["cap_w"]),
                       font=caption_font, fill=(30, 30, 30))
@@ -294,7 +376,9 @@ class ArkOptionBoard:
         report = "\n".join([
             "board       : %s" % excalidraw_path,
             "preview     : %s" % (png_path or "(not written)"),
-            "options     : %d in a %dx%d grid" % (count, columns, rows),
+            "options     : %d in %d row(s), %dx%d grid, %d per row%s"
+            % (count, len(rows_of), columns, rows, per_row,
+               " (input first)" if paired else ""),
             "size        : %.1f MB" % (size / 1048576.0),
         ])
         print("[arkennemasis] option board: %d option(s), %dx%d, %.1f MB -> %s"

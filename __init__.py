@@ -332,4 +332,13 @@ except Exception as _exc:  # pragma: no cover - cosmetic only
 # Front-end assets (the running/"cooking" activity badge).
 WEB_DIRECTORY = "./web"
 
+# The canvas bridge uses ComfyUI's existing local routes. The optional MCP gateway
+# runs separately and is started explicitly; its SDK is never imported here.
+try:
+    from .mcp_service.comfy_bridge import register_routes as _register_mcp_bridge
+
+    _mcp_canvas_bridge = _register_mcp_bridge()
+except Exception as _exc:  # An optional bridge must not prevent existing nodes loading.
+    print("[arkennemasis] MCP canvas bridge unavailable: %s" % _exc)
+
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]

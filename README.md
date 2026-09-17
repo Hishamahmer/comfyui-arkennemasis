@@ -1,5 +1,13 @@
 # arkennemasis — ComfyUI Nodes
 
+**Arkennemasis MCP:** [setup and usage](docs/mcp/README.md) ·
+[architecture](docs/mcp/architecture.md). An optional gateway for inspecting,
+editing and running local workflows from MCP clients. This installation uses a
+fixed private URL through Tailscale Funnel. The usual ComfyUI BAT starts its
+connection; closing that BAT window stops it. The ComfyUI badge shows connection
+readiness separately from canvas sharing.
+Temporary tunnels and externally configured OAuth are also supported.
+
 One pack, one menu (**arkennemasis**), many AI use cases. **75 nodes** today:
 
 | Category | | |
