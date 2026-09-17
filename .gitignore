@@ -26,15 +26,11 @@ web/hairstyle.js
 thumbnail/
 web/thumbnail.js
 
-# local-only workflows — kept on disk, deliberately not published.
-# Only these ship: Character Dataset (GPT-Image-2) - Codex,
-# HyperConsistent StoryMaker - OpenAI, HyperConsistent StoryMaker - Flux 2.
-example workflows/nemasis-bean.json
-example workflows/nemasis-cartoon.json
-example workflows/nemasis-hyperconsistent.json
-example workflows/nemasis-maldives.json
-example workflows/nemasis-pitch.json
-example workflows/nemasis-space.json
+# Example workflows kept local by default, only publish the two selected workflows and README:
+example workflows/*.json
+!example workflows/Property Walkthrough AI.json
+!example workflows/story creation workflow using minimaxh3.json
+!example workflows/README.md
 
 # Third-party code and a private dependency tree, both vendored on purpose:
 #   vendor/qwen_tts  - the upstream Qwen3-TTS package, so a shared workflow does not need
