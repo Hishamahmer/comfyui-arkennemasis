@@ -18,6 +18,10 @@ API-format graphs, so they open by drag-and-drop onto the canvas.
 | Workflow | Nodes it demonstrates | Notes |
 |---|---|---|
 | **Character Dataset (GPT-Image-2) - Codex** | Codex Image Gen · Image Gen Settings · Shot Selector · Run Folder · Text File Save | Builds a 25-image character LoRA training dataset from a single photo: 24 generated shots + the real reference tile, each with a caption `.txt`. Generated through your **ChatGPT/Codex login** — no API key. |
+| **Property Walkthrough AI** | Scene List · Video Assemble · Qwen3-TTS · Caption Style · Load Clips | Generates a narrated, captioned property walkthrough film from a folder of listing photos. |
+| **Story Creation Workflow using MiniMax H3** | Story Brief · Hailuo Scene · Scene List · Video Assemble · Caption Style · Qwen3-TTS | Plans scenes from a brief, renders each shot with MiniMax H3, dubs narration, times subtitles, and joins into a finished video. |
+| **HyperConsistent StoryMaker - Flux 2** | Image Gen Settings · Replicate Image Gen | Hyper-consistent multi-character scene generation using Flux 2. |
+| **HyperConsistent StoryMaker - OpenAI** | Codex Image Gen · Image Gen Settings | Hyper-consistent multi-character scene generation using OpenAI GPT-Image-2. |
 
 ### Requirements — this workflow will not run without these
 
