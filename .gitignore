@@ -57,8 +57,9 @@ web/ecom.js
 # this file; it only seeds the defaults on the authoring machine.
 variation/prompts_local.py
 
-# Example workflows are kept locally only, not published.
-example workflows/
+# Example workflows are kept locally only, not published (README is published).
+example workflows/*.json
+!example workflows/README.md
 
 # Arkennemasis MCP: installation secrets, snapshots, logs and isolated dependencies.
 mcp_service/.local/
