@@ -17,7 +17,9 @@ class BackendLauncherTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="ark-launcher-test-")
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        # Resolved: a Windows CI runner's temp folder is an 8.3 short path (RUNNER~1), while the
+        # code under test compares long, resolved paths.
+        self.root = Path(self.temp.name).resolve()
         self.service = self.root / "ComfyUI" / "custom_nodes" / "test-pack" / "mcp_service"
         self.state = self.service / ".local"
         self.state.mkdir(parents=True)
