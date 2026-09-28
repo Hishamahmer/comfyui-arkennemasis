@@ -1,0 +1,9 @@
+{
+  "name": "ark-hyperframes-runtime",
+  "private": true,
+  "description": "The HyperFrames CLI and GSAP, pinned, for the arkennemasis HyperFrames nodes. Installed on first use with `npm ci`.",
+  "dependencies": {
+    "gsap": "3.14.2",
+    "hyperframes": "0.8.74"
+  }
+}

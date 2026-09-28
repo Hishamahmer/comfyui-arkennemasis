@@ -25,6 +25,10 @@ Two settings are load-bearing, both learned the hard way on this machine:
 A previous one-off measured this at **95.2%** — 300 of 315 sampled moments highlighting
 the word actually being spoken. The estimate is nowhere near that.
 
+**Measured once per clip.** The result is kept on disk under the audio itself (samples, rate,
+model, language), so pressing Run again on the same voice-over reads it back instead of
+loading Whisper and paying for the same answer twice.
+
 **It transcribes rather than force-aligns**, and for this pipeline that is the right way
 round: the narration is a text-to-speech reading of a script we wrote, so the words come
 back the same, and on the rare occasion the voice says something slightly different the
@@ -33,13 +37,25 @@ captions then match what was SAID rather than what was planned.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 
 # Cached on this machine already. `large-v3` is the accurate one; the tiny/turbo variants
 # trade exactly the thing this node exists to provide.
 MODELS = ["openai/whisper-large-v3", "openai/whisper-medium", "openai/whisper-small"]
 LANGUAGES = ["auto", "english", "hindi", "spanish", "french", "german", "portuguese",
              "italian", "japanese", "korean", "chinese", "arabic"]
+
+
+def _cache_path(narration, model, language):
+    import folder_paths
+    waveform = narration["waveform"].detach().cpu().contiguous().numpy()
+    key = hashlib.sha1(b"|".join([waveform.tobytes(), str(narration["sample_rate"]).encode(),
+                                  model.encode(), language.encode()])).hexdigest()[:20]
+    folder = os.path.join(folder_paths.get_output_directory(), "_cache", "word_timings")
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, key + ".json")
 
 
 def _to_mono_16k(audio):
@@ -62,7 +78,14 @@ def _to_mono_16k(audio):
 def transcribe_words(audio, model_id, language="auto", device=None):
     """[{word, start, end}, ...] for one clip. Raises with a readable reason."""
     import torch
+    import transformers.pipelines.automatic_speech_recognition as asr_module
     from transformers import pipeline
+
+    # The pipeline imports torchcodec whenever it is installed, only to ask whether the
+    # input is one of its decoders. Ours is raw samples. On a machine where Windows Smart
+    # App Control blocks torchcodec's unsigned DLLs (0xc0e90002) that import alone killed
+    # the transcription, so the question is answered here instead.
+    asr_module.is_torchcodec_available = lambda: False
 
     samples, rate = _to_mono_16k(audio)
     if device is None:
@@ -148,6 +171,14 @@ class ArkWordTimings:
             print("[arkennemasis] word timings: disabled — captions will use the estimate.")
             return ("", "", 0, "disabled")
 
+        cached = _cache_path(narration, model, language)
+        if os.path.isfile(cached):
+            with open(cached, encoding="utf-8") as fh:
+                saved = json.load(fh)
+            print("[arkennemasis] word timings: re-used %d words measured before (%s)"
+                  % (len(saved["words"]), os.path.basename(cached)))
+            return (json.dumps(saved["words"], ensure_ascii=False), saved["transcript"],
+                    len(saved["words"]), "re-used " + saved["report"])
         try:
             words, transcript = transcribe_words(narration, model, language)
         except Exception as exc:
@@ -167,6 +198,8 @@ class ArkWordTimings:
                   % (len(words), span, model.split("/")[-1],
                      words[0]["start"], words[-1]["end"]))
         print("[arkennemasis] word timings: %s" % report)
+        with open(cached, "w", encoding="utf-8") as fh:
+            json.dump({"words": words, "transcript": transcript, "report": report}, fh, ensure_ascii=False)
         return (json.dumps(words, ensure_ascii=False), transcript, len(words), report)
 
 

@@ -58,3 +58,19 @@ variation/prompts_local.py
 mcp_service/.local/
 mcp_service/.runtime/
 .pytest_cache/
+
+# HyperFrames runtime: package.json and package-lock.json are committed (they pin the CLI);
+# the installed files are not - ArkHyperFramesRender runs `npm ci` on first use.
+hyperframes/runtime/node_modules/
+hyperframes/runtime/install.log
+
+# The HyperFrames source repo (github.com/heygen-com/hyperframes, Apache-2.0), fetched
+# locally for reference and never published with this pack.
+hyperframes/repo/
+
+# PRIVATE - packages that live in the private pack or only on this machine. The pack loader
+# tolerates their absence; never publish them from here.
+adfactory/
+gamecontent3d/
+gamecode3d/
+web/gamecode3d.js

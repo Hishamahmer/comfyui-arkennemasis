@@ -245,6 +245,27 @@ def _video_assemble():
 
 
 
+def _local_llm():
+    from .common.local_llm import (
+        NODE_CLASS_MAPPINGS as c, NODE_DISPLAY_NAME_MAPPINGS as d,
+    )
+    return c, d
+
+
+def _alpha_video():
+    from .common.alpha_video import (
+        NODE_CLASS_MAPPINGS as c, NODE_DISPLAY_NAME_MAPPINGS as d,
+    )
+    return c, d
+
+
+def _hyperframes():
+    from .hyperframes import (
+        NODE_CLASS_MAPPINGS as c, NODE_DISPLAY_NAME_MAPPINGS as d,
+    )
+    return c, d
+
+
 def _variation():
     from .variation import (
         NODE_CLASS_MAPPINGS as c, NODE_DISPLAY_NAME_MAPPINGS as d,
@@ -303,6 +324,9 @@ _load("overlay subject", _overlay_subject)
 _load("subject line", _subject_line)
 _load("text file save", _text_file_save)
 _load("avatar", _avatar)
+_load("local llm", _local_llm)
+_load("alpha video", _alpha_video)
+_load("hyperframes", _hyperframes)
 _load("variation pipeline", _variation)
 # The private packages - real estate, hairstyle, thumbnail and ecom poses - are no longer
 # here. They live in the separate
