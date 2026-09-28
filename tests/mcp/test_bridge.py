@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import uuid
 
 
-SPEC = importlib.util.spec_from_file_location("ark_test_comfy_bridge", Path(__file__).resolve().parents[2] / "mcp_service" / "comfy_bridge.py")
+SPEC = importlib.util.spec_from_file_location("mcp_service._test_comfy_bridge", Path(__file__).resolve().parents[2] / "mcp_service" / "comfy_bridge.py")
 bridge_module = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(bridge_module)
 
@@ -34,6 +34,9 @@ def result(response):
 
 class CanvasBridgeTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
+        self.supervised = patch.object(bridge_module.sys, "_arkennemasis_supervised", True, create=True)
+        self.supervised.start()
+        self.addCleanup(self.supervised.stop)
         self.server = SimpleNamespace(sockets={"tab-one": object(), "tab-two": object()}, send=AsyncMock(),
                                       prompt_queue=SimpleNamespace(get_current_queue_volatile=Mock(return_value=([], []))))
         self.validator = AsyncMock(return_value=(True, None, ["2"], {}))
@@ -267,9 +270,11 @@ class CanvasBridgeTests(unittest.IsolatedAsyncioTestCase):
         session = await self.register()
         self.bridge.timeout = 0.01
         await self.bridge.canvas(request({"session_id": session["session_id"], "command": "read", "request_id": "expired-read"}))
-        heartbeat = await self.bridge.heartbeat(request(session, browser=True))
-        self.assertEqual(result(heartbeat)["commands"], [])
         record = self.bridge.requests[(session["session_id"], "expired-read")]
+        # Windows event-loop timers can wake before the wall-clock deadline.
+        with patch.object(bridge_module.time, "time", return_value=record["event"]["expires_at"] + 1):
+            heartbeat = await self.bridge.heartbeat(request(session, browser=True))
+        self.assertEqual(result(heartbeat)["commands"], [])
         record["expires"] = 0
         self.bridge.prune()
         self.assertTrue(record["future"].done())
@@ -312,41 +317,39 @@ class CanvasBridgeTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(self.bridge.restart_task)
             self.assertFalse((Path(directory) / "backend-restarts.json").exists())
 
-    async def test_restart_deduplicates_across_bridge_instances_and_keeps_trusted_python_args(self):
+    async def test_restart_deduplicates_across_bridge_instances_and_exits_only_to_supervisor(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(bridge_module, "CONFIG_PATH", Path(directory) / "config.json"), \
-                patch.object(bridge_module.asyncio, "sleep", new=AsyncMock()), patch.object(bridge_module.os, "execv") as replace, \
-                patch.object(bridge_module.sys, "_arkennemasis_base_comfy_args", ["--fast", "fp16_accumulation"], create=True):
+                patch.object(bridge_module.asyncio, "sleep", new=AsyncMock()), patch.object(bridge_module.os, "_exit") as stop:
             body = {"request_id": str(uuid.uuid4())}
             response = await self.bridge.restart(request(body))
             self.assertEqual(response.status, 202)
             self.assertEqual(result(response)["state"], "scheduled")
-            self.assertFalse(replace.called, "The HTTP acknowledgment must be prepared before replacing the process")
+            self.assertFalse(stop.called, "The HTTP acknowledgment must be prepared before stopping the worker")
             await self.bridge.restart_task
-            self.assertEqual(replace.call_count, 1)
-            executable, argv = replace.call_args.args
-            self.assertEqual(executable, bridge_module.sys.executable)
-            self.assertEqual(argv[1], "-s")
-            self.assertIn("launch_backend.py", argv[2])
-            self.assertEqual(argv[3:], ["--fast", "fp16_accumulation"])
+            stop.assert_called_once_with(75)
             restarted_bridge = bridge_module.CanvasBridge(self.server, self.validator, lambda: "test-private-token")
             repeated = await restarted_bridge.restart(request(body))
             self.assertEqual(result(repeated)["request_id"], body["request_id"])
             self.assertIsNone(restarted_bridge.restart_task)
-            self.assertEqual(replace.call_count, 1)
+            self.assertEqual(stop.call_count, 1)
 
-    async def test_restart_rechecks_queue_and_records_exec_failure(self):
-        for mode in ("queue_changed", "exec_failed"):
-            with tempfile.TemporaryDirectory() as directory, patch.object(bridge_module, "CONFIG_PATH", Path(directory) / "config.json"), \
-                    patch.object(bridge_module.asyncio, "sleep", new=AsyncMock()), patch.object(bridge_module.os, "execv", side_effect=OSError("private-path")) as replace:
-                self.server.prompt_queue.get_current_queue_volatile.return_value = ([], [])
-                await self.bridge.restart(request({"request_id": str(uuid.uuid4())}))
-                if mode == "queue_changed":
-                    self.server.prompt_queue.get_current_queue_volatile.return_value = (["new-job"], [])
-                await self.bridge.restart_task
-                outcome = result(await self.bridge.runtime(request()))["last_restart"]
-                self.assertEqual(outcome["state"], "cancelled" if mode == "queue_changed" else "failed")
-                self.assertEqual(replace.call_count, 0 if mode == "queue_changed" else 1)
-                self.assertNotIn("private-path", json.dumps(outcome))
+    async def test_restart_rechecks_queue_before_exiting(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(bridge_module, "CONFIG_PATH", Path(directory) / "config.json"), \
+                patch.object(bridge_module.asyncio, "sleep", new=AsyncMock()), patch.object(bridge_module.os, "_exit") as stop:
+            await self.bridge.restart(request({"request_id": str(uuid.uuid4())}))
+            self.server.prompt_queue.get_current_queue_volatile.return_value = (["new-job"], [])
+            await self.bridge.restart_task
+            outcome = result(await self.bridge.runtime(request()))["last_restart"]
+            self.assertEqual(outcome["state"], "cancelled")
+            stop.assert_not_called()
+
+    async def test_unsupervised_legacy_backend_cannot_orphan_a_restart(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(bridge_module, "CONFIG_PATH", Path(directory) / "config.json"), \
+                patch.object(bridge_module.sys, "_arkennemasis_supervised", False), patch.object(bridge_module.os, "_exit") as stop:
+            response = await self.bridge.restart(request({"request_id": str(uuid.uuid4())}))
+            self.assertEqual(result(response)["error"]["code"], "unsupported_launcher")
+            self.assertIsNone(self.bridge.restart_task)
+            stop.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ COMFY_DIR = PACK_DIR.parent.parent
 DEFAULT_CONFIG = SERVICE_DIR / ".local" / "config.json"
 DEFAULT_SCOPES = ("comfy:read", "comfy:write", "comfy:run", "comfy:media")
 SCOPES = (*DEFAULT_SCOPES, "comfy:develop", "comfy:maintain")
+OAUTH_ALGORITHMS = frozenset({"RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512", "EdDSA"})
 
 
 def local_url(value):
@@ -25,10 +26,16 @@ def local_url(value):
 
 
 def https_url(value):
-    parsed = urlsplit(value)
-    return (parsed.scheme == "https" and bool(parsed.hostname)
-            and not parsed.username and not parsed.password and not parsed.query
-            and not parsed.fragment)
+    if not isinstance(value, str) or not value or len(value) > 2048 or any(c.isspace() or ord(c) < 32 for c in value):
+        return False
+    try:
+        parsed = urlsplit(value)
+        parsed.port
+        return (parsed.scheme == "https" and bool(parsed.hostname)
+                and parsed.username is None and parsed.password is None and not parsed.query
+                and not parsed.fragment and "\\" not in value)
+    except ValueError:
+        return False
 
 
 @dataclass
@@ -109,8 +116,15 @@ class Settings:
                     raise ValueError("public_url must be an HTTPS origin; the MCP path is /mcp.")
                 if self.audience != self.endpoint:
                     raise ValueError("audience must equal the public MCP URL, including /mcp.")
-                if not self.allowed_subjects or any(not isinstance(s, str) or not s for s in self.allowed_subjects):
+                if (not isinstance(self.allowed_subjects, list) or not 1 <= len(self.allowed_subjects) <= 100
+                        or any(not isinstance(s, str) or not s.strip() or len(s) > 512
+                               or any(ord(c) < 32 or ord(c) == 127 for c in s) for s in self.allowed_subjects)):
                     raise ValueError("Set allowed_subjects to your OAuth user ID before enabling web access.")
+                if (not isinstance(self.allowed_algorithms, list) or not self.allowed_algorithms
+                        or any(not isinstance(algorithm, str) or algorithm not in OAUTH_ALGORITHMS for algorithm in self.allowed_algorithms)):
+                    raise ValueError("OAuth requires explicitly allowed asymmetric signing algorithms.")
+                if not isinstance(self.scope_claim, str) or not re.fullmatch(r"[A-Za-z0-9_:/.-]{1,200}", self.scope_claim):
+                    raise ValueError("scope_claim must be a single JWT claim name, such as scope or scp.")
         return self
 
     @property

@@ -4,9 +4,10 @@ from pathlib import Path
 from typing import Literal
 
 from .development import NodeWorkspace
+from .node_tests import NodeTests
 
 
-def register_development_tools(tool, settings):
+def register_development_tools(tool, settings, operations):
     def workspace():
         return NodeWorkspace(Path(settings.comfy_root) / "custom_nodes", settings.state_dir, settings.allowed_node_packs)
 
@@ -55,3 +56,11 @@ def register_development_tools(tool, settings):
     def create_node_pack(pack: str, class_name: str, display_name: str = "") -> dict:
         """Create a minimal node package in an absent owner-enabled folder. Existing packs are never overwritten; edit its source next and verify registration after restart."""
         return workspace().scaffold(pack, class_name, display_name)
+
+    @tool("comfy:develop", write=True)
+    def run_node_tests(pack: str, test_file: str, request_id: str) -> dict:
+        """Run one selected test_<name>.py unittest file in an enabled node pack using ComfyUI's actual Python. Executes trusted node code with ComfyUI's OS permissions; limited runtime and output. Poll get_operation; reuse UUID on retry."""
+        if not settings.comfy_python:
+            raise ValueError("Open local MCP setup to confirm ComfyUI's Python environment first.")
+        return operations.submit("node_tests", "comfy:develop", request_id, {"pack": pack, "test_file": test_file},
+                                 lambda: NodeTests(workspace(), settings.comfy_python, settings.state_dir).run(pack, test_file))

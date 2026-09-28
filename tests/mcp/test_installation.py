@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -104,25 +105,91 @@ class InstallationTests(unittest.TestCase):
         self.assertEqual(list((self.service / ".runtime").iterdir()), [])
         self.assertEqual((self.config.parent / "launcher.json").read_bytes(), launcher)
 
+    def hooked_launcher(self, flags):
+        service = r"ComfyUI\custom_nodes\comfyui-arkennemasis\mcp_service"
+        return (f'@echo off\r\ncd /d "%~dp0"\r\nif exist "{service}\\companion.py" .\\python_embeded\\python.exe -s "{service}\\companion.py" start\r\n'
+                f'.\\python_embeded\\python.exe -s "{service}\\launch_backend.py" {flags}\r\npause\r\n').encode()
+
     @unittest.skipUnless(os.name == "nt", "Portable BAT integration is Windows-specific")
-    def test_launchers_upgrade_hook_and_main_idempotently_with_original_backup(self):
+    def test_only_fast_fp16_gets_mcp_launcher_and_originals_are_unchanged(self):
         self.save()
-        path = self.root / "run_nvidia_gpu.bat"
-        original = b'.\\python_embeded\\python.exe -s ComfyUI\\main.py --windows-standalone-build\r\npause\r\n'
+        path = self.root / "run_nvidia_gpu_fast_fp16_accumulation.bat"
+        original = b'.\\python_embeded\\python.exe -s ComfyUI\\main.py --windows-standalone-build --preview-method auto\r\npause\r\n'
         path.write_bytes(original)
+        ordinary = {self.root / "run_cpu.bat": b"echo my own CPU launcher\r\n",
+                    self.root / "run_nvidia_gpu.bat": b'.\\python_embeded\\python.exe -s ComfyUI\\main.py --windows-standalone-build\npause'}
+        for other, content in ordinary.items():
+            other.write_bytes(content)
         result = self.installation.install_launchers()
-        self.assertEqual(result["changed"], [path.name])
-        updated = path.read_bytes()
-        self.assertIn(b"launch_backend.py", updated)
-        self.assertIn(b"companion.py", updated)
-        self.assertIn(b"--windows-standalone-build", updated)
-        self.assertEqual((self.config.parent / "launcher-backups" / path.name).read_bytes(), original)
+        mcp = self.root / "run_nvidia_gpu_fast_fp16_accumulation_with_mcp.bat"
+        self.assertEqual(result["changed"], [mcp.name])
+        self.assertEqual(path.read_bytes(), original)
+        for other, content in ordinary.items():
+            self.assertEqual(other.read_bytes(), content)
+            self.assertFalse(other.with_name(other.stem + "_with_mcp.bat").exists())
+        connected = mcp.read_bytes()
+        self.assertIn(b"launch_backend.py", connected)
+        self.assertIn(b"companion.py", connected)
+        self.assertIn(b"--windows-standalone-build --preview-method auto", connected)
+        self.assertIn(b'cd /d "%~dp0"', connected)
+        self.assertFalse((self.config.parent / "launcher-backups" / path.name).exists())
         self.assertEqual(self.installation.install_launchers()["changed"], [])
-        self.assertEqual(path.read_bytes(), updated)
-        # Existing deployments already have the companion hook but still need the backend wrapper.
-        path.write_bytes(updated.replace(b'"ComfyUI\\custom_nodes\\comfyui-arkennemasis\\mcp_service\\launch_backend.py"', b"ComfyUI\\main.py"))
-        self.assertEqual(self.installation.install_launchers()["changed"], [path.name])
-        self.assertEqual((self.config.parent / "launcher-backups" / path.name).read_bytes(), original)
+        self.assertEqual(mcp.read_bytes(), connected)
+
+    @unittest.skipUnless(os.name == "nt", "Portable BAT integration is Windows-specific")
+    def test_migration_removes_previous_auto_start_from_all_standard_launchers(self):
+        self.save()
+        originals = {}
+        for name, flags in (("run_cpu", "--cpu --windows-standalone-build"),
+                            ("run_nvidia_gpu", "--windows-standalone-build"),
+                            ("run_nvidia_gpu_fast_fp16_accumulation", "--windows-standalone-build --fast fp16_accumulation")):
+            originals[name] = self.hooked_launcher(flags)
+            (self.root / (name + ".bat")).write_bytes(originals[name])
+        self.assertEqual(len(self.installation.install_launchers()["changed"]), 4)
+        for name, flag in (("run_cpu", "--cpu"), ("run_nvidia_gpu", "--windows-standalone-build"),
+                           ("run_nvidia_gpu_fast_fp16_accumulation", "--fast fp16_accumulation")):
+            normal = (self.root / (name + ".bat")).read_text()
+            companion = self.root / (name + "_with_mcp.bat")
+            self.assertNotIn("mcp_service", normal)
+            self.assertIn(flag, normal)
+            self.assertEqual((self.config.parent / "launcher-backups" / (name + ".bat")).read_bytes(), originals[name])
+            if name == "run_nvidia_gpu_fast_fp16_accumulation":
+                connected = companion.read_text()
+                self.assertIn(flag, connected)
+                self.assertEqual(connected.count("companion.py"), 2)
+            else:
+                self.assertFalse(companion.exists())
+        self.assertEqual(self.installation.install_launchers()["changed"], [])
+
+    @unittest.skipUnless(os.name == "nt", "Portable BAT integration is Windows-specific")
+    def test_existing_custom_sidecar_is_not_overwritten_and_migration_is_preflighted(self):
+        self.save()
+        hooked = self.hooked_launcher("--cpu --windows-standalone-build")
+        original = b'.\\python_embeded\\python.exe -s ComfyUI\\main.py --windows-standalone-build\r\npause\r\n'
+        cpu = self.root / "run_cpu.bat"
+        gpu = self.root / "run_nvidia_gpu_fast_fp16_accumulation.bat"
+        cpu.write_bytes(hooked)
+        gpu.write_bytes(original)
+        custom = self.root / "run_nvidia_gpu_fast_fp16_accumulation_with_mcp.bat"
+        custom.write_bytes(b"echo my own launcher\r\n")
+        with self.assertRaisesRegex(ValueError, "not overwritten"):
+            self.installation.install_launchers()
+        self.assertEqual(cpu.read_bytes(), hooked)
+        self.assertEqual(gpu.read_bytes(), original)
+        self.assertEqual(custom.read_bytes(), b"echo my own launcher\r\n")
+
+    @unittest.skipUnless(os.name == "nt", "Portable BAT integration is Windows-specific")
+    def test_custom_hook_and_multiple_backend_commands_are_not_migrated(self):
+        self.save()
+        path = self.root / "run_nvidia_gpu_fast_fp16_accumulation.bat"
+        normal = '.\\python_embeded\\python.exe -s ComfyUI\\main.py --windows-standalone-build\n'
+        for text in (normal + normal, "python custom/companion.py start\n" + normal,
+                     normal.rstrip() + " & echo custom\n"):
+            path.write_text(text)
+            with self.assertRaises(ValueError):
+                self.installation.install_launchers()
+            self.assertEqual(path.read_text(), text)
+            self.assertFalse((self.root / "run_nvidia_gpu_fast_fp16_accumulation_with_mcp.bat").exists())
 
     def plan(self, **overrides):
         self.save()
@@ -152,6 +219,63 @@ class InstallationTests(unittest.TestCase):
                 self.installation.approve_package(plan["plan_id"])
         with self.assertRaises(ValueError):
             self.installation.approve_package("../outside")
+
+    @unittest.skipUnless(os.name == "nt", "Automatic BAT ownership is Windows-specific")
+    def test_start_follows_verified_supervisor_to_original_bat_owner(self):
+        self.save()
+        runner = self.service / "launch_backend.py"
+        supervisor = {"Name": "python.exe", "CommandLine": f'python.exe -s "{runner}" --cpu', "ParentProcessId": 300}
+        bat = {"Name": "cmd.exe", "CommandLine": f'cmd.exe /c ""{self.root / "run_nvidia_gpu_fast_fp16_accumulation_with_mcp.bat"}""', "ParentProcessId": 100}
+        replies = [subprocess.CompletedProcess([], 0, json.dumps(item), "") for item in (supervisor, bat)]
+        with patch("mcp_service.installation.os.getppid", return_value=200), \
+                patch.object(sys, "_arkennemasis_supervised", True, create=True), \
+                patch.object(sys, "_arkennemasis_supervisor_pid", 200, create=True), \
+                patch("mcp_service.installation.run", side_effect=replies) as inspect, \
+                patch("mcp_service.installation.subprocess.Popen") as spawn:
+            self.assertTrue(self.installation.start()["started"])
+            self.assertEqual(inspect.call_count, 2)
+            self.assertEqual(spawn.call_args.args[0][-2:], ["--owner-pid", "300"])
+
+    @unittest.skipUnless(os.name == "nt", "Automatic BAT ownership is Windows-specific")
+    def test_start_accepts_an_exact_unquoted_with_mcp_path_without_spaces(self):
+        self.save()
+        path = self.root / "run_nvidia_gpu_fast_fp16_accumulation_with_mcp.bat"
+        if " " in str(path):
+            self.skipTest("Temporary directory contains spaces and requires quoting.")
+        for command, accepted in ((f"cmd.exe /d /c {path}", True), (f"cmd.exe /d /c {path}.other", False)):
+            bat = {"Name": "cmd.exe", "CommandLine": command, "ParentProcessId": 100}
+            with patch("mcp_service.installation.run", return_value=subprocess.CompletedProcess([], 0, json.dumps(bat), "")), \
+                    patch("mcp_service.installation.subprocess.Popen") as spawn:
+                if accepted:
+                    self.assertTrue(self.installation.start()["started"])
+                    spawn.assert_called_once()
+                else:
+                    with self.assertRaises(ValueError):
+                        self.installation.start()
+                    spawn.assert_not_called()
+
+    @unittest.skipUnless(os.name == "nt", "Automatic BAT ownership is Windows-specific")
+    def test_start_does_not_accept_an_unrelated_python_ancestor(self):
+        self.save()
+        unrelated = {"Name": "python.exe", "CommandLine": "python.exe other.py", "ParentProcessId": 300}
+        with patch("mcp_service.installation.os.getppid", return_value=200), \
+                patch.object(sys, "_arkennemasis_supervised", True, create=True), \
+                patch.object(sys, "_arkennemasis_supervisor_pid", 200, create=True), \
+                patch("mcp_service.installation.run", return_value=subprocess.CompletedProcess([], 0, json.dumps(unrelated), "")), \
+                patch("mcp_service.installation.subprocess.Popen") as spawn:
+            with self.assertRaisesRegex(ValueError, "_with_mcp.bat"):
+                self.installation.start()
+            spawn.assert_not_called()
+
+    @unittest.skipUnless(os.name == "nt", "Automatic BAT ownership is Windows-specific")
+    def test_normal_launcher_cannot_start_the_companion_from_setup(self):
+        self.save()
+        bat = {"Name": "cmd.exe", "CommandLine": f'cmd.exe /c ""{self.root / "run_nvidia_gpu.bat"}""', "ParentProcessId": 100}
+        with patch("mcp_service.installation.run", return_value=subprocess.CompletedProcess([], 0, json.dumps(bat), "")), \
+                patch("mcp_service.installation.subprocess.Popen") as spawn:
+            with self.assertRaisesRegex(ValueError, "_with_mcp.bat"):
+                self.installation.start()
+            spawn.assert_not_called()
 
 
 class PythonProbeTests(unittest.TestCase):

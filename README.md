@@ -1,14 +1,17 @@
 # arkennemasis — ComfyUI Nodes
 
 > [!TIP]
-> ### 🚀 The Killer Feature: Unlimited ComfyUI Control via ChatGPT Web
-> **Bypass Codex CLI Rate Limits:** Developer CLI tools like Codex have separate, restrictive usage quotas that max out quickly when iterating on complex workflows.
-> In contrast, **ChatGPT Web (`chatgpt.com`)** offers expansive, virtually unlimited conversational capacity on standard Plus, Team, and Pro subscriptions.
+> ### 🚀 Control local ComfyUI from your web AI client
+> Arkennemasis MCP connects an MCP-capable web AI client to your local ComfyUI through a configured HTTPS tunnel. Your models and GPU stay on your computer.
 >
-> Arkennemasis MCP bridges your local ComfyUI instance straight to **ChatGPT Web** via a built-in, secure Tailscale Funnel:
+> Set up the optional gateway from the local **MCP setup** screen:
 > * **Create, Control & Edit:** Ask ChatGPT Web to construct entire workflows, wire nodes, tweak parameters, and fix graphs directly on your live canvas.
-> * **Live Browser Sync:** Real-time updates reflect inside your open ComfyUI browser tab with visual feedback and full frontend undo support.
-> * **Zero Usage Anxiety:** Create and iterate freely all day without worrying about hitting Codex CLI caps or burning through API credits!
+> * **Live Browser Sync:** Apply revision-checked changes to an explicitly shared ComfyUI tab, with acknowledgments and bounded undo history.
+> * **Selected Node Development:** Enable source editing and maintenance for named custom-node folders, with backups and explicit execution controls.
+>
+> On Windows portable, **3. Create launchers** adds one MCP launcher: `run_nvidia_gpu_fast_fp16_accumulation_with_mcp.bat`. Use `run_nvidia_gpu_fast_fp16_accumulation.bat` for the same fast-FP16 mode without MCP. The standard GPU and CPU BATs remain ordinary ComfyUI launchers. Close the active launcher before switching.
+>
+> AI-client availability and usage limits still apply, as do any paid nodes' own credentials and charges. See the current [ChatGPT connection requirements](https://developers.openai.com/plugins/deploy/connect-chatgpt).
 >
 > 📖 **Full MCP Guide:** [Arkennemasis MCP Setup & Usage](setup_guides/01_arkennemasis_mcp_guide.md) · [All Setup Guides](setup_guides/README.md)
 
@@ -32,7 +35,7 @@ API key.
 
 | You want | The pack gives you |
 |---|---|
-| **Live ComfyUI control via ChatGPT Web** | Connect ChatGPT Web to ComfyUI via Arkennemasis MCP. Create, inspect, rewire, and trigger your live canvas directly from chat without hitting Codex CLI rate limits. |
+| **Live ComfyUI control via a web AI client** | Connect an MCP-capable web client to ComfyUI via Arkennemasis MCP. Inspect, edit and explicitly run a shared canvas, with optional access to selected custom-node source. |
 | **A talking-head news video, every morning, by itself** | It finds a story, writes it, speaks it, animates a presenter, cuts them out and stands them in front of a screenshot of the article. It remembers what it already covered. |
 | **A narrated film from one brief** | Write the idea once. It plans the scenes, renders each one, makes every shot last as long as its voice-over, then joins them with music and subtitles. |
 | **A product photo library from a spreadsheet** | One photo of the product plus a list of colours or finishes in, a full set of images out — same object every time, only the named part changing. |

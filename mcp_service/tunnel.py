@@ -133,7 +133,7 @@ def run_web(config_path):
         raise ValueError("The web connection requires the local gateway host 127.0.0.1.")
     if port_in_use(current.host, current.port):
         raise ValueError(f"Gateway port {current.port} is already in use. Stop its existing serve/web process before running web.")
-    fixed_url = current.auth_mode == "connection_link" and bool(current.public_url)
+    fixed_url = current.auth_mode in {"connection_link", "oauth"} and bool(current.public_url)
     if fixed_url:
         configured = current.validate()
     else:
@@ -161,7 +161,8 @@ def run_web(config_path):
             public_url = wait_for_public_url(gateway, tunnel, events)
         write_connection_file(connection_file, public_url, configured.endpoint)
         print(f"Private connection URL saved to: {connection_file}", flush=True)
-        print("Choose No Auth in the AI connector and paste the URL from that file. Keep the URL private.", flush=True)
+        print("Choose OAuth in the AI connector and paste the MCP URL from that file." if configured.auth_mode == "oauth" else
+              "Choose No Auth in the AI connector and paste the URL from that file. Keep the URL private.", flush=True)
         print("Leave this process running. Ctrl+C or the stop-web command stops the local gateway and any tunnel started here.", flush=True)
         monitor_children(gateway, tunnel, stop_file)
         return 0

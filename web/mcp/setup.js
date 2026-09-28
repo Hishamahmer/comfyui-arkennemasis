@@ -1,5 +1,6 @@
 import { app } from "../../../scripts/app.js";
 import { api } from "../../../scripts/api.js";
+import { openOAuthSetup } from "./oauth_setup.js";
 
 const PREFIX = "/arkennemasis/mcp/setup";
 let dialog = null;
@@ -43,6 +44,9 @@ async function openSetup() {
   heading.style.marginTop = "0";
   dialog.setAttribute("aria-labelledby", heading.id);
   element("p", "Set up the optional AI connection. Your other Arkennemasis nodes work independently.", dialog);
+  const oauthButton = element("button", "OAuth sign-in settings", dialog);
+  oauthButton.type = "button";
+  oauthButton.onclick = () => { dialog.close(); void openOAuthSetup(); };
   const detection = element("p", "Checking this installation…", dialog);
   Object.assign(detection.style, { whiteSpace: "pre-wrap", overflowWrap: "anywhere", color: "var(--descrip-text, #bbb)" });
   const form = element("form", undefined, dialog);
@@ -173,7 +177,7 @@ async function openSetup() {
     };
     setTimeout(poll, 1500);
   });
-  launcherButton = action("3. Link portable launchers", async () => { message.textContent = (await post("install-launchers")).message; });
+  launcherButton = action("3. Create launchers", async () => { message.textContent = (await post("install-launchers")).message; });
   startButton = action("4. Start connection", async () => { message.textContent = (await post("start")).message; });
   const revealed = element("input", undefined, dialog);
   revealed.type = "text";

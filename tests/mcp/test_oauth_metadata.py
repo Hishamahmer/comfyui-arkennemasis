@@ -56,7 +56,7 @@ class OAuthIntegrationTests(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual(response.status_code, 200)
                         metadata = response.json()
                         self.assertEqual(metadata["resource"], settings.endpoint)
-                        self.assertEqual(set(metadata["scopes_supported"]), set(SCOPES))
+                        self.assertEqual(set(metadata["scopes_supported"]), set(settings.enabled_scopes))
                         self.assertEqual(metadata["authorization_servers"], [settings.issuer_url])
                     response = await client.post("/mcp", json={})
                     self.assertEqual(response.status_code, 401)

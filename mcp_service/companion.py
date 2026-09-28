@@ -4,7 +4,6 @@ import argparse
 from collections import deque
 import ctypes
 import json
-import msvcrt
 import os
 from pathlib import Path
 import socket
@@ -16,6 +15,9 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlsplit
 import uuid
+
+if os.name == "nt":
+    import msvcrt
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from mcp_service.settings import load_settings
@@ -47,7 +49,15 @@ def write_status(state_dir, state, message, owner_pid, **details):
     temporary = path.with_suffix(f".{os.getpid()}.tmp")
     temporary.write_text(json.dumps({"state": state, "message": message, "updated_at": time.time(),
                                      "owner_pid": owner_pid, "watcher_pid": os.getpid(), **details}), encoding="utf-8")
-    os.replace(temporary, path)
+    for attempt in range(4):
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError:
+            if attempt == 3:
+                raise
+            # Windows readers can briefly deny file replacement during a status poll.
+            time.sleep(0.03)
 
 
 class ConnectionStatus:
@@ -57,6 +67,7 @@ class ConnectionStatus:
         self.last_success_at = None
         self.layer_success_at = {}
         self.previous = None
+        self.diagnostic_error = False
 
     def __call__(self, state, message, layers=None):
         layers = layers or {}
@@ -66,16 +77,23 @@ class ConnectionStatus:
                 self.layer_success_at[name] = now
         if all(layers.get(name) == "online" for name in ("gateway", "tunnel", "backend")):
             self.last_success_at = now
-        write_status(self.state_dir, state, message, self.owner_pid,
-                     layers=layers, last_success_at=self.last_success_at, layer_success_at=self.layer_success_at)
-        transition = (state, message, layers)
-        if transition != self.previous:
-            path = self.state_dir / "connection-events.jsonl"
-            if path.exists() and path.stat().st_size > 256 * 1024:
-                os.replace(path, path.with_suffix(".previous.jsonl"))
-            with path.open("a", encoding="utf-8") as log:
-                log.write(json.dumps({"time": now, "state": state, "message": message, "layers": layers}) + "\n")
-            self.previous = transition
+        try:
+            write_status(self.state_dir, state, message, self.owner_pid,
+                         layers=layers, last_success_at=self.last_success_at, layer_success_at=self.layer_success_at)
+            transition = (state, message, layers)
+            if transition != self.previous:
+                path = self.state_dir / "connection-events.jsonl"
+                if path.exists() and path.stat().st_size > 256 * 1024:
+                    os.replace(path, path.with_suffix(".previous.jsonl"))
+                with path.open("a", encoding="utf-8") as log:
+                    log.write(json.dumps({"time": now, "state": state, "message": message, "layers": layers}) + "\n")
+                self.previous = transition
+            self.diagnostic_error = False
+        except OSError as exc:
+            # A locked status/log file must not tear down a healthy connection.
+            if not self.diagnostic_error:
+                print(f"[Arkennemasis MCP] Status could not be saved ({type(exc).__name__}); connection supervision continues.", flush=True)
+            self.diagnostic_error = True
 
 
 def listener_pid(host, port):
@@ -468,8 +486,8 @@ def run_session(settings, owner, owner_pid, launcher):
     restart = RestartRequest(settings, opener)
     failed = False
     try:
-        if settings.auth_mode != "connection_link" or not settings.public_url:
-            raise ValueError("Configure a fixed private MCP URL before using the BAT companion.")
+        if settings.auth_mode not in {"connection_link", "oauth"} or not settings.public_url:
+            raise ValueError("Configure a fixed MCP URL before using the BAT companion.")
         write_connection_file(state_dir / "connection.txt", settings.public_url, settings.endpoint)
         keep_connected(owner, comfy_ready, connection, backend, update, restart)
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
@@ -513,6 +531,9 @@ def watch(owner_pid):
 
 
 def main():
+    if os.name != "nt":
+        print("Automatic BAT lifecycle requires Windows. Use launch.py serve and your configured tunnel on this platform.")
+        return 2
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["start", "watch"])
     parser.add_argument("--owner-pid", type=int)

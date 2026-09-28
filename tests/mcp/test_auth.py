@@ -1,7 +1,9 @@
 import json
 import secrets
+import tempfile
 import time
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -13,6 +15,7 @@ from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser
 from mcp.server.auth.provider import AccessToken
 
 from mcp_service.auth import LocalTokenVerifier, OAuthTokenVerifier, require_scope
+from mcp_service.oauth_setup import OAuthClients
 
 
 ISSUER = "https://issuer.example.test/"
@@ -129,6 +132,37 @@ class OAuthAuthTests(unittest.IsolatedAsyncioTestCase):
         access = await self.verifier.verify_token(self.signed(extra_headers={"jku": "https://attacker.example.test/keys"}))
         self.assertIsNotNone(access)
         self.assertEqual([str(request.url) for request in self.requests], [JWKS])
+
+    async def test_local_revocation_applies_to_existing_tokens_without_gateway_restart(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "oauth-clients.json"
+            verifier = OAuthTokenVerifier(ISSUER, AUDIENCE, JWKS, client=self.client, revocation_file=path)
+            token = self.signed()
+            self.assertIsNotNone(await verifier.verify_token(token))
+            OAuthClients(path).set_revoked("web-client", True)
+            self.assertIsNone(await verifier.verify_token(token))
+            recreated = OAuthTokenVerifier(ISSUER, AUDIENCE, JWKS, client=self.client, revocation_file=path)
+            self.assertIsNone(await recreated.verify_token(token))
+            OAuthClients(path).set_revoked("web-client", False)
+            self.assertIsNotNone(await verifier.verify_token(token))
+
+    async def test_missing_conflicting_or_invalid_client_identity_is_rejected(self):
+        cases = [self.signed(missing=["client_id"]), self.signed({"client_id": " "}),
+                 self.signed({"client_id": "x" * 1025}), self.signed({"azp": "another-client"})]
+        for token in cases:
+            self.assertIsNone(await self.verifier.verify_token(token))
+        access = await self.verifier.verify_token(self.signed({"azp": "https://chatgpt.com/oauth/client.json"}, missing=["client_id"]))
+        self.assertEqual(access.client_id, "https://chatgpt.com/oauth/client.json")
+        self.assertIsNotNone(await self.verifier.verify_token(self.signed({"azp": "web-client"})))
+
+    async def test_corrupt_or_unreadable_revocations_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "oauth-clients.json"
+            verifier = OAuthTokenVerifier(ISSUER, AUDIENCE, JWKS, client=self.client, revocation_file=path)
+            path.write_text("invalid", encoding="utf-8")
+            self.assertIsNone(await verifier.verify_token(self.signed()))
+            with patch("mcp_service.oauth_setup.OAuthClients.denied", side_effect=PermissionError("unreadable")):
+                self.assertIsNone(await verifier.verify_token(self.signed()))
 
     async def test_cache_and_unknown_key_rotation_are_bounded(self):
         self.assertIsNotNone(await self.verifier.verify_token(self.signed()))

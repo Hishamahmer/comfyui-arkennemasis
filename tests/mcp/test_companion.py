@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -9,7 +10,10 @@ from unittest.mock import Mock, patch
 import urllib.error
 import uuid
 
-from mcp_service import companion
+if os.name == "nt":
+    from mcp_service import companion
+else:
+    companion = None
 from mcp_service.settings import Settings
 
 
@@ -52,6 +56,7 @@ def monitor(clock, duration, *, connection=None, backend=None, restart=None):
     return update
 
 
+@unittest.skipUnless(os.name == "nt", "The BAT companion uses Windows process ownership.")
 class CompanionTests(unittest.TestCase):
     def test_foreground_mapping_must_match_public_flag_hostname_and_target(self):
         state = public_route()
@@ -227,6 +232,17 @@ class CompanionTests(unittest.TestCase):
             self.assertEqual(record["layer_success_at"]["gateway"], 1004)
             self.assertEqual(len((Path(directory) / "connection-events.jsonl").read_text().splitlines()), 2)
 
+    def test_locked_status_file_does_not_stop_supervision_and_recovers(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(companion.time, "sleep"), contextlib.redirect_stdout(io.StringIO()):
+            status = companion.ConnectionStatus(directory, 123)
+            with patch.object(companion.os, "replace", side_effect=PermissionError("locked")) as replace:
+                status("online", "AI connection online", {"gateway": "online"})
+                self.assertEqual(replace.call_count, 4)
+                self.assertTrue(status.diagnostic_error)
+            status("online", "AI connection online", {"gateway": "online"})
+            self.assertFalse(status.diagnostic_error)
+            self.assertEqual(json.loads((Path(directory) / "session-status.json").read_text())["state"], "online")
+
     def test_public_readiness_requires_running_backend_hostname_and_funnel(self):
         hostname, target = "machine.tailnet.ts.net", "http://127.0.0.1:8190"
         tailnet = {"BackendState": "Running", "Self": {"DNSName": hostname + "."}}
@@ -289,6 +305,7 @@ class CompanionTests(unittest.TestCase):
             self.assertEqual(json.loads((Path(directory) / "session-status.json").read_text())["state"], "stopped")
 
 
+@unittest.skipUnless(os.name == "nt", "The BAT companion uses Windows process ownership.")
 class RestartTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()

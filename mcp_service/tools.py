@@ -194,7 +194,7 @@ def register_tools(server, settings, client, store, ledger, canvas_edits, operat
         check("comfy:write")
         return await canvas_edits.apply(client, session_id, request_id, "undo", expected_revision)
 
-    register_development_tools(tool, settings)
+    register_development_tools(tool, settings, operations)
     register_control_tools(tool, settings, client, ledger, canvas_edits, operations)
     register_maintenance_tools(tool, settings, operations)
     register_media_tools(tool, settings, operations)

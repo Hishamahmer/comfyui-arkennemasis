@@ -19,6 +19,16 @@ from .launch_config import LaunchConfig
 def register_control_tools(tool, settings, client, ledger, canvas_edits, operations):
     restart_lock = threading.Lock()
 
+    def restart_result(request_id):
+        if not isinstance(request_id, str) or str(uuid.UUID(request_id)) != request_id:
+            raise ValueError("Use a canonical UUID request_id.")
+        root = Path(settings.state_dir)
+        archived = read_json(root / "lifecycle-results" / f"{request_id}.json")
+        if archived.get("id") == request_id:
+            return archived
+        result = read_json(root / "lifecycle-result.json")
+        return result if result.get("id") == request_id else {}
+
     @tool("comfy:read")
     async def get_connection_status() -> dict:
         """Separate MCP gateway, ComfyUI, browser sharing and tunnel diagnostics. Tool absence in an AI chat is different from an unreachable endpoint or unshared canvas."""
@@ -53,6 +63,9 @@ def register_control_tools(tool, settings, client, ledger, canvas_edits, operati
             raise ValueError("Use a canonical UUID request_id.")
         root = Path(settings.state_dir)
         with restart_lock:
+            completed = restart_result(request_id)
+            if completed:
+                return completed
             session = read_json(root / "session-status.json")
             if time.time() - session.get("updated_at", 0) > 30:
                 raise ValueError("The companion is not active. Start ComfyUI with its MCP launcher before requesting restart.")
@@ -74,8 +87,8 @@ def register_control_tools(tool, settings, client, ledger, canvas_edits, operati
     @tool("comfy:maintain")
     def get_restart_status(request_id: str) -> dict:
         """Read the registered companion's restart result: requested, accepted, restarting, ready or failed."""
-        result = read_json(Path(settings.state_dir) / "lifecycle-result.json")
-        if result.get("id") == request_id:
+        result = restart_result(request_id)
+        if result:
             return result
         pending = read_json(Path(settings.state_dir) / "lifecycle-request.json")
         return {"id": request_id, "state": "requested" if pending.get("id") == request_id else "unknown"}

@@ -14,9 +14,12 @@ import jwt
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.auth.provider import AccessToken
 
+from .oauth_setup import OAuthClients, client_identifier
+from .settings import OAUTH_ALGORITHMS
+
 
 _SCOPE = re.compile(r"[\x21\x23-\x5b\x5d-\x7e]+\Z")
-_ALGORITHMS = frozenset({"RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512", "EdDSA"})
+_ALGORITHMS = OAUTH_ALGORITHMS
 
 
 def _https_url(value: str, name: str) -> str:
@@ -71,6 +74,7 @@ class OAuthTokenVerifier:
         scope_claim: str = "scope",
         jwks_ttl_seconds: int = 300,
         client: httpx.AsyncClient | None = None,
+        revocation_file=None,
     ):
         self.issuer_url = _https_url(issuer_url, "OAuth issuer")
         self.jwks_url = _https_url(jwks_url, "JWKS endpoint")
@@ -96,6 +100,7 @@ class OAuthTokenVerifier:
         self._expires = 0.0
         self._last_attempt = float("-inf")
         self._lock = asyncio.Lock()
+        self._revocations = OAuthClients(revocation_file) if revocation_file is not None else None
 
     async def aclose(self) -> None:
         if self._owns_client:
@@ -165,14 +170,16 @@ class OAuthTokenVerifier:
             scopes = _scopes(claims.get(self.scope_claim))
             if not self.required_scopes.issubset(scopes):
                 return None
-            client_id = claims.get("client_id", claims.get("azp", subject))
-            if not isinstance(client_id, str) or not client_id:
+            client_id = client_identifier(claims.get("client_id", claims.get("azp")))
+            if "client_id" in claims and "azp" in claims and claims["azp"] != client_id:
+                return None
+            if self._revocations is not None and client_id in self._revocations.denied():
                 return None
             return AccessToken(
                 token=token, client_id=client_id, subject=subject, scopes=scopes,
                 expires_at=int(expiry), resource=self.audience, claims={"iss": self.issuer_url},
             )
-        except (jwt.PyJWTError, httpx.HTTPError, ValueError, TypeError, KeyError, OverflowError):
+        except (jwt.PyJWTError, httpx.HTTPError, ValueError, TypeError, KeyError, OverflowError, OSError):
             return None
 
 

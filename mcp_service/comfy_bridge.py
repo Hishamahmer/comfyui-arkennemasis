@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 import platform
 import secrets
-import subprocess
 import sys
 import time
 from urllib.parse import urlsplit
@@ -270,8 +269,9 @@ class CanvasBridge:
                 return web.json_response(previous)
         if self.restart_task is not None and not self.restart_task.done():
             return failure(409, "restart_in_progress", "A ComfyUI restart is already scheduled.")
-        if getattr(sys, "frozen", False) or "__COMFY_CLI_SESSION__" in os.environ:
-            return failure(409, "unsupported_launcher", "This ComfyUI process is managed by an external launcher. Restart it through that launcher.")
+        if (getattr(sys, "frozen", False) or "__COMFY_CLI_SESSION__" in os.environ
+                or not getattr(sys, "_arkennemasis_supervised", False)):
+            return failure(409, "unsupported_launcher", "Link the portable launchers in local MCP setup, then relaunch ComfyUI with its BAT. External launchers must restart ComfyUI themselves.")
         running, queued = self.server.prompt_queue.get_current_queue_volatile()
         if running or queued:
             return failure(409, "queue_not_empty", "Finish or cancel running and pending jobs before restarting ComfyUI.")
@@ -286,16 +286,11 @@ class CanvasBridge:
         if running or queued:
             self.save_restart({**record, "state": "cancelled", "error": "The queue changed before restart. No process was stopped."})
             return
-        base_args = getattr(sys, "_arkennemasis_base_comfy_args", sys.argv[1:])
-        runner = str(Path(__file__).with_name("launch_backend.py"))
-        argv = [sys.executable, "-s", runner, *base_args]
-        if sys.platform == "win32":
-            argv = [subprocess.list2cmdline([argument]) for argument in argv]
+        from .launch_backend import RESTART_EXIT_CODE
         self.save_restart({**record, "state": "restarting"})
-        try:
-            os.execv(sys.executable, argv)
-        except OSError as error:
-            self.save_restart({**record, "state": "failed", "error": f"ComfyUI could not restart ({error.__class__.__name__})."})
+        # The supervisor remains the BAT's child. os.execv on Windows would
+        # release the BAT while leaving the replacement backend orphaned.
+        os._exit(RESTART_EXIT_CODE)
 
     async def register(self, request):
         denied = self.authorize_browser(request)
@@ -441,12 +436,14 @@ def register_routes():
     from server import PromptServer
     from .comfy_events import attach
     from .setup_routes import register_setup_routes
+    from .oauth_setup_routes import register_oauth_setup_routes
 
     server = PromptServer.instance
     bridge = CanvasBridge(server, validate_prompt)
     routes = server.routes
     attach(server)
     register_setup_routes(routes)
+    register_oauth_setup_routes(routes, config_path=CONFIG_PATH)
     routes.get(PREFIX + "/sessions")(bridge.list_sessions)
     routes.post(PREFIX + "/canvas")(bridge.canvas)
     routes.post(PREFIX + "/validate")(bridge.validate)
