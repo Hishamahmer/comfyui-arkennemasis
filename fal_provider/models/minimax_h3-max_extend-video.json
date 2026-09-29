@@ -12,16 +12,15 @@
    "price": 0.05
   },
   "text": "Billing is calculated per second of generated video, plus reference input charges beyond the included allowance. Video costs $0.05 per second at 480p, $0.08 per second at 768p, $0.16 per second at 1080p, and $0.32 per second at 2K. Each request includes 4,096 reference tokens at no additional charge. Reference usage above this allowance costs $0.02 per 1,000 tokens, prorated to the actual token count.",
-  "tag": "$0.08-0.32/s",
+  "tag": "$0.05-0.32/s",
   "estimate": {
-   "auto": true,
    "per": "second",
    "rate": {
     "widget": "resolution",
     "map": {
-     "480p": 0.08,
-     "768p": 0.16,
-     "1080p": 0.32,
+     "480p": 0.05,
+     "768p": 0.08,
+     "1080p": 0.16,
      "2k": 0.32
     }
    },
@@ -29,7 +28,7 @@
     "widget": "duration"
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

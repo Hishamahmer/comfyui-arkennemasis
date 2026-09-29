@@ -12,23 +12,22 @@
    "price": 0.025
   },
   "text": "Video costs $0.025 per second at 480p, $0.04 per second at 768p, and $0.08 per second at 1080p. Note: these are promotional launch rates, 50% off for a limited time. The discount ends September 30, after which 480p is $0.05/second, 768p is $0.08/second, and 1080p is $0.16/second.",
-  "tag": "$0.04-0.08/s",
+  "tag": "$0.05-0.16/s",
   "estimate": {
-   "auto": true,
    "per": "second",
    "rate": {
     "widget": "resolution",
     "map": {
-     "480p": 0.04,
+     "480p": 0.05,
      "768p": 0.08,
-     "1080p": 0.08
+     "1080p": 0.16
     }
    },
    "quantity": {
     "widget": "duration"
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

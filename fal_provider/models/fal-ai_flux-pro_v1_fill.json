@@ -12,16 +12,17 @@
    "price": 0.05
   },
   "text": "$0.05 per megapixel (fal's billing unit).",
-  "tag": "$0.05/image",
+  "tag": "$0.05/MP",
   "estimate": {
-   "auto": true,
-   "per": "image",
+   "per": "megapixel",
    "rate": 0.05,
+   "round_up": true,
    "quantity": {
-    "widget": "num_images"
+    "megapixels": "",
+    "count": "num_images"
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

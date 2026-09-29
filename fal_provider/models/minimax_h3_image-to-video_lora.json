@@ -12,16 +12,15 @@
    "price": 0.0625
   },
   "text": "Video costs $0.0625 per second at 480p, $0.075 per second at 768p, $0.1625 per second at 2K and $0.20 per second at 4K.",
-  "tag": "$0.075-0.2/s",
+  "tag": "$0.0625-0.20/s",
   "estimate": {
-   "auto": true,
    "per": "second",
    "rate": {
     "widget": "resolution",
     "map": {
-     "480p": 0.075,
-     "768p": 0.1625,
-     "2k": 0.2,
+     "480p": 0.0625,
+     "768p": 0.075,
+     "2k": 0.1625,
      "4k": 0.2
     }
    },
@@ -29,7 +28,7 @@
     "widget": "duration"
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

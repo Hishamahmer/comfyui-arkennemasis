@@ -12,12 +12,26 @@
    "price": 0.005
   },
   "text": "Your request will cost $0.0375 for the first input megapixel, plus $0.005 per extra input megapixel and $0.005 per output megapixel, rounded up to the nearest megapixel. Each input image is rounded up independently before being summed. For example, two 1024x1024 input images with a 1024x1024 output will cost $0.0475 ($0.0375 for the first input megapixel + $0.005 for the second input megapixel + $0.005 for the output megapixel).",
-  "tag": "~$0.05/run",
+  "tag": "$0.0375 + $0.005/MP",
   "estimate": {
-   "per": "run",
-   "rate": 0.0475
+   "per": "megapixel",
+   "first": 0.0375,
+   "rate": 0.005,
+   "round_up": true,
+   "quantity": {
+    "megapixels": "",
+    "follows": [
+     "human_image"
+    ]
+   },
+   "input_megapixels": {
+    "inputs": [
+     "human_image",
+     "garment_image"
+    ]
+   }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

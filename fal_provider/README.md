@@ -48,6 +48,20 @@ too; `--reprice` regenerates only the `auto` price rules, offline.
 Steps 1-4 cost nothing; a failure there never bills. Every submit and every finished
 result is logged in `output/fal/_requests.jsonl`.
 
+**How the estimate sizes a run.** Seconds come from the connected clip or the duration box;
+characters from the text; pictures are measured: when the size box says "auto" (or the model
+has none) the output follows the input picture, an upscaler multiplies by its factor squared,
+and models that bill input pictures too ("per megapixel of input and output") count them.
+fal's megapixel is 1024 x 1024 pixels. The badge cannot see pictures, so it shows the price
+for a 1 MP picture; the pre-run cost check uses the real one. An option missing from a price
+table costs the table's highest price, never $0.
+
+**The prices are checked against fal's own numbers** (`tests/fal/test_prices.py`): prices
+written down from fal's pricing pages and their worked examples ("a 5-second 768p video costs
+$0.40"). `add_model.py` only fills a per-option table when fal's text pairs each option with
+one price unambiguously; any text with several prices, a multiplier, an extra, a discount or a
+minimum gets a `"review"` marker, and `test_prices.py` fails until a person prices the model.
+
 **One paid call at a time by default (`max_concurrent`, `limit.py`).** ComfyUI runs async
 nodes side by side, so without a limit a canvas of twenty fal nodes would send twenty paid
 requests in the same second. Steps 4-7 run inside a slot: a node starts them only while

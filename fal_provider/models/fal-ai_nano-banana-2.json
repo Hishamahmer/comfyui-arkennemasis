@@ -12,22 +12,38 @@
    "price": 0.08
   },
   "text": "Your request will cost $0.08 per image. For $1.00, you can run this model 12 times. 2K and 4K outputs will be charged at 1.5 times and 2 times the standard rate, respectively. 0.5K (512px) resolution outputs will be charged at 0.75 times the standard rate. If web search is used, an additional $0.015 will be charged. If high thinking is used, an additional $0.002 will be charged. Note: Pricing is subject to change.",
-  "tag": "$1-1/image",
+  "tag": "$0.06-0.16/image",
   "estimate": {
-   "auto": true,
    "per": "image",
-   "rate": {
-    "widget": "resolution",
-    "map": {
-     "2k": 1.0,
-     "4k": 1.0
-    }
-   },
+   "rate": 0.08,
    "quantity": {
     "widget": "num_images"
-   }
+   },
+   "multiply": [
+    {
+     "widget": "resolution",
+     "map": {
+      "0.5k": 0.75,
+      "1k": 1,
+      "2k": 1.5,
+      "4k": 2
+     }
+    }
+   ],
+   "add": [
+    {
+     "widget": "enable_web_search",
+     "equals": true,
+     "usd": 0.015
+    },
+    {
+     "widget": "thinking_level",
+     "equals": "high",
+     "usd": 0.002
+    }
+   ]
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

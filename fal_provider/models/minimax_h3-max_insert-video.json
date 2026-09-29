@@ -12,14 +12,13 @@
    "price": 0.05
   },
   "text": "Your request will cost $0.05 per second of generated scene at 480p or $0.06 per second at 768p. Only the newly generated scene duration is billed, not the full output video. The first 4,096 reference tokens are included; additional reference tokens cost $0.02 per 1,000 tokens, prorated.",
-  "tag": "$0.06-0.06/s",
+  "tag": "$0.05-0.06/s",
   "estimate": {
-   "auto": true,
    "per": "second",
    "rate": {
     "widget": "resolution",
     "map": {
-     "480p": 0.06,
+     "480p": 0.05,
      "768p": 0.06
     }
    },
@@ -27,7 +26,7 @@
     "widget": "duration"
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

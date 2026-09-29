@@ -18,7 +18,9 @@ keep working), title, category, the cost-estimate rules and the input checks. Pa
 
 The estimate rules written for a NEW model are a first guess from fal's billing unit
 (per second / per minute / per image). Open the JSON and check them against the pricing
-text it prints - see README.md for the rule format.
+text it prints - see README.md for the rule format. When fal's text has more than one price,
+a multiplier, an extra, a discount or a minimum, the rule gets a "review" marker and
+tests/fal/test_prices.py FAILS until a person has priced it and removed the marker.
 """
 
 from __future__ import annotations
@@ -199,24 +201,70 @@ TEXT_WIDGETS = ("text", "prompt", "input", "script", "lyrics")
 COUNT_WIDGETS = ("num_images", "num_outputs", "n", "number_of_images")
 
 
+_PRICE = r"\$\s*([0-9]+(?:\.[0-9]+)?)"
+
+
 def _rates_from_text(text, options):
-    """{option: $ rate} when fal's pricing text names a price next to each option (768p...)."""
+    """{option: $ rate} ONLY when fal's text pairs one price with each option unambiguously.
+
+    Two phrasings count: "$0.05 per second at 480p" (price, unit, then at/for OPTION) and
+    "480p - $0.08" / "for 720p, ... roughly $0.47" (OPTION, then the next price, with no other
+    option in between and no price already claimed by the first phrasing). An option given
+    two different prices (a launch discount, a token rate beside a per-second rate) makes the
+    whole table ambiguous -> {} and the caller marks the rule for review.
+
+    The first version took the NEAREST price in either direction, so "$0.05 per second at
+    480p, $0.06 per second at 768p" gave 480p the $0.06: every MiniMax H3 table shifted by
+    one resolution (found 2026-09-30).
+    """
     if not text or not options:
         return {}
-    found = {}
     low = text.lower()
-    for opt in options:
-        o = str(opt).lower()
-        if o in ("auto", "(not set)") or len(o) < 2:
+    opts = [str(o).lower() for o in options
+            if str(o).lower() not in ("auto", "(not set)") and len(str(o)) >= 2]
+    if len(opts) < 2:
+        return {}
+    alt = "|".join(re.escape(o) for o in sorted(opts, key=len, reverse=True))
+    opt_re = r"(?<![a-z0-9.])(%s)(?![a-z0-9])" % alt
+    seen = {}
+    claimed = set()
+    for m in re.finditer(_PRICE + r"\s*(?:/\s*[a-z]+|per\s+[a-z]+)?\s+(?:at|for)\s+" + opt_re, low):
+        seen.setdefault(m.group(2), set()).add(float(m.group(1)))
+        claimed.add(m.start())
+    for m in re.finditer(opt_re, low):
+        pm = re.compile(_PRICE).search(low, m.end())
+        if not pm or pm.start() in claimed or pm.start() - m.end() > 60:
             continue
-        for m in re.finditer(r"(?<![a-z0-9])%s(?![a-z0-9])" % re.escape(o), low):
-            window = low[max(0, m.start() - 70):m.end() + 70]
-            prices = [(abs(pm.start() - (m.start() - max(0, m.start() - 70))), float(pm.group(1)))
-                      for pm in re.finditer(r"\$\s*([0-9]+(?:\.[0-9]+)?)", window)]
-            if prices:
-                found[o] = min(prices)[1]
-                break
+        if re.search(opt_re, low[m.end():pm.start()]):      # another option sits in between
+            continue
+        seen.setdefault(m.group(1), set()).add(float(pm.group(1)))
+    if any(len(v) > 1 for v in seen.values()):
+        return {}
+    found = {k: next(iter(v)) for k, v in seen.items()}
     return found if len(found) >= 2 else {}
+
+
+_NEEDS_REVIEW = re.compile(r"\b(times|double|multipl\w*|additional|extra|plus|discount|promotional|"
+                           r"launch|minimum|first|rounded|tokens?|each additional)\b", re.I)
+
+
+def review_reason(text, est):
+    """Why an automatic price rule must be checked by a person, or None.
+
+    A rule is trusted only when fal's text states ONE price (or exactly the prices in the
+    per-option table) and no multiplier, extra, discount, minimum or token clause.
+    """
+    if not text:
+        return "fal gives no price text - confirm the billing unit on the model page"
+    prices = set(float(p) for p in re.findall(_PRICE, text))
+    rate = est.get("rate")
+    listed = set(float(v) for v in rate["map"].values()) if isinstance(rate, dict) else {float(rate)}
+    if prices - listed:
+        return "fal's text names prices the rule does not use: %s" % sorted(prices - listed)
+    word = _NEEDS_REVIEW.search(text)
+    if word:
+        return "fal's text says '%s' - a multiplier, extra, discount or minimum may apply" % word.group(0)
+    return None
 
 
 def default_estimate(billing, inputs, text=""):
@@ -278,15 +326,18 @@ def default_estimate(billing, inputs, text=""):
     elif est["per"] == "megapixel":
         size = next((i["name"] for i in inputs if i["kind"] == "image_size"), None)
         count = next((n for n in COUNT_WIDGETS if n in names), None)
-        if size:
-            est["quantity"] = {"megapixels": size, "count": count} if count else {"megapixels": size}
-        elif count:                         # no size box: about one megapixel per image
-            est["per"] = "image"
-            est["quantity"] = {"widget": count}
+        # no size box: the output follows the input picture (the run measures it)
+        est["quantity"] = {"megapixels": size or ""}
+        if count:
+            est["quantity"]["count"] = count
     elif est["per"] == "image":
         count = next((n for n in COUNT_WIDGETS if n in names), None)
         if count:
             est["quantity"] = {"widget": count}
+
+    why = review_reason(text, est)
+    if why:
+        est["review"] = why            # tests/fal/test_prices.py fails until a person prices it
 
     unit_text = {"second": "/s", "minute": "/min", "hour": "/hour", "kchar": "/1k chars",
                  "megapixel": "/MP", "image": "/image", "run": "/run"}[est["per"]]
@@ -444,6 +495,10 @@ def main():
             print("   outputs: %s" % ", ".join("%s(%s)" % (o["field"], o["kind"]) for o in spec["outputs"]))
             print("   price  : %s" % spec["pricing"]["text"])
             print("   estimate rules: %s" % json.dumps(spec["pricing"]["estimate"]))
+            why = (spec["pricing"].get("estimate") or {}).get("review")
+            if why:
+                print("   !! CHECK THE PRICE BY HAND: %s" % why)
+                print("   !! then remove \"review\" from its estimate; tests/fal/test_prices.py fails until then")
             print("   written: %s" % path)
     if failures:
         print("\n%d model(s) failed - run them again: %s" % (len(failures), " ".join(l for l, _ in failures)))

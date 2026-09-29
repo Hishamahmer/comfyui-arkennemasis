@@ -12,16 +12,17 @@
    "price": 0.07
   },
   "text": "The first processed megapixel will cost $0.07. Each additional megapixel will cost 0.03",
-  "tag": "$0.07/MP",
+  "tag": "$0.07 + $0.03/MP",
   "estimate": {
-   "auto": true,
    "per": "megapixel",
-   "rate": 0.07,
+   "first": 0.07,
+   "rate": 0.03,
+   "round_up": true,
    "quantity": {
     "megapixels": "image_size"
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

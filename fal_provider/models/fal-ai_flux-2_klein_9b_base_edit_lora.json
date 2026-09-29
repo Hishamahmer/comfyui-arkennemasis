@@ -14,15 +14,17 @@
   "text": "Requests cost $0.02 per megapixel of input and output. Input images will be resized to 1MP. For example, a 1024x1024 generation with 512*512 size image input will cost 0.04 (1 MP input + 1 MP output, each costing 0.02).",
   "tag": "$0.02/MP",
   "estimate": {
-   "auto": true,
    "per": "megapixel",
    "rate": 0.02,
    "quantity": {
     "megapixels": "image_size",
     "count": "num_images"
+   },
+   "input_megapixels": {
+    "each": 1
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

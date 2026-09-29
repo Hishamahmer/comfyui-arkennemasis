@@ -12,14 +12,13 @@
    "price": 0.05
   },
   "text": "Billing uses the requested output duration at $0.05 per second for 480p, $0.08 for 768p, and $0.16 for 1080p. Each request includes 4,096 reference tokens, shared across all reference images, videos, and audio clips; additional usage costs $0.02 per 1,000 tokens, prorated. Square reference images, including 1024 × 1024 and 2048 × 2048 uploads, contribute 1,024 tokens each. With no video or audio references, the first four square images add no reference charge, and each additional square image adds $0.02048 (about $0.02). For example, a 5-second 768p output costs $0.40 with up to four square reference images, or $0.42048 with five. See the pricing details below for other image shapes, video references, and audio references.",
-  "tag": "$0.08-0.16/s",
+  "tag": "$0.05-0.16/s",
   "estimate": {
-   "auto": true,
    "per": "second",
    "rate": {
     "widget": "resolution",
     "map": {
-     "480p": 0.08,
+     "480p": 0.05,
      "768p": 0.08,
      "1080p": 0.16
     }
@@ -28,7 +27,7 @@
     "widget": "duration"
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

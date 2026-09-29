@@ -14,15 +14,17 @@
   "text": "$0.021 per processed megapixel (fal's billing unit).",
   "tag": "$0.021/MP",
   "estimate": {
-   "auto": true,
    "per": "megapixel",
    "rate": 0.021,
    "quantity": {
     "megapixels": "image_size",
     "count": "num_images"
+   },
+   "input_megapixels": {
+    "each": 1
    }
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

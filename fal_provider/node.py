@@ -268,6 +268,7 @@ def _files_in(value):
 def _prepare(spec, kw, say):
     """Check every input and turn it into payload fields + files to upload. Nothing is sent."""
     payload, uploads, media_seconds = {}, [], {}
+    pictures = {}                    # input name -> megapixels of each connected picture
     first_image_size = None
     provided = set()
 
@@ -297,6 +298,9 @@ def _prepare(spec, kw, say):
                      "at most %d pictures for '%s', got %d." % (inp["max_items"], name, len(items)))
             if first_image_size is None:
                 first_image_size = media.image_size(items[0])
+            for frame in items:
+                w, h = media.image_size(frame)
+                pictures.setdefault(name, []).append(w * h / pricing.MEGAPIXEL)
             for i, frame in enumerate(items):
                 uploads.append({"path": path, "list": kind == "image_list", "index": i,
                                 "data": media.png_bytes(frame), "type": "image/png",
@@ -430,6 +434,8 @@ def _prepare(spec, kw, say):
                                    % (spec["title"], exc)) from None
         need(isinstance(extra_obj, dict), "extra_json must be a JSON object like {\"seed\": 7}.")
         _merge(payload, extra_obj)
+    if pictures:
+        media_seconds[pricing.PICTURES] = pictures       # the cost check sizes images by these
     return payload, uploads, media_seconds
 
 

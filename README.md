@@ -241,6 +241,8 @@ https://fal.ai/dashboard/keys.
   number of images, quality…), and its title shows the model's rate.
 - **`max_cost_usd`** (default $20) is a cap: when the estimate for a run is above it, the node
   stops **before** anything is uploaded or sent. `0` removes the cap.
+- The estimates are tested against **fal's own prices and worked examples**, and the
+  pre-run check measures the real clips and pictures you connect.
 - **`max_concurrent`** (default 1) is how many paid fal calls may run at the same time,
   across every fal node in a run. At 1 they go one after another; raise it (up to 32) to run
   several side by side. If one fal node fails, the ones still waiting are not started.

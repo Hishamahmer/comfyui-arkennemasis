@@ -19,13 +19,16 @@ The estimate block (every key optional except ``per``):
              "kchar"                          per 1000 characters of a text widget
              "megapixel"                      per megapixel of output
              "image" | "run" | "table"
-  rate       a number, or {"widget": w, "map": {value: rate}}  (values lower-case)
+  rate       a number, or {"widget": w, "map": {value: rate}}  (values lower-case; an
+             option missing from the map costs the map's highest rate, never $0)
   rate_if    [{"widget": w, "equals": v, "rate": r}]   first match replaces ``rate``
   quantity   {"widget": w, "auto_max": n, "scale": s}  a number widget ("auto" -> n) x s
              {"media": [input, ...]}        seconds of the longest connected clip
              {"words": w, "per_second": n}  seconds of speech from a text widget
              {"chars": w}                   characters of a text widget
-             {"megapixels": size_widget, "count": count_widget}  output megapixels
+             {"megapixels": size_widget, "count": count_widget}  output megapixels;
+                 size "auto" or "" (no size box): the output follows the input picture
+                 ("follows": [inputs] narrows which); "scale_widget": an upscale factor
              {"unknown": true}              not knowable before the run
   round_up   true -> billed units are rounded up (whole minutes, whole megapixels...)
   first      price of the FIRST unit when it differs ("$0.07 for the first megapixel,
@@ -36,6 +39,8 @@ The estimate block (every key optional except ``per``):
              duration is billed too
   over       {"seconds": s, "factor": f}   x f when the billed seconds exceed s
   add        [{"widget": w, "equals": v, "usd": x}]   flat extras per run
+  input_megapixels  {"each": n} | {} | {"min": n, "inputs": [...]}   input pictures billed
+             as megapixels too (run-time only - see ``_input_megapixels``)
   table      gpt-image-2 style size x quality table (see ``_table_*``)
   label      badge text after the rate when the quantity cannot be known in the browser
 """
@@ -54,6 +59,11 @@ SIZE_PRESETS = {"square_hd": (1024, 1024), "square": (512, 512), "portrait_4_3":
                 "portrait_16_9": (576, 1024), "landscape_4_3": (1024, 768),
                 "landscape_16_9": (1024, 576)}
 DEFAULT_SIZE = (1024, 1024)         # "auto" and anything unknown: one megapixel
+PICTURES = "__pictures__"           # media_seconds key: {input name: [megapixels, ...]}
+# fal's megapixel is 1024 x 1024 pixels: its own examples bill 1024x1024 as 1 MP, 512x512 as
+# 0.25 MP and 1920x1080 as 2 MP (rounded up). Dividing by 1,000,000 made 1024x1024 1.05 MP,
+# which rounds up to 2 - every rounded Flux estimate at that size was up to 50% high.
+MEGAPIXEL = 1024 * 1024
 
 
 def _norm(value):
@@ -79,8 +89,14 @@ def _rate(est, values):
             return float(rule["rate"])
     rate = est.get("rate", 0)
     if isinstance(rate, dict):
-        return float(rate["map"].get(_norm(values.get(rate["widget"])), 0) or 0)
+        # an option with no price in the table costs the table's HIGHEST price, never $0:
+        # a $0 estimate would show a free run on the badge and disarm max_cost_usd
+        return float(rate["map"].get(_norm(values.get(rate["widget"])), _map_max(rate["map"])))
     return float(rate)
+
+
+def _map_max(mapping):
+    return max((float(v) for v in mapping.values()), default=0.0)
 
 
 def _widget_quantity(q, values):
@@ -101,18 +117,40 @@ def _widget_quantity(q, values):
         return None, False
 
 
-def _megapixels(q, values, round_up):
-    size = values.get(q["megapixels"])
+def _pictures(media_seconds, names=None):
+    """Megapixels of every connected picture (only known at run time, never in the badge)."""
+    out = []
+    for name, mps in ((media_seconds or {}).get(PICTURES) or {}).items():
+        if names is None or name in names:
+            out += [float(mp) for mp in mps]
+    return out
+
+
+def _megapixels(q, values, round_up, media_seconds=None):
+    size_widget = q.get("megapixels") or ""
+    size = values.get(size_widget) if size_widget else None
     choice = _norm(size) if size is not None else "auto"
     if choice == "custom":
         try:
-            w = int(values.get(q["megapixels"] + "_width"))
-            h = int(values.get(q["megapixels"] + "_height"))
+            w = int(values.get(size_widget + "_width"))
+            h = int(values.get(size_widget + "_height"))
         except (TypeError, ValueError):
             w, h = DEFAULT_SIZE
+        mp = w * h / MEGAPIXEL
+    elif choice in SIZE_PRESETS:
+        w, h = SIZE_PRESETS[choice]
+        mp = w * h / MEGAPIXEL
     else:
-        w, h = SIZE_PRESETS.get(choice, DEFAULT_SIZE)
-    mp = w * h / 1e6
+        # "auto", or no size box at all: the output follows the input picture. The run knows
+        # the real picture; the badge (and a run with none connected) counts one megapixel.
+        pics = _pictures(media_seconds, q.get("follows"))
+        mp = max(pics) if pics else DEFAULT_SIZE[0] * DEFAULT_SIZE[1] / MEGAPIXEL
+    if q.get("scale_widget"):                          # an upscaler: output = input x factor^2
+        try:
+            factor = float(values.get(q["scale_widget"]) or 1)
+        except (TypeError, ValueError):
+            factor = 1.0
+        mp *= factor * factor
     if round_up:
         mp = math.ceil(mp - 1e-9)
     count = values.get(q.get("count") or "", 1) if q.get("count") else 1
@@ -121,6 +159,26 @@ def _megapixels(q, values, round_up):
     except (TypeError, ValueError):
         count = 1.0
     return mp * count
+
+
+def _input_megapixels(spec, round_up, media_seconds):
+    """Megapixels fal bills for the INPUT pictures ("per megapixel of input and output").
+
+    ``{"each": 1}`` - every picture is resized to that many megapixels first;
+    ``{}`` - each picture's own size (rounded up one by one when the rule rounds up);
+    ``"min"`` - a floor on the total; ``"inputs"`` - only these sockets count.
+    Run-time only: the badge cannot see pictures, so it shows the output part alone.
+    """
+    if spec is None:
+        return 0.0
+    pics = _pictures(media_seconds, spec.get("inputs"))
+    if not pics:
+        return 0.0
+    if spec.get("each") is not None:
+        total = float(spec["each"]) * len(pics)
+    else:
+        total = sum(math.ceil(mp - 1e-9) if round_up else mp for mp in pics)
+    return max(total, float(spec.get("min", 0)))
 
 
 # ---------------------------------------------------------------------------------------
@@ -197,7 +255,8 @@ def estimate(pricing, values, media_seconds=None):
     elif "chars" in q:
         qty = float(len(str(values.get(q["chars"]) or "").strip()))
     elif "megapixels" in q:
-        qty = _megapixels(q, values, round_up)
+        qty = _megapixels(q, values, round_up, media_seconds)
+        qty += _input_megapixels(est.get("input_megapixels"), round_up, media_seconds)
     elif "unknown" in q:
         qty = None
     else:
@@ -268,7 +327,8 @@ def _j_map(widget, mapping, default):
 
 def _j_rate(est):
     rate = est.get("rate", 0)
-    expr = (_j_map(rate["widget"], rate["map"], 0) if isinstance(rate, dict) else str(float(rate)))
+    expr = (_j_map(rate["widget"], rate["map"], _map_max(rate["map"])) if isinstance(rate, dict)
+            else str(float(rate)))
     for rule in reversed(est.get("rate_if") or []):
         expr = "(%s = %s ? %s : %s)" % (_jw(rule["widget"]), _js(_norm(rule["equals"])),
                                          float(rule["rate"]), expr)
@@ -304,13 +364,19 @@ def _j_text(prefix, usd_var):
 
 
 def _j_megapixels(q, round_up):
-    size = q["megapixels"]
+    size = q.get("megapixels") or ""
     chain = "%d" % (DEFAULT_SIZE[0] * DEFAULT_SIZE[1])
-    for key, (w, h) in reversed(list(SIZE_PRESETS.items())):
-        chain = "($s = %s ? %d : %s)" % (_js(key), w * h, chain)
-    px = '($s := %s; $s = "custom" ? %s * %s : %s)' % (
-        _jw(size), _jw(size + "_width"), _jw(size + "_height"), chain)
-    mp = "(%s / 1000000)" % px
+    if size:
+        for key, (w, h) in reversed(list(SIZE_PRESETS.items())):
+            chain = "($s = %s ? %d : %s)" % (_js(key), w * h, chain)
+        px = '($s := %s; $s = "custom" ? %s * %s : %s)' % (
+            _jw(size), _jw(size + "_width"), _jw(size + "_height"), chain)
+    else:
+        px = chain                  # no size box: one megapixel (the run measures the picture)
+    mp = "(%s / %d)" % (px, MEGAPIXEL)
+    if q.get("scale_widget"):
+        mp = '(%s * ($f := %s; $f := $type($f) = "number" ? $f : 1; $f * $f))' % (
+            mp, _jw(q["scale_widget"]))
     if round_up:
         mp = "$ceil(%s - 0.000000001)" % mp
     if q.get("count"):
@@ -337,9 +403,11 @@ def badge_depends(pricing):
     add(q.get("widget"))
     add(q.get("chars"))
     if q.get("megapixels"):
-        for name in (q["megapixels"], q["megapixels"] + "_width", q["megapixels"] + "_height",
-                     q.get("count")):
+        for name in (q["megapixels"], q["megapixels"] + "_width", q["megapixels"] + "_height"):
             add(name)
+    if "megapixels" in q:
+        add(q.get("count"))
+        add(q.get("scale_widget"))
     for m in est.get("multiply") or []:
         add(m["widget"])
     for extra in est.get("add") or []:

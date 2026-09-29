@@ -12,16 +12,32 @@
    "price": 0.15
   },
   "text": "Your request will cost $0.15 per image. For $1.00, you can run this model 7 times. 4K outputs will be charged at double the standard rate. If web search is used, an additional $0.015 will be charged. Note: Pricing may change in the future.",
-  "tag": "$0.15/image",
+  "tag": "$0.15-0.30/image",
   "estimate": {
-   "auto": true,
    "per": "image",
    "rate": 0.15,
    "quantity": {
     "widget": "num_images"
-   }
+   },
+   "multiply": [
+    {
+     "widget": "resolution",
+     "map": {
+      "1k": 1,
+      "2k": 1,
+      "4k": 2
+     }
+    }
+   ],
+   "add": [
+    {
+     "widget": "enable_web_search",
+     "equals": true,
+     "usd": 0.015
+    }
+   ]
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

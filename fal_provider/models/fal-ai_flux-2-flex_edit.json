@@ -20,9 +20,10 @@
    "quantity": {
     "megapixels": "image_size"
    },
-   "label": " (+ input MP)"
+   "label": " (+ input MP)",
+   "input_megapixels": {}
   },
-  "checked": "2026-09-29"
+  "checked": "2026-09-30"
  },
  "checks": {},
  "inputs": [

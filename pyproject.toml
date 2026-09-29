@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-arkennemasis"
-description = "Generate images with your ChatGPT subscription - no API key: your Codex CLI login runs gpt-image-2 inside ComfyUI, billed to your ChatGPT plan. Plus 211 fal.ai nodes, one per model, each with a live price badge, a spending cap, reuse of identical paid runs and free result recovery: all Flux (1, 2, Kontext, Flux 3 video), all MiniMax (Hailuo, H3, Speech, Music), all ElevenLabs, all Nano Banana, Seedance 2.5, Kling, Topaz, Qwen, Sync lipsync and VEED Fabric - one command adds any new fal model. Also: shared image settings, run-N-of-M shot selection, auto-numbered run folders, caption sidecars, reusable system prompts, and video, TTS and caption utilities. Keywords: ChatGPT, Codex, gpt-image-2, fal, Flux, MiniMax, Hailuo, ElevenLabs, Nano Banana, Seedance, Kling, lipsync, image to video, text to speech."
-version = "1.4.1"
+description = "Generate images with your ChatGPT subscription - no API key: your Codex CLI login runs gpt-image-2 inside ComfyUI, billed to your ChatGPT plan. Plus 212 fal.ai nodes, one per model, each with a live price badge, a spending cap, reuse of identical paid runs and free result recovery: all Flux (1, 2, Kontext, Flux 3 video), all MiniMax (Hailuo, H3, Speech, Music), all ElevenLabs, all Nano Banana, Seedance 2.5, Kling, Topaz, Qwen, Sync lipsync, SAM 3.1 video segmentation and VEED Fabric - one command adds any new fal model. Also: shared image settings, run-N-of-M shot selection, auto-numbered run folders, caption sidecars, reusable system prompts, and video, TTS and caption utilities. Keywords: ChatGPT, Codex, gpt-image-2, fal, Flux, MiniMax, Hailuo, ElevenLabs, Nano Banana, Seedance, Kling, lipsync, image to video, text to speech."
+version = "1.4.2"
 license = { file = "LICENSE" }
 dependencies = ["httpx"]
 

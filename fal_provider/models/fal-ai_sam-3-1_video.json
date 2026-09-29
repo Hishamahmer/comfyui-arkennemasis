@@ -1,0 +1,130 @@
+{
+ "endpoint_id": "fal-ai/sam-3-1/video",
+ "class_key": "ArkFal_fal_ai_sam_3_1_video",
+ "title": "SAM 3.1 Video Segmentation",
+ "category": "Video/SAM",
+ "folder": "fal-ai_sam-3-1_video",
+ "page": "https://fal.ai/models/fal-ai/sam-3-1/video",
+ "description": "SAM 3.1 builds comes with Object Multiplex, a shared-memory approach for joint multi-object tracking that delivers faster speeds with larger number of objects tracked.",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 0.01
+  },
+  "text": "Your request will cost $0.01 per 16 frames of video input.",
+  "tag": "$0.01/16 frames",
+  "estimate": {
+   "per": "second",
+   "rate": 0.01875,
+   "quantity": {
+    "media": [
+     "video"
+    ]
+   },
+   "label": " of video at 30 fps (60 fps footage costs double)"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "The URL of the video to be segmented."
+  },
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text prompt for segmentation. Use commas to track multiple objects (e.g., 'person, cloth'). Empty leaves it out."
+  },
+  {
+   "name": "point_prompts",
+   "path": "point_prompts",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "List of point prompts JSON. Empty leaves it out."
+  },
+  {
+   "name": "box_prompts",
+   "path": "box_prompts",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "List of box prompt coordinates (x_min, y_min, x_max, y_max). JSON. Empty leaves it out."
+  },
+  {
+   "name": "apply_mask",
+   "path": "apply_mask",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Apply the mask on the video."
+  },
+  {
+   "name": "video_output_type",
+   "path": "video_output_type",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "X264 (.mp4)",
+    "VP9 (.webm)"
+   ],
+   "default": "X264 (.mp4)",
+   "tooltip": "The output type of the generated video."
+  },
+  {
+   "name": "detection_threshold",
+   "path": "detection_threshold",
+   "required": false,
+   "kind": "float",
+   "default": 0.5,
+   "min": 0.1,
+   "max": 1,
+   "tooltip": "Detection confidence threshold (0.0-1.0). Lower = more detections but less precise.",
+   "step": 0.01
+  },
+  {
+   "name": "max_num_objects",
+   "path": "max_num_objects",
+   "required": false,
+   "kind": "int",
+   "default": 16,
+   "min": 1,
+   "max": 128,
+   "tooltip": "Maximum number of objects to track in the video."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "boundingbox_frames_zip",
+   "kind": "file",
+   "list": false
+  }
+ ],
+ "aliases": [
+  "sam",
+  "sam3",
+  "sam 3",
+  "sam 3.1",
+  "segment anything",
+  "segmentation",
+  "cut out",
+  "cutout",
+  "mask",
+  "rotoscope",
+  "remove background",
+  "track object"
+ ]
+}
