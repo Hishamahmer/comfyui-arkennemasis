@@ -18,12 +18,23 @@ ComfyUI natively rejects linking a `STRING` output into a `COMBO` widget. To con
 
 ComfyUI executes asynchronous nodes concurrently. When triggering 10–30 branches at once, parallel API calls can exceed provider rate limits and come back as 429 errors.
 
-The Codex nodes provide a **`run_mode`** widget (the fal nodes need none - fal queues requests on its side):
+The Codex nodes provide a **`run_mode`** widget:
 
 | `run_mode` | Behavior |
 | :--- | :--- |
 | **`one at a time`** (Default) | Uses an internal `asyncio.Lock` to serialize every Arkennemasis API call in the graph sequentially. |
 | **`all at once`** | Concurrently executes branches up to the threshold set in `max_concurrent` (default: 2; `0` = uncapped). |
+
+The **fal nodes** have their own **`max_concurrent`** (default **1**, up to 32), shared by every fal
+node in the run (`fal_provider/limit.py`):
+
+* Only the paid part (upload, submit, wait, download) waits for a slot. The free checks - key,
+  inputs, price, `max_cost_usd`, reusing an identical earlier run - never wait.
+* A node set to N starts its paid part only while fewer than N fal calls are running, so a
+  node left at 1 waits until nothing else runs. Raise it on the nodes you want side by side.
+* **Once any fal node fails, the ones still waiting are never started.** ComfyUI stops a run
+  on the first failure but does not cancel the other async nodes until the run ends, so
+  without this the next node in line could still submit - and bill.
 
 ---
 

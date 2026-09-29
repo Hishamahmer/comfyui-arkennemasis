@@ -59,6 +59,10 @@ If you do not have a ChatGPT Plus subscription, or want other models, use the fa
 3. Use **`arkennemasis fal · GPT Image 2 Edit`** for the same `gpt-image-2` model, or any other
    fal node. Each shows a live price badge, and `max_cost_usd` stops a run whose estimate is
    above your cap before anything is sent.
+4. Money guards on every fal node: `reuse_identical_run` never pays twice for the same inputs,
+   `max_concurrent` (default 1) runs one paid fal call at a time across the whole graph, and
+   once one fal node fails the ones still waiting are not started. The price estimates are
+   tested against fal's own published prices (`tests/fal/test_prices.py`).
 
 ---
 

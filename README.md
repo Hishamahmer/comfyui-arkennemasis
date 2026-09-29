@@ -82,7 +82,7 @@ anything. Full details in [What each path needs](#what-each-path-needs).
 |---|---|---|---|
 | arkennemasis/**LLM** | arkennemasis Codex LLM (ChatGPT login) | GPT-5 text **and** vision through your **`codex login`** — no API key, billed to your ChatGPT plan. Reads images, and splits a long answer into batches so a 50-scene plan does not have to arrive in one reply | `STRING`, `STRING` |
 | arkennemasis/**fal/Image/…** | 106 image models — **Flux** (1, 2 pro/max/flex/flash/turbo/klein, Kontext, LoRA, Fill, Redux, Canny/Depth, PuLID, LoRA galleries, upscaler), **Nano Banana** (1, 2, Pro, Lite + edits), **GPT Image 2 Edit**, **MiniMax Image 01**, **Qwen Image 3** | one node per model on fal.ai, with that model's own settings and a live price badge | `IMAGE`, `STRING` |
-| arkennemasis/**fal/Video/…** | 61 video models — **MiniMax** (Hailuo 02 / 2.3 / Fast, Video 01, H3, H3 Max + styles), **Flux 3** video (+ drafts, extend, edit, upscale), **Seedance 2.5**, **Kling v3** motion control, **Topaz** video upscale | video, most with native audio | `VIDEO`, `STRING` |
+| arkennemasis/**fal/Video/…** | 62 video models — **MiniMax** (Hailuo 02 / 2.3 / Fast, Video 01, H3, H3 Max + styles), **Flux 3** video (+ drafts, extend, edit, upscale), **Seedance 2.5**, **Kling v3** motion control, **Topaz** video upscale, **SAM 3.1** video segmentation | video, most with native audio | `VIDEO`, `STRING` |
 | arkennemasis/**fal/Lip Sync/…** | Sync Lipsync 2 / 2 Pro / 3 / React-1, MiniMax H3 Max Lip Sync, VEED Fabric 1.0 (+ Fast, + Text) | talking video from a picture or a clip plus audio | `VIDEO`, `STRING` |
 | arkennemasis/**fal/Audio/…** | 36 audio models — **ElevenLabs** (TTS v2.5/v3/v4, dialogue, music, sound effects, speech-to-text, alignment, voice changer, isolation, dubbing), **MiniMax** (Speech 02–2.8, voice clone/design, Music), **Chatterbox**, **Qwen Audio 3 TTS**, **xAI Grok Voice** | speech, music, sound, transcripts | `AUDIO`, `STRING` |
 | arkennemasis/**fal/Tools** | fal · History (free) · Recover Result (free) | every fal run, loaded back for free; a finished request collected by id without paying again | `STRING`, `IMAGE`, `VIDEO` |
@@ -266,7 +266,7 @@ price rules work.
 Arkennemasis provides dedicated utility nodes to manage execution flow, prevent runaway costs, and organize outputs:
 
 * **Shared Image Settings (`Image Gen Settings`)**: Drives aspect ratio, quality, moderation, and timeouts across multiple generator nodes simultaneously.
-* **Rate Limits & Concurrency (`run_mode`)**: Switches between sequential execution (`one at a time`) to avoid 429 rate limit bans, and parallel execution (`all at once`, `max_concurrent`).
+* **Rate Limits & Concurrency (`run_mode`)**: Switches between sequential execution (`one at a time`) to avoid 429 rate limit bans, and parallel execution (`all at once`, `max_concurrent`). The fal nodes have their own `max_concurrent` (default 1: one paid fal call at a time across the whole run).
 * **Automated Backoff Retries**: Automatically retries 429 rate limits, 5xx server drops, and interrupted network streams with exponential backoff.
 * **Lazy Branch Gating (`Shot Selector`)**: Evaluates only the first N branches; unselected branches are never evaluated and never billed.
 * **Auto-Numbered Output Folders (`Run Folder`)**: Generates dynamically incremented run folders (`run_001`, `run_002`) so outputs stay grouped.

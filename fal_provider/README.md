@@ -149,6 +149,7 @@ size x quality table used by GPT Image 2 Edit - see its file.
 | `client.py` | key, uploads, queue, downloads - standard library only |
 | `media.py` | IMAGE / MASK / VIDEO / AUDIO <-> files |
 | `pricing.py` | estimate + badge formula |
+| `limit.py` | `max_concurrent` - how many paid fal calls run at once |
 | `recover.py` | fal Recover Result |
 | `history.py` | fal History |
 

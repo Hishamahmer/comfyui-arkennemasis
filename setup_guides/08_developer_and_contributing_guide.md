@@ -38,7 +38,11 @@ comfyui-arkennemasis/
 │   ├── client.py               key from .env, uploads, queue, downloads (stdlib only)
 │   ├── media.py                IMAGE / MASK / VIDEO / AUDIO <-> files
 │   ├── pricing.py              the cost estimate and the live price-badge formula
+│   ├── limit.py                max_concurrent: how many paid fal calls run at once
+│   ├── history.py              fal History (every past run, loaded back for free)
 │   └── recover.py              fal Recover Result (free re-collection by request id)
+│                               tests: tests/fal/ - run test_prices.py after adding a model;
+│                               add_model marks any price it cannot read safely "review"
 │
 │
 ├── variation/               PRODUCT-VARIATION PIPELINE — a use case, not a provider
