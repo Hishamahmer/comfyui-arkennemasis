@@ -27,7 +27,7 @@ import time
 
 from comfy_api.latest import io
 
-from . import client, media, pricing
+from . import client, limit, media, pricing
 from .schema_convert import NOT_SET
 
 CATEGORY_ROOT = "arkennemasis/fal"
@@ -109,6 +109,12 @@ def _schema_inputs(spec):
         "extra_json", multiline=True, default="", optional=True,
         tooltip="Advanced: a JSON object merged into the request last, for any fal field this "
                 "node has no box for. Example: {\"seed\": 7}. Leave empty normally."))
+    out.append(io.Int.Input(
+        "max_concurrent", default=limit.DEFAULT, min=1, max=limit.MAXIMUM, optional=True,
+        tooltip="How many paid fal calls may run at the same time in one run, across every "
+                "fal node. 1 (default) = one after another. This node starts its paid part "
+                "only while fewer than this many fal calls are running. Once any fal node "
+                "fails, the ones still waiting are not started, so nothing more is billed."))
     return out
 
 
@@ -553,7 +559,12 @@ def _previous_run(run_hash):
     return None
 
 
-def run_blocking(spec, kw, node_id):
+def check_run(spec, kw, node_id):
+    """Steps 1-3, all free: key, inputs, price, cap - and reusing an identical earlier run.
+
+    Returns {"done": (values, ui)} when an earlier run was reused, else what bill_run needs.
+    Runs BEFORE a concurrency slot is taken, so a refused or reused node never waits.
+    """
     say = _Reporter(node_id, spec["title"])
     key = client.fal_key()                                   # 1
     payload, uploads, media_seconds = _prepare(spec, kw, say)  # 2
@@ -575,7 +586,7 @@ def run_blocking(spec, kw, node_id):
                     "reused": True, "estimate_usd": 0.0, "estimate": "reused - nothing billed",
                     "files": [p for ps in prev["field_files"].values() for p in ps],
                     "result": prev.get("result")}
-            return values + [json.dumps(info, ensure_ascii=False, indent=1)], ui
+            return {"done": (values + [json.dumps(info, ensure_ascii=False, indent=1)], ui)}
 
     cap = float(kw.get("max_cost_usd") if kw.get("max_cost_usd") is not None else DEFAULT_MAX_COST)
     if usd is not None and cap > 0 and usd > cap:
@@ -584,7 +595,16 @@ def run_blocking(spec, kw, node_id):
             "max_cost_usd on the node (or set it to 0 for no cap) if this is intended."
             % (spec["title"], pricing._money(usd), cap))
     say("estimated %s" % cost_text)
+    return {"spec": spec, "say": say, "key": key, "payload": payload, "uploads": uploads,
+            "usd": usd, "cost_text": cost_text, "run_hash": run_hash}
 
+
+def bill_run(ready):
+    """Steps 4-7, the part that costs money: upload, submit, wait, download."""
+    spec, say, key, payload, uploads, usd, cost_text, run_hash = (ready[k] for k in (
+        "spec", "say", "key", "payload", "uploads", "usd", "cost_text", "run_hash"))
+    if _cancelled():
+        _interrupt()
     for i, up in enumerate(uploads):                         # 4
         if _cancelled():
             _interrupt()
@@ -653,6 +673,33 @@ def run_blocking(spec, kw, node_id):
     return values + [json.dumps(info, ensure_ascii=False, indent=1)], ui
 
 
+def run_blocking(spec, kw, node_id):
+    """Both halves back to back, with no concurrency slot (the node itself uses execute)."""
+    ready = check_run(spec, kw, node_id)
+    return ready["done"] if "done" in ready else bill_run(ready)
+
+
+async def run_limited(spec, kw, node_id):
+    """What a node runs: the free checks, then the billed part inside a concurrency slot."""
+    try:
+        ready = await asyncio.to_thread(check_run, spec, kw, node_id)
+        if "done" in ready:
+            return ready["done"]
+        say = ready["say"]
+
+        def waiting(running, limit_):
+            say("waiting for its turn - %d fal call%s running, max_concurrent %d"
+                % (running, "" if running == 1 else "s", limit_))
+
+        async with limit.slot(kw.get("max_concurrent", limit.DEFAULT), spec["title"], waiting):
+            return await asyncio.to_thread(bill_run, ready)
+    except asyncio.CancelledError:
+        raise
+    except BaseException:
+        limit.mark_failed(spec["title"])
+        raise
+
+
 # ---------------------------------------------------------------------------------------
 # the class
 # ---------------------------------------------------------------------------------------
@@ -680,7 +727,7 @@ def build_node_class(spec):
             node_id = cls.hidden.unique_id if cls.hidden is not None else None
         except Exception:                               # noqa: BLE001
             pass
-        values, ui = await asyncio.to_thread(run_blocking, spec, kwargs, node_id)
+        values, ui = await run_limited(spec, kwargs, node_id)
         return io.NodeOutput(*values, ui=ui)
 
     return type(spec["class_key"], (io.ComfyNode,), {

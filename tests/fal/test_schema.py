@@ -12,7 +12,7 @@ import sys
 import tempfile
 
 WORK = os.path.join(tempfile.gettempdir(), "arkennemasis_fal_tests")
-LIB = os.path.join(WORK, "py")
+LIB = os.path.join(WORK, "py%d%d" % sys.version_info[:2])     # compiled parts are per Python version
 if not os.path.isdir(os.path.join(LIB, "jsonschema")):
     subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--target", LIB, "jsonschema"], check=True)
 sys.path.insert(0, LIB)

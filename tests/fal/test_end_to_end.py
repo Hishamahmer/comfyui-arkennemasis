@@ -247,7 +247,7 @@ for key, cls in sorted(MODEL_CLASSES.items()):
     for section in ("required", "optional"):
         for name, s in info["input"].get(section, {}).items():
             t0 = s[0] if isinstance(s[0], str) else "COMBO"
-            if name in ("max_cost_usd", "reuse_identical_run", "extra_json"):
+            if name in ("max_cost_usd", "reuse_identical_run", "extra_json", "max_concurrent"):
                 continue
             if t0 == "COMBO":
                 options = s[1]["options"] if isinstance(s[0], str) else s[0]

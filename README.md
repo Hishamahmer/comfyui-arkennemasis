@@ -241,6 +241,9 @@ https://fal.ai/dashboard/keys.
   number of images, quality…), and its title shows the model's rate.
 - **`max_cost_usd`** (default $20) is a cap: when the estimate for a run is above it, the node
   stops **before** anything is uploaded or sent. `0` removes the cap.
+- **`max_concurrent`** (default 1) is how many paid fal calls may run at the same time,
+  across every fal node in a run. At 1 they go one after another; raise it (up to 32) to run
+  several side by side. If one fal node fails, the ones still waiting are not started.
 - While it runs, the node shows its status (queued / running / seconds / estimate).
   ComfyUI's **Cancel** also cancels the request on fal.
 - Every request is written to `output/fal/_requests.jsonl`. If ComfyUI is restarted while a

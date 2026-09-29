@@ -48,6 +48,16 @@ too; `--reprice` regenerates only the `auto` price rules, offline.
 Steps 1-4 cost nothing; a failure there never bills. Every submit and every finished
 result is logged in `output/fal/_requests.jsonl`.
 
+**One paid call at a time by default (`max_concurrent`, `limit.py`).** ComfyUI runs async
+nodes side by side, so without a limit a canvas of twenty fal nodes would send twenty paid
+requests in the same second. Steps 4-7 run inside a slot: a node starts them only while
+fewer than its own `max_concurrent` (default **1**, up to 32) fal calls are running in that
+run, and shows "waiting for its turn" meanwhile. Raise it on the nodes you want side by
+side; a node left at 1 waits until nothing else runs. Steps 1-3 and a reused run never
+wait. **Once any fal node in the run fails, the ones still waiting are never started** -
+ComfyUI stops the run on a failure but does not cancel the other nodes until it ends, and
+the failed node's freed slot would otherwise let the next one submit first.
+
 **If ComfyUI restarts mid-wait** the job keeps running on fal. Put the request id from the
 log into **fal Recover Result** (menu `arkennemasis/fal/Tools`) to download it - free.
 
