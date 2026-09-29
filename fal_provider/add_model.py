@@ -82,18 +82,79 @@ def class_key(endpoint):
     return "ArkFal_" + re.sub(r"[^A-Za-z0-9]+", "_", endpoint).strip("_")
 
 
-def category_for(endpoint, fal_category):
+FAMILIES = [  # (substring of the endpoint id, menu family) - first match wins
+    ("elevenlabs", "ElevenLabs"), ("minimax", "MiniMax"), ("hailuo", "MiniMax"),
+    ("flux", "Flux"), ("seedance", "Seedance"), ("gpt-image", "OpenAI"),
+    ("nano-banana", "Google"), ("sync-lipsync", "Sync"), ("veed/", "VEED"),
+    ("chatterbox", "Chatterbox"), ("xai/", "xAI"), ("kling", "Kling"), ("topaz/", "Topaz"),
+    ("qwen", "Qwen"),
+]
+
+
+def family_for(endpoint):
     e = endpoint.lower()
-    if "lipsync" in e or "lip-sync" in e or e.startswith("veed/fabric"):
-        return "Lip Sync"
+    for needle, family in FAMILIES:
+        if needle in e:
+            return family
+    return endpoint.split("/")[0]
+
+
+OWNER_WORDS = {"fal-ai": "", "bytedance": "", "blackforestlabs": "", "alibaba": "", "google": "",
+               "openai": "", "resemble-ai": "Resemble", "xai": "xAI", "minimax": "MiniMax",
+               "elevenlabs": "ElevenLabs", "topaz": "Topaz", "veed": "VEED", "chatterbox": "Chatterbox"}
+WORD_CASE = {"tts": "TTS", "lora": "LoRA", "hd": "HD", "3d": "3D", "4b": "4B", "9b": "9B", "srpo": "SRPO",
+             "vto": "VTO", "rf": "RF", "pulid": "PuLID", "hdr": "HDR", "sdr": "SDR", "so101": "SO-101",
+             "minimax": "MiniMax", "elevenlabs": "ElevenLabs", "chatterboxhd": "ChatterboxHD",
+             "lucidflux": "LucidFlux", "to": "to", "and": "and", "of": "of", "kling": "Kling",
+             "h3": "H3", "01": "01", "02": "02", "ai": "AI", "flf2v": "FLF2V", "vhs": "VHS",
+             "16bit": "16-bit"}
+
+
+def humanize(endpoint):
+    """A readable, unique node title from the endpoint id:
+    fal-ai/minimax/hailuo-2.3/pro/image-to-video -> MiniMax Hailuo 2.3 Pro Image to Video."""
+    parts = endpoint.split("/")
+    words = []
+    for i, seg in enumerate(parts):
+        if i == 0 and seg in OWNER_WORDS:
+            if OWNER_WORDS[seg]:
+                words.append(OWNER_WORDS[seg])
+            continue
+        if seg == "kling-video":
+            words.append("Kling")
+            continue
+        for w in seg.split("-"):
+            low = w.lower()
+            if low in WORD_CASE:
+                words.append(WORD_CASE[low])
+            elif re.fullmatch(r"v[0-9.]+", low):
+                words.append(low)
+            elif re.fullmatch(r"[0-9.]+", low):
+                words.append(low)
+            else:
+                words.append(low[:1].upper() + low[1:])
+    out = []
+    for w in words:                      # "ElevenLabs ElevenLabs" -> "ElevenLabs"
+        if not out or out[-1].lower() != w.lower():
+            out.append(w)
+    return " ".join(out)
+
+
+def category_for(endpoint, fal_category):
+    """`<type>/<family>` - the menu becomes arkennemasis/fal/Video/MiniMax and so on."""
+    e = endpoint.lower()
     c = (fal_category or "").lower()
-    if c.endswith("-to-image") or c == "image-to-image":
-        return "Image"
-    if c.endswith("-to-video") or c == "video-to-video":
-        return "Video"
-    if "audio" in c or "speech" in c:
-        return "Audio"
-    return "Other"
+    if "lipsync" in e or "lip-sync" in e or e.startswith("veed/fabric"):
+        kind = "Lip Sync"
+    elif "audio" in c or "speech" in c or "elevenlabs" in e:
+        kind = "Audio"
+    elif c.endswith("-to-image") or c == "image-to-image":
+        kind = "Image"
+    elif c.endswith("-to-video") or c == "video-to-video":
+        kind = "Video"
+    else:
+        kind = "Other"
+    return "%s/%s" % (kind, family_for(endpoint))
 
 
 def _clean(text):
@@ -124,60 +185,157 @@ def page_pricing(endpoint):
     return billing, text
 
 
-def default_estimate(billing, inputs):
-    """A first guess at the estimate rules from fal's billing unit."""
+UNIT_PER = {"second": "second", "seconds": "second", "minute": "minute", "minutes": "minute",
+            "hour": "hour", "hours": "hour", "image": "image", "images": "image",
+            "megapixel": "megapixel", "megapixels": "megapixel", "processed megapixel": "megapixel",
+            "processed megapixels": "megapixel", "1000 characters": "kchar",
+            "1k characters": "kchar", "character": "char", "characters": "char",
+            "video": "run", "videos": "run", "request": "run", "requests": "run",
+            "generation": "run", "generations": "run", "audio": "run", "audios": "run",
+            "song": "run", "songs": "run"}
+DURATION_WIDGETS = ("duration", "duration_seconds", "seconds", "length", "audio_length",
+                    "video_length", "num_seconds", "music_length_ms", "length_ms", "duration_ms")
+TEXT_WIDGETS = ("text", "prompt", "input", "script", "lyrics")
+COUNT_WIDGETS = ("num_images", "num_outputs", "n", "number_of_images")
+
+
+def _rates_from_text(text, options):
+    """{option: $ rate} when fal's pricing text names a price next to each option (768p...)."""
+    if not text or not options:
+        return {}
+    found = {}
+    low = text.lower()
+    for opt in options:
+        o = str(opt).lower()
+        if o in ("auto", "(not set)") or len(o) < 2:
+            continue
+        for m in re.finditer(r"(?<![a-z0-9])%s(?![a-z0-9])" % re.escape(o), low):
+            window = low[max(0, m.start() - 70):m.end() + 70]
+            prices = [(abs(pm.start() - (m.start() - max(0, m.start() - 70))), float(pm.group(1)))
+                      for pm in re.finditer(r"\$\s*([0-9]+(?:\.[0-9]+)?)", window)]
+            if prices:
+                found[o] = min(prices)[1]
+                break
+    return found if len(found) >= 2 else {}
+
+
+def default_estimate(billing, inputs, text=""):
+    """A first guess at the price rules from fal's billing unit, pricing text and the inputs.
+
+    Marked ``"auto": true`` - re-running add_model (or --reprice) regenerates it. Remove that
+    flag after tuning a rule by hand and it is kept from then on.
+    """
     if not billing:
         return None, ""
-    unit, price = billing["unit"], billing["price"]
+    unit, price = billing["unit"].strip().lower(), float(billing["price"])
+    per = UNIT_PER.get(unit)
+    if per is None:
+        return None, "$%g per %s" % (price, unit)
     names = {i["name"]: i for i in inputs}
-    sockets = []
-    for i in inputs:
-        if i["kind"] in ("audio", "video"):
-            sockets.append(i["name"])
-    per = {"seconds": "second", "minutes": "minute", "images": "image"}.get(unit)
-    if not per:
-        return None, ""
-    est = {"per": per, "rate": price}
-    if per == "image":
-        if "num_images" in names:
-            est["quantity"] = {"widget": "num_images"}
-        tag = "$%g/image" % price
-    else:
-        dur = names.get("duration")
-        if dur and dur["kind"] in ("enum", "int"):
-            numeric = [float(o) for o in dur.get("options", []) if re.fullmatch(r"[0-9.]+", str(o))]
-            est["quantity"] = {"widget": "duration", "auto_max": max(numeric) if numeric else 10}
-        elif sockets:
+    lower = (text or "").lower()
+    est = {"auto": True, "per": per, "rate": price}
+    if per == "char":
+        est["per"], est["rate"] = "kchar", price * 1000
+    if re.search(r"round(?:ed|ing)?\s+up|rounded upwards|nearest (?:whole )?(?:minute|second|megapixel|hour)", lower):
+        est["round_up"] = True
+
+    # a rate that depends on the resolution / quality the node sends
+    for field in ("resolution", "quality", "video_quality", "mode"):
+        inp = names.get(field)
+        if inp and inp["kind"] == "enum":
+            rates = _rates_from_text(text, inp["options"])
+            if rates:
+                est["rate"] = {"widget": field, "map": rates}
+                break
+
+    if est["per"] in ("second", "minute", "hour"):
+        dur = next((names[n] for n in DURATION_WIDGETS if n in names
+                    and names[n]["kind"] in ("enum", "int", "float")), None)
+        if dur:
+            q = {"widget": dur["name"]}
+            numeric = [float(o) for o in dur.get("options", []) if re.fullmatch(r"[0-9.]+", str(o).rstrip("s"))]
+            if dur["kind"] == "enum":
+                q["auto_max"] = max(numeric) if numeric else 10
+            elif "not_set" in dur:          # -1 = the model decides: count the longest it can be
+                q["auto_max"] = float(dur.get("max") or 30)
+                if dur["name"].endswith("_ms"):
+                    q["auto_max"] = q["auto_max"] / 1000.0
+            if dur["name"].endswith("_ms"):
+                q["scale"] = 0.001
+            est["quantity"] = q
+        else:
+            sockets = [i["name"] for i in inputs if i["kind"] in ("audio", "video")]
             audio = [s for s in sockets if s.startswith("audio")]
-            est["quantity"] = {"media": audio or sockets}
-            est["label"] = " of %s" % ("audio" if audio else "video")
-        tag = "$%g/%s" % (price, "s" if per == "second" else "min")
+            if sockets:
+                est["quantity"] = {"media": audio or sockets}
+                est["label"] = " of %s" % ("audio" if audio else "video")
+            else:
+                est["quantity"] = {"unknown": True}
+                est["label"] = " of output"
+    elif est["per"] == "kchar":
+        field = next((n for n in TEXT_WIDGETS if n in names and names[n]["kind"] in ("text", "string")), None)
+        est["quantity"] = {"chars": field} if field else {"unknown": True}
+    elif est["per"] == "megapixel":
+        size = next((i["name"] for i in inputs if i["kind"] == "image_size"), None)
+        count = next((n for n in COUNT_WIDGETS if n in names), None)
+        if size:
+            est["quantity"] = {"megapixels": size, "count": count} if count else {"megapixels": size}
+        elif count:                         # no size box: about one megapixel per image
+            est["per"] = "image"
+            est["quantity"] = {"widget": count}
+    elif est["per"] == "image":
+        count = next((n for n in COUNT_WIDGETS if n in names), None)
+        if count:
+            est["quantity"] = {"widget": count}
+
+    unit_text = {"second": "/s", "minute": "/min", "hour": "/hour", "kchar": "/1k chars",
+                 "megapixel": "/MP", "image": "/image", "run": "/run"}[est["per"]]
+    rate = est["rate"]
+    if isinstance(rate, dict):
+        vals = sorted(rate["map"].values())
+        tag = "$%g-%g%s" % (vals[0], vals[-1], unit_text)
+    else:
+        tag = "$%g%s" % (rate, unit_text)
     return est, tag
+
+
+def reprice(spec):
+    """Regenerate an auto (or missing) price rule from the file's own billing + text + inputs."""
+    old = (spec.get("pricing") or {}).get("estimate")
+    if old is not None and not old.get("auto"):
+        return False
+    est, tag = default_estimate((spec.get("pricing") or {}).get("billing"), spec["inputs"],
+                                (spec.get("pricing") or {}).get("text") or "")
+    spec["pricing"]["estimate"] = est
+    spec["pricing"]["tag"] = tag
+    return True
 
 
 def build(endpoint, args, old):
     root = json.loads(fetch(OPENAPI_URL % urllib.parse.quote(endpoint, safe="/")))
     meta = root.get("info", {}).get("x-fal-metadata", {})
-    catalog = {}
-    try:
-        data = json.loads(fetch(CATALOG_URL % urllib.parse.quote(endpoint, safe="/")))
-        for m in data.get("models", []):
-            if m.get("endpoint_id") == endpoint:
-                catalog = m.get("metadata") or {}
-    except Exception as exc:                            # noqa: BLE001
-        print("   (catalog lookup failed: %s)" % exc)
+    catalog = (args.catalog_cache or {}).get(endpoint)
+    if catalog is None:
+        catalog = {}
+        try:
+            data = json.loads(fetch(CATALOG_URL % urllib.parse.quote(endpoint, safe="/")))
+            for m in data.get("models", []):
+                if m.get("endpoint_id") == endpoint:
+                    catalog = m.get("metadata") or {}
+        except Exception as exc:                        # noqa: BLE001
+            print("   (catalog lookup failed for %s: %s)" % (endpoint, exc))
     inputs, omitted = schema_convert.convert_inputs(root)
     if old and not args.reset:
         inputs, omitted = schema_convert.apply_overrides(inputs, omitted, old.get("hide"),
                                                          old.get("labels"))
     outputs = schema_convert.convert_outputs(root)
     billing, text = page_pricing(endpoint)
-    est, tag = default_estimate(billing, inputs)
+    est, tag = default_estimate(billing, inputs, text or "")
 
     spec = {
         "endpoint_id": endpoint,
         "class_key": class_key(endpoint),
-        "title": args.title or catalog.get("display_name") or endpoint,
+        "title": args.title or humanize(endpoint),
         "category": args.category or category_for(endpoint, catalog.get("category") or meta.get("category")),
         "folder": file_stem(endpoint),
         "page": PAGE_URL % endpoint,
@@ -192,48 +350,103 @@ def build(endpoint, args, old):
         for field in KEEP_ON_REFRESH:
             if field in old:
                 spec[field] = old[field]
-        for field in ("estimate", "tag"):
-            if (old.get("pricing") or {}).get(field) is not None:
-                spec["pricing"][field] = old["pricing"][field]
+        old_est = (old.get("pricing") or {}).get("estimate")
+        if old_est is not None and not old_est.get("auto"):      # hand-tuned: keep it
+            for field in ("estimate", "tag"):
+                if (old.get("pricing") or {}).get(field) is not None:
+                    spec["pricing"][field] = old["pricing"][field]
     return spec
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("links", nargs="+", help="fal model links or endpoint ids")
+    parser.add_argument("links", nargs="*", help="fal model links or endpoint ids")
+    parser.add_argument("--reprice", action="store_true",
+                        help="no network: regenerate every auto price rule from the saved files")
     parser.add_argument("--category", help="Image | Video | Lip Sync | Audio | Other")
     parser.add_argument("--title", help="node title (single link only)")
     parser.add_argument("--reset", action="store_true",
                         help="regenerate hand-tuned fields too (changes nothing else)")
     parser.add_argument("--checked", default=None, help="date to stamp on the pricing")
+    parser.add_argument("--catalog", action="append", default=[],
+                        help="a saved catalog file {endpoint: metadata} to use instead of "
+                             "asking fal's catalog (which rate-limits) for every model")
+    parser.add_argument("--skip-existing", action="store_true",
+                        help="leave models that already have a file untouched")
+    parser.add_argument("--workers", type=int, default=1, help="models fetched at once")
     args = parser.parse_args()
+    args.catalog_cache = {}
+    for path in args.catalog:
+        with open(path, "r", encoding="utf-8") as handle:
+            args.catalog_cache.update(json.load(handle))
+    if args.reprice:
+        changed = 0
+        for name in sorted(os.listdir(MODELS_DIR)):
+            if not name.endswith(".json"):
+                continue
+            path = os.path.join(MODELS_DIR, name)
+            with open(path, "r", encoding="utf-8") as handle:
+                spec = json.load(handle)
+            if reprice(spec):
+                with open(path, "w", encoding="utf-8") as handle:
+                    json.dump(spec, handle, ensure_ascii=False, indent=1)
+                    handle.write("\n")
+                changed += 1
+                print("%-58s %-18s %s" % (spec["endpoint_id"], spec["pricing"]["tag"],
+                                         json.dumps(spec["pricing"]["estimate"])[:150]))
+        print("\nrepriced %d model(s); hand-tuned rules were left alone." % changed)
+        return
+    if not args.links:
+        parser.error("give one or more fal model links (or --reprice)")
     if args.title and len(args.links) > 1:
         parser.error("--title works with one link at a time")
     os.makedirs(MODELS_DIR, exist_ok=True)
     import datetime
     checked = args.checked or datetime.date.today().isoformat()
 
-    for link in args.links:
+    def one(link):
         endpoint = endpoint_from(link)
         path = os.path.join(MODELS_DIR, file_stem(endpoint) + ".json")
         old = None
         if os.path.exists(path):
+            if args.skip_existing:
+                return None
             with open(path, "r", encoding="utf-8") as handle:
                 old = json.load(handle)
-        print("== %s%s" % (endpoint, "  (refresh)" if old else ""))
         spec = build(endpoint, args, old)
         spec["pricing"]["checked"] = checked
-        with open(path, "w", encoding="utf-8") as handle:
+        tmp = path + ".part"
+        with open(tmp, "w", encoding="utf-8") as handle:
             json.dump(spec, handle, ensure_ascii=False, indent=1)
             handle.write("\n")
-        print("   node   : %s   [%s]" % (spec["title"], spec["category"]))
-        print("   inputs : %s" % ", ".join("%s(%s)" % (i["name"], i["kind"]) for i in spec["inputs"]))
-        if spec["omitted"]:
-            print("   left out: %s" % "; ".join("%s - %s" % (o["path"], o["why"]) for o in spec["omitted"]))
-        print("   outputs: %s" % ", ".join("%s(%s)" % (o["field"], o["kind"]) for o in spec["outputs"]))
-        print("   price  : %s" % spec["pricing"]["text"])
-        print("   estimate rules: %s" % json.dumps(spec["pricing"]["estimate"]))
-        print("   written: %s" % path)
+        os.replace(tmp, path)                  # never leave a half-written model file
+        return endpoint, path, spec, old is not None
+
+    from concurrent.futures import ThreadPoolExecutor
+    failures = []
+    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
+        futures = [(link, pool.submit(one, link)) for link in args.links]
+        for link, future in futures:
+            try:
+                done = future.result()
+            except Exception as exc:                    # noqa: BLE001 - report, carry on
+                failures.append((link, exc))
+                print("== %s  FAILED: %s" % (link, exc))
+                continue
+            if done is None:
+                continue
+            endpoint, path, spec, refreshed = done
+            print("== %s%s" % (endpoint, "  (refresh)" if refreshed else ""))
+            print("   node   : %s   [%s]" % (spec["title"], spec["category"]))
+            print("   inputs : %s" % ", ".join("%s(%s)" % (i["name"], i["kind"]) for i in spec["inputs"]))
+            if spec["omitted"]:
+                print("   left out: %s" % "; ".join("%s - %s" % (o["path"], o["why"]) for o in spec["omitted"]))
+            print("   outputs: %s" % ", ".join("%s(%s)" % (o["field"], o["kind"]) for o in spec["outputs"]))
+            print("   price  : %s" % spec["pricing"]["text"])
+            print("   estimate rules: %s" % json.dumps(spec["pricing"]["estimate"]))
+            print("   written: %s" % path)
+    if failures:
+        print("\n%d model(s) failed - run them again: %s" % (len(failures), " ".join(l for l, _ in failures)))
     print("\nRestart ComfyUI to load new or changed models.")
 
 

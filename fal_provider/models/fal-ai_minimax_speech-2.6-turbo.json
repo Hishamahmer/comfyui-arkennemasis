@@ -1,0 +1,286 @@
+{
+ "endpoint_id": "fal-ai/minimax/speech-2.6-turbo",
+ "class_key": "ArkFal_fal_ai_minimax_speech_2_6_turbo",
+ "title": "MiniMax Speech 2.6 Turbo",
+ "category": "Audio/MiniMax",
+ "folder": "fal-ai_minimax_speech-2.6-turbo",
+ "page": "https://fal.ai/models/fal-ai/minimax/speech-2.6-turbo",
+ "description": "Generate speech from text prompts and different voices using the MiniMax Speech-2.6 HD model, which leverages advanced AI techniques to create high-quality text-to-speech.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 characters",
+   "price": 0.06
+  },
+  "text": "$0.06 per 1000 character (fal's billing unit).",
+  "tag": "$0.06/1k chars",
+  "estimate": {
+   "auto": true,
+   "per": "kchar",
+   "rate": 0.06,
+   "quantity": {
+    "chars": "prompt"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text to convert to speech. Paragraph breaks should be marked with newline characters. **NOTE**: You can customize speech pauses by adding markers in the form `<#x#>`, where `x` is the pause duration in seconds. Valid range: `[0.01, 99.99]`, up to two decimal places. Pause markers must be placed between speakable text segments and cannot be used consecutively.",
+   "max_length": 10000,
+   "min_length": 1
+  },
+  {
+   "name": "voice_setting_speed",
+   "path": "voice_setting.speed",
+   "required": false,
+   "kind": "float",
+   "default": 1,
+   "min": 0.5,
+   "max": 2,
+   "tooltip": "Speech speed (0.5-2.0)",
+   "step": 0.01
+  },
+  {
+   "name": "voice_setting_vol",
+   "path": "voice_setting.vol",
+   "required": false,
+   "kind": "float",
+   "default": 1,
+   "min": 0.01,
+   "max": 10,
+   "tooltip": "Volume (0-10)",
+   "step": 0.01
+  },
+  {
+   "name": "voice_setting_english_normalization",
+   "path": "voice_setting.english_normalization",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Enables English text normalization to improve number reading performance, with a slight increase in latency"
+  },
+  {
+   "name": "voice_setting_pitch",
+   "path": "voice_setting.pitch",
+   "required": false,
+   "kind": "int",
+   "default": 0,
+   "min": -12,
+   "max": 12,
+   "tooltip": "Voice pitch (-12 to 12)"
+  },
+  {
+   "name": "voice_setting_emotion",
+   "path": "voice_setting.emotion",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "happy",
+    "sad",
+    "angry",
+    "fearful",
+    "disgusted",
+    "surprised",
+    "neutral"
+   ],
+   "default": "(not set)",
+   "tooltip": "Emotion of the generated speech '(not set)' leaves it to the model."
+  },
+  {
+   "name": "voice_setting_voice_id",
+   "path": "voice_setting.voice_id",
+   "required": false,
+   "kind": "string",
+   "default": "Wise_Woman",
+   "tooltip": "Predefined voice ID to use for synthesis Empty leaves it out.",
+   "min_length": 1
+  },
+  {
+   "name": "audio_setting_format",
+   "path": "audio_setting.format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "mp3",
+    "pcm",
+    "flac"
+   ],
+   "default": "mp3",
+   "tooltip": "Audio format"
+  },
+  {
+   "name": "audio_setting_bitrate",
+   "path": "audio_setting.bitrate",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "32000",
+    "64000",
+    "128000",
+    "256000"
+   ],
+   "default": "128000",
+   "tooltip": "Bitrate of generated audio"
+  },
+  {
+   "name": "audio_setting_sample_rate",
+   "path": "audio_setting.sample_rate",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "8000",
+    "16000",
+    "22050",
+    "24000",
+    "32000",
+    "44100"
+   ],
+   "default": "32000",
+   "tooltip": "Sample rate of generated audio"
+  },
+  {
+   "name": "audio_setting_channel",
+   "path": "audio_setting.channel",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "1",
+    "2"
+   ],
+   "default": "1",
+   "tooltip": "Number of audio channels (1=mono, 2=stereo)"
+  },
+  {
+   "name": "language_boost",
+   "path": "language_boost",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "Chinese",
+    "Chinese,Yue",
+    "English",
+    "Arabic",
+    "Russian",
+    "Spanish",
+    "French",
+    "Portuguese",
+    "German",
+    "Turkish",
+    "Dutch",
+    "Ukrainian",
+    "Vietnamese",
+    "Indonesian",
+    "Japanese",
+    "Italian",
+    "Korean",
+    "Thai",
+    "Polish",
+    "Romanian",
+    "Greek",
+    "Czech",
+    "Finnish",
+    "Hindi",
+    "Bulgarian",
+    "Danish",
+    "Hebrew",
+    "Malay",
+    "Slovak",
+    "Swedish",
+    "Croatian",
+    "Hungarian",
+    "Norwegian",
+    "Slovenian",
+    "Catalan",
+    "Nynorsk",
+    "Afrikaans",
+    "auto"
+   ],
+   "default": "(not set)",
+   "tooltip": "Enhance recognition of specified languages and dialects '(not set)' leaves it to the model."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "url",
+    "hex"
+   ],
+   "default": "hex",
+   "tooltip": "Format of the output content (non-streaming only)"
+  },
+  {
+   "name": "pronunciation_dict",
+   "path": "pronunciation_dict",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "Custom pronunciation dictionary for text replacement JSON. Empty leaves it out."
+  },
+  {
+   "name": "normalization_setting_target_range",
+   "path": "normalization_setting.target_range",
+   "required": false,
+   "kind": "float",
+   "default": 8,
+   "min": 0,
+   "max": 20,
+   "tooltip": "Target loudness range in LU (default 8.0)",
+   "step": 0.01
+  },
+  {
+   "name": "normalization_setting_target_loudness",
+   "path": "normalization_setting.target_loudness",
+   "required": false,
+   "kind": "float",
+   "default": -18,
+   "min": -70,
+   "max": -10,
+   "tooltip": "Target loudness in LUFS (default -18.0)",
+   "step": 0.01
+  },
+  {
+   "name": "normalization_setting_enabled",
+   "path": "normalization_setting.enabled",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Enable loudness normalization for the audio"
+  },
+  {
+   "name": "normalization_setting_target_peak",
+   "path": "normalization_setting.target_peak",
+   "required": false,
+   "kind": "float",
+   "default": -0.5,
+   "min": -3,
+   "max": 0,
+   "tooltip": "Target peak level in dBTP (default -0.5).",
+   "step": 0.01
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "duration_ms",
+   "kind": "int"
+  }
+ ]
+}

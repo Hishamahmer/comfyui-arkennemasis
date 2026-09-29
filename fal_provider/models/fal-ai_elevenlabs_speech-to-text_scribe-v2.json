@@ -1,0 +1,90 @@
+{
+ "endpoint_id": "fal-ai/elevenlabs/speech-to-text/scribe-v2",
+ "class_key": "ArkFal_fal_ai_elevenlabs_speech_to_text_scribe_v2",
+ "title": "ElevenLabs Speech to Text Scribe v2",
+ "category": "Audio/ElevenLabs",
+ "folder": "fal-ai_elevenlabs_speech-to-text_scribe-v2",
+ "page": "https://fal.ai/models/fal-ai/elevenlabs/speech-to-text/scribe-v2",
+ "description": "Use Scribe-V2 from ElevenLabs to do blazingly fast speech to text inferences!",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 0.008
+  },
+  "text": "Your request will cost $0.008 per input audio minutes. If keyterm is used, you request will cost %30 more.",
+  "tag": "$0.008/min",
+  "estimate": {
+   "auto": true,
+   "per": "minute",
+   "rate": 0.008,
+   "quantity": {
+    "media": [
+     "audio"
+    ]
+   },
+   "label": " of audio"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the audio file to transcribe"
+  },
+  {
+   "name": "language_code",
+   "path": "language_code",
+   "required": false,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Language code of the audio Empty leaves it out."
+  },
+  {
+   "name": "tag_audio_events",
+   "path": "tag_audio_events",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Tag audio events like laughter, applause, etc."
+  },
+  {
+   "name": "diarize",
+   "path": "diarize",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to annotate who is speaking"
+  },
+  {
+   "name": "keyterms",
+   "path": "keyterms",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "Words or sentences to bias the model towards transcribing. Up to 100 keyterms, max 50 characters each. Adds 30% premium over base transcription price. JSON. Empty leaves it out."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "language_probability",
+   "kind": "float"
+  },
+  {
+   "field": "language_code",
+   "kind": "string"
+  },
+  {
+   "field": "text",
+   "kind": "string"
+  },
+  {
+   "field": "words",
+   "kind": "json"
+  }
+ ]
+}

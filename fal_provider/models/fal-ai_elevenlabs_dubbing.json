@@ -1,0 +1,96 @@
+{
+ "endpoint_id": "fal-ai/elevenlabs/dubbing",
+ "class_key": "ArkFal_fal_ai_elevenlabs_dubbing",
+ "title": "ElevenLabs Dubbing",
+ "category": "Audio/ElevenLabs",
+ "folder": "fal-ai_elevenlabs_dubbing",
+ "page": "https://fal.ai/models/fal-ai/elevenlabs/dubbing",
+ "description": "Generate dubbed videos or audios using ElevenLabs Dubbing feature!",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 0.6
+  },
+  "text": "Your request will cost $0.6 per minute. The calculation will be based on the closest minute after rounding upwards.",
+  "tag": "$0.6/min",
+  "estimate": {
+   "auto": true,
+   "per": "minute",
+   "rate": 0.6,
+   "round_up": true,
+   "quantity": {
+    "media": [
+     "audio"
+    ]
+   },
+   "label": " of audio"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": false,
+   "kind": "audio",
+   "tooltip": "URL of the audio file to dub. Either audio_url or video_url must be provided."
+  },
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": false,
+   "kind": "video",
+   "tooltip": "URL of the video file to dub. Either audio_url or video_url must be provided. If both are provided, video_url takes priority."
+  },
+  {
+   "name": "target_lang",
+   "path": "target_lang",
+   "required": true,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Target language code for dubbing (ISO 639-1)"
+  },
+  {
+   "name": "source_lang",
+   "path": "source_lang",
+   "required": false,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Source language code. If not provided, will be auto-detected. Empty leaves it out."
+  },
+  {
+   "name": "num_speakers",
+   "path": "num_speakers",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Number of speakers in the audio. If not provided, will be auto-detected. -1 leaves it to the model.",
+   "schema_min": 1,
+   "max": 50,
+   "schema_max": 50
+  },
+  {
+   "name": "highest_resolution",
+   "path": "highest_resolution",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to use the highest resolution for dubbing."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "target_lang",
+   "kind": "string"
+  }
+ ]
+}

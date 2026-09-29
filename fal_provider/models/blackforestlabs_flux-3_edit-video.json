@@ -1,0 +1,69 @@
+{
+ "endpoint_id": "blackforestlabs/flux-3/edit-video",
+ "class_key": "ArkFal_blackforestlabs_flux_3_edit_video",
+ "title": "Flux 3 Edit Video",
+ "category": "Video/Flux",
+ "folder": "blackforestlabs_flux-3_edit-video",
+ "page": "https://fal.ai/models/blackforestlabs/flux-3/edit-video",
+ "description": "FLUX.3 Edit Video [FAST] is Black Forest Labs' frontier video model. This endpoint edits an existing video from natural-language instructions, applying targeted changes while preserving the rest of the scene.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.03
+  },
+  "text": "Your request will be charged at $0.03 per second of generated video (720p).",
+  "tag": "$0.03/s",
+  "estimate": {
+   "per": "second",
+   "rate": 0.03,
+   "quantity": {
+    "media": [
+     "video"
+    ]
+   },
+   "label": " of video"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text prompt describing how to change the input video. The clip is re-rendered preserving motion, timing, and framing.",
+   "max_length": 4096
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "int",
+   "default": 2,
+   "min": 0,
+   "max": 4,
+   "tooltip": "The safety tolerance level for the generated video. 0 is the strictest and 4 is the most permissive."
+  },
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL of the input video. MP4, under 50 MB and under 15 seconds."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

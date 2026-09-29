@@ -1,0 +1,138 @@
+{
+ "endpoint_id": "minimax/h3-max-turbo/image-to-video",
+ "class_key": "ArkFal_minimax_h3_max_turbo_image_to_video",
+ "title": "MiniMax H3 Max Turbo Image to Video",
+ "category": "Video/MiniMax",
+ "folder": "minimax_h3-max-turbo_image-to-video",
+ "page": "https://fal.ai/models/minimax/h3-max-turbo/image-to-video",
+ "description": "fal's H3 Max Turbo is a post-trained variant of MiniMax H3, tuned for stronger prompt adherence and better aesthetics while co-optimized with our custom inference stack for higher throughput with no compromises on output quality",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.0125
+  },
+  "text": "Video costs $0.0125 per second at 480p, $0.02 per second at 768p, and $0.04 per second at 1080p. Note: these are promotional launch rates, 50% off for a limited time. The discount ends September 30, after which 480p is $0.025/second, 768p is $0.04/second, and 1080p is $0.08/second.",
+  "tag": "$0.02-0.04/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.02,
+     "768p": 0.04,
+     "1080p": 0.04
+    }
+   },
+   "quantity": {
+    "widget": "duration"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text prompt for video generation",
+   "max_length": 50000,
+   "min_length": 1
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "int",
+   "default": 5,
+   "min": 5,
+   "max": 15,
+   "tooltip": "The duration of the video in seconds."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480P",
+    "768P",
+    "1080P"
+   ],
+   "default": "768P",
+   "tooltip": "The native generation resolution, or 1080P latent refinement from a native 768P source."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Random seed. A random seed is selected when omitted. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled."
+  },
+  {
+   "name": "prompt_expansion_mode",
+   "path": "prompt_expansion_mode",
+   "required": true,
+   "kind": "text",
+   "default": "balanced",
+   "tooltip": "How much effort to spend rewriting the prompt before generation. 'disabled' skips prompt expansion. 'balanced' returns in about a second. 'quality' spends up to ~30s on a richer prompt."
+  },
+  {
+   "name": "target_audio",
+   "path": "target_audio_url",
+   "required": false,
+   "kind": "audio",
+   "tooltip": "Optional URL of an audio clip at least 2 seconds long (maximum 15 MB) to pin to the generated soundtrack. Longer clips are trimmed to the requested video duration, keeping the beginning. The original audio replaces the output soundtrack, padded with silence if shorter than the video, without changing playback speed. Exceptionally high sample rates may be resampled to 96 kHz. Accepts an HTTP(S) URL or a base64 data UR"
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "Optional URL of the image to use as the first frame. When provided, the output canvas follows this image. If only end_image_url is provided, the canvas follows that last frame instead. If both images are omitted, the request is handled as text-to-video (16:9 by default)."
+  },
+  {
+   "name": "end_image",
+   "path": "end_image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "Optional URL of the image to use as the last frame. It may be provided alone for end-only keyframe generation; in that case the output canvas follows this image."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "expanded_prompt",
+   "kind": "string"
+  }
+ ]
+}

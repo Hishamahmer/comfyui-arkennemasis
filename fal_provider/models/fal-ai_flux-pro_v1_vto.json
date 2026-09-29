@@ -1,0 +1,99 @@
+{
+ "endpoint_id": "fal-ai/flux-pro/v1/vto",
+ "class_key": "ArkFal_fal_ai_flux_pro_v1_vto",
+ "title": "Flux Pro v1 VTO",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-pro_v1_vto",
+ "page": "https://fal.ai/models/fal-ai/flux-pro/v1/vto",
+ "description": "Generate virtual try-on results from a person image plus one or more garment references.",
+ "pricing": {
+  "billing": {
+   "unit": "processed megapixels",
+   "price": 0.005
+  },
+  "text": "Your request will cost $0.0375 for the first input megapixel, plus $0.005 per extra input megapixel and $0.005 per output megapixel, rounded up to the nearest megapixel. Each input image is rounded up independently before being summed. For example, two 1024x1024 input images with a 1024x1024 output will cost $0.0475 ($0.0375 for the first input megapixel + $0.005 for the second input megapixel + $0.005 for the output megapixel).",
+  "tag": "~$0.05/run",
+  "estimate": {
+   "per": "run",
+   "rate": 0.0475
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Natural-language styling instructions describing how the garment should be worn on the person (e.g. tucked in, layered, sleeves rolled up)."
+  },
+  {
+   "name": "human_image",
+   "path": "human_image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The URL of the person image that the garment will be applied onto. The output keeps this image's aspect ratio. Maximum 2 megapixels; recommended under 1 MP."
+  },
+  {
+   "name": "garment_image",
+   "path": "garment_image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The URL of the garment reference image. Maximum 1 megapixel; recommended around 0.5 MP. Multiple garments must be merged into a single composite image before submission."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same input will output the same image every time. If not provided, a random seed is used. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

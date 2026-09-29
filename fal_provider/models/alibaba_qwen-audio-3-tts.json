@@ -1,0 +1,123 @@
+{
+ "endpoint_id": "alibaba/qwen-audio-3-tts",
+ "class_key": "ArkFal_alibaba_qwen_audio_3_tts",
+ "title": "Qwen Audio 3 TTS",
+ "category": "Audio/Qwen",
+ "folder": "alibaba_qwen-audio-3-tts",
+ "page": "https://fal.ai/models/alibaba/qwen-audio-3-tts",
+ "description": "Generate natural multilingual speech from text with fast voice and language control using Qwen Audio 3.0 TTS Flash.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 characters",
+   "price": 0.05
+  },
+  "text": "",
+  "tag": "$0.05/1k chars",
+  "estimate": {
+   "auto": true,
+   "per": "kchar",
+   "rate": 0.05,
+   "quantity": {
+    "chars": "text"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "text",
+   "path": "text",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text to convert to speech.",
+   "max_length": 2000,
+   "min_length": 1
+  },
+  {
+   "name": "voice",
+   "path": "voice",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "Cherry",
+    "Serena",
+    "Ethan",
+    "Chelsie",
+    "Momo",
+    "Vivian",
+    "Moon",
+    "Maia",
+    "Kai",
+    "Nofish",
+    "Bella",
+    "Jennifer",
+    "Ryan",
+    "Katerina",
+    "Aiden",
+    "Mia",
+    "Mochi",
+    "Bellona",
+    "Vincent",
+    "Bunny",
+    "Neil",
+    "Elias",
+    "Arthur",
+    "Nini",
+    "Seren",
+    "Pip",
+    "Stella",
+    "Bodega",
+    "Sonrisa",
+    "Alek",
+    "Dolce",
+    "Sohee",
+    "Lenn",
+    "Emilien",
+    "Andre",
+    "Jada",
+    "Dylan",
+    "Li",
+    "Marcus",
+    "Roy",
+    "Peter",
+    "Sunny",
+    "Eric",
+    "Rocky",
+    "Kiki"
+   ],
+   "default": "Cherry",
+   "tooltip": "The voice used for speech synthesis. See the [Qwen-TTS voice list](https://www.alibabacloud.com/help/en/model-studio/qwen-tts-voice-list) for each voice's language and dialect coverage."
+  },
+  {
+   "name": "language",
+   "path": "language",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "Auto",
+    "Chinese",
+    "English",
+    "Spanish",
+    "Russian",
+    "Italian",
+    "French",
+    "Korean",
+    "Japanese",
+    "German",
+    "Portuguese"
+   ],
+   "default": "Auto",
+   "tooltip": "Language of the input text. `Auto` lets the model detect it; setting it explicitly improves pronunciation and intonation."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  }
+ ]
+}

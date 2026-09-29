@@ -9,19 +9,26 @@ so a new model is a new file, never new code.
 python_embeded\python.exe ComfyUI\custom_nodes\comfyui-arkennemasis\fal_provider\add_model.py https://fal.ai/models/<owner>/<model>
 ```
 
-Several links at once are fine. It reads three public things - fal's OpenAPI schema for the
-endpoint, fal's model catalog entry, and the model page's pricing - and writes
-`models/<endpoint>.json`. Restart ComfyUI; the node appears under
-`arkennemasis/fal/<category>` as **arkennemasis fal · <title> · <price>**.
+Several links at once are fine (`--workers 4` fetches four at a time; `--catalog <file>`
+reuses a saved catalog instead of asking fal's rate-limited catalog API per model). It reads
+three public things - fal's OpenAPI schema for the endpoint, fal's model catalog entry, and
+the model page's pricing - and writes `models/<endpoint>.json`. Restart ComfyUI; the node
+appears under `arkennemasis/fal/<Type>/<Family>` (e.g. `Video/MiniMax`, `Audio/ElevenLabs`) as
+**arkennemasis fal · <title> · <price>**. The title is made from the endpoint id, so it is
+always unique (`fal-ai/minimax/hailuo-2.3/pro/image-to-video` -> *MiniMax Hailuo 2.3 Pro Image to Video*).
 
-Then open the new JSON and check `pricing.estimate` against the `pricing.text` it printed
-(see *Price rules* below). The first guess is right for simple per-second / per-minute /
-per-image models; resolution-dependent prices need the rate map filling in.
+The price rule is generated too, marked `"auto": true`: from fal's billing unit (per second,
+minute, hour, 1000 characters, megapixel, image or per video), the duration / text / size /
+count widget it depends on, "rounded up" in the pricing text, and a rate per resolution when
+the text names one. Check it against the `pricing.text` it printed; fal's structured price
+and its page sometimes disagree (Flux 3 video's page charges twice the structured figure),
+and the page is what you pay. Edit the rule and delete `"auto"` to keep your version.
 
 Re-running `add_model.py` on a model already added refreshes its inputs, outputs,
-description and pricing text from fal, and **keeps** the hand-tuned parts: the class key
-(saved canvases depend on it), `title`, `category`, `checks`, `hide`, `labels` and the
-price rules. `--reset` regenerates those too.
+description and pricing text from fal, regenerates `auto` price rules, and **keeps** the
+hand-tuned parts: the class key (saved canvases depend on it), `title`, `category`,
+`checks`, `hide`, `labels` and any price rule without `auto`. `--reset` regenerates those
+too; `--reprice` regenerates only the `auto` price rules, offline.
 
 ## What every node does on Run
 
@@ -62,9 +69,16 @@ log into **fal Recover Result** (menu `arkennemasis/fal/Tools`) to download it -
 
 Input kinds: `image`, `image_list` (sockets `image_1..N`, each may carry a batch; sent in
 socket order), `mask` (transparent PNG where the mask is set), `video`, `video_list`,
-`audio`, `audio_list`, `url`, `text`, `string`, `enum`, `bool`, `tribool` ("(not set)" /
-true / false), `int`, `float` (an optional one with no default uses **-1 = not set**),
-`image_size` (fal's presets + `custom` with width/height).
+`audio`, `audio_list`, `url`, `text`, `string`, `enum` (numbers sent as numbers, including
+mixed lists like `auto, 5, 6 ... 20`), `bool`, `tribool` ("(not set)" / true / false), `int`,
+`float` (an optional one with no default uses **-1 = not set**), `image_size` (fal's presets +
+`custom` with width/height), and `json` - a box holding JSON for lists and nested structures
+(LoRA lists, dialogue lines, composition plans, keyframes), pre-filled with fal's own example.
+A nested object whose parts are plain values becomes one box per part instead.
+
+Outputs: `IMAGE` (+ paths), `VIDEO` (+ path), `AUDIO` (a real waveform, + path, with a player on
+the node), every plain value fal returns, lists/objects (word timings...) as JSON text, and
+`info`.
 
 Left out on purpose everywhere: the yes/no `sync_mode` (it would return files inline and
 drop them from fal's request history), `end_user_id`, and constants.
@@ -78,12 +92,18 @@ as a rate there (`$8.00/min of video`) and as a dollar figure at run time.
 
 ```json
 {
-  "per": "second",                         // second | minute | image | run | table
+  "per": "second",                         // second | minute | hour | kchar | megapixel | image | run | table
   "rate": {"widget": "resolution", "map": {"480p": 0.08, "720p": 0.15}},   // or a number
   "rate_if": [{"widget": "draft", "equals": true, "rate": 0.2205}],
-  "quantity": {"widget": "duration", "auto_max": 30},   // or {"media": ["audio"]}
+  "quantity": {"widget": "duration", "auto_max": 30},   // "auto" or -1 counts as auto_max;
+                                                          //   "scale": 0.001 for a _ms widget
+                                                          // or {"media": ["audio"]}
+                                                          // or {"chars": "text"}  (per: "kchar")
+                                                          // or {"megapixels": "image_size", "count": "num_images"}
                                                           // or {"words": "text", "per_second": 2.5}
                                                           // or {"unknown": true}
+  "round_up": true,                        // whole minutes / whole megapixels ...
+  "first": 0.07,                           // "$0.07 for the first MP, $0.03 per extra": rate 0.03
   "multiply": [{"widget": "resolution", "map": {"2k": 1.5, "4k": 2}}],
   "media_factor": {"inputs": ["video_1"], "factor": 0.6, "add_seconds": true},
   "over": {"seconds": 15, "factor": 1.2},
@@ -106,3 +126,6 @@ size x quality table used by GPT Image 2 Edit - see its file.
 | `media.py` | IMAGE / MASK / VIDEO / AUDIO <-> files |
 | `pricing.py` | estimate + badge formula |
 | `recover.py` | fal Recover Result |
+| `history.py` | fal History |
+
+Tests: `../tests/fal/` (README there) - no key, nothing billed.

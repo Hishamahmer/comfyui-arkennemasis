@@ -1,0 +1,51 @@
+{
+ "endpoint_id": "fal-ai/minimax/video-01",
+ "class_key": "ArkFal_fal_ai_minimax_video_01",
+ "title": "MiniMax Video 01",
+ "category": "Video/MiniMax",
+ "folder": "fal-ai_minimax_video-01",
+ "page": "https://fal.ai/models/fal-ai/minimax/video-01",
+ "description": "Generate video clips from your prompts using MiniMax model",
+ "pricing": {
+  "billing": {
+   "unit": "videos",
+   "price": 0.5
+  },
+  "text": "$0.5 per video (fal's billing unit).",
+  "tag": "$0.5/run",
+  "estimate": {
+   "auto": true,
+   "per": "run",
+   "rate": 0.5
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "",
+   "max_length": 2000
+  },
+  {
+   "name": "prompt_optimizer",
+   "path": "prompt_optimizer",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to use the model's prompt optimizer"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

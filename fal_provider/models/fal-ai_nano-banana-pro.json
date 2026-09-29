@@ -1,0 +1,165 @@
+{
+ "endpoint_id": "fal-ai/nano-banana-pro",
+ "class_key": "ArkFal_fal_ai_nano_banana_pro",
+ "title": "Nano Banana Pro",
+ "category": "Image/Google",
+ "folder": "fal-ai_nano-banana-pro",
+ "page": "https://fal.ai/models/fal-ai/nano-banana-pro",
+ "description": "Nano Banana Pro is Google's new state-of-the-art image generation and editing model",
+ "pricing": {
+  "billing": {
+   "unit": "images",
+   "price": 0.15
+  },
+  "text": "Your request will cost $0.15 per image. For $1.00, you can run this model 7 times. 4K outputs will be charged at double the standard rate. If web search is used, an additional $0.015 will be charged. Note: Pricing may change in the future.",
+  "tag": "$0.15/image",
+  "estimate": {
+   "auto": true,
+   "per": "image",
+   "rate": 0.15,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text prompt to generate an image from.",
+   "max_length": 50000,
+   "min_length": 3
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The seed for the random number generator. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "21:9",
+    "16:9",
+    "3:2",
+    "4:3",
+    "5:4",
+    "1:1",
+    "4:5",
+    "3:4",
+    "2:3",
+    "9:16"
+   ],
+   "default": "1:1",
+   "tooltip": "The aspect ratio of the generated image."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png",
+    "webp"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "default": "4",
+   "tooltip": "The safety tolerance level for content moderation. 1 is the most strict (blocks most content), 6 is the least strict."
+  },
+  {
+   "name": "system_prompt",
+   "path": "system_prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Optional system instruction that steers the model's persona and output style across the request. Leave blank to omit; when provided, it is sent as the system instruction to Gemini (or as a system message on OpenAI-compatible providers). Empty leaves it out.",
+   "max_length": 50000
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1K",
+    "2K",
+    "4K"
+   ],
+   "default": "1K",
+   "tooltip": "The resolution of the image to generate."
+  },
+  {
+   "name": "limit_generations",
+   "path": "limit_generations",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Experimental parameter to limit the number of generations from each round of prompting to 1. Set to `True` to to disregard any instructions in the prompt regarding the number of images to generate."
+  },
+  {
+   "name": "enable_web_search",
+   "path": "enable_web_search",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Enable web search for the image generation task. This will allow the model to use the latest information from the web to generate the image."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "description",
+   "kind": "string"
+  }
+ ]
+}

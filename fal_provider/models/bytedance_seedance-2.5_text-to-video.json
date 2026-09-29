@@ -2,7 +2,7 @@
  "endpoint_id": "bytedance/seedance-2.5/text-to-video",
  "class_key": "ArkFal_bytedance_seedance_2_5_text_to_video",
  "title": "Seedance 2.5 Text to Video",
- "category": "Video",
+ "category": "Video/Seedance",
  "folder": "bytedance_seedance-2.5_text-to-video",
  "page": "https://fal.ai/models/bytedance/seedance-2.5/text-to-video",
  "description": "Dreamina Seedance 2.5 generates native 30-second single-shot video at up to 720p from a single text prompt, reasoning about the whole shot at once so motion, lighting, and subject identity stay coherent from first frame to last.",

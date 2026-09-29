@@ -1,0 +1,179 @@
+{
+ "endpoint_id": "fal-ai/flux-2/edit",
+ "class_key": "ArkFal_fal_ai_flux_2_edit",
+ "title": "Flux 2 Edit",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-2_edit",
+ "page": "https://fal.ai/models/fal-ai/flux-2/edit",
+ "description": "Image-to-image editing with FLUX.2 [dev] from Black Forest Labs. Precise modifications using natural language descriptions and hex color control.",
+ "pricing": {
+  "billing": {
+   "unit": "processed megapixels",
+   "price": 0.012
+  },
+  "text": "Requests cost $0.012 per megapixel of input and output. Input images will be resized to 1MP. For example, a 1024x1024 generation with 512*512 size image input will cost 0.024 (1 MP input + 1 MP output, each costing 0.012).",
+  "tag": "$0.012/MP",
+  "estimate": {
+   "per": "megapixel",
+   "rate": 0.012,
+   "round_up": true,
+   "quantity": {
+    "megapixels": "image_size",
+    "count": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to edit the image."
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 2.5,
+   "min": 0,
+   "max": 20,
+   "tooltip": "Guidance Scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The seed to use for the generation. If not provided, a random seed will be used. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 28,
+   "min": 4,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "square_hd",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the image to generate. The width and height must be between 512 and 2048 pixels. 'custom' uses the width and height below."
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "acceleration",
+   "path": "acceleration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "none",
+    "regular",
+    "high"
+   ],
+   "default": "regular",
+   "tooltip": "The acceleration level to use for the image generation."
+  },
+  {
+   "name": "enable_prompt_expansion",
+   "path": "enable_prompt_expansion",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "If set to true, the prompt will be expanded for better results."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled. Disabling it requires account authorization; unauthorized requests are always checked, and images flagged as unsafe are returned as black images."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png",
+    "webp"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "image",
+   "path": "image_urls",
+   "required": true,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "The URLs of the images for editing. A maximum of 4 images are allowed, if more are provided, only the first 4 will be used. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  }
+ ]
+}

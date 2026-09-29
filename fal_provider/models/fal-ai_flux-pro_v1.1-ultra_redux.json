@@ -1,0 +1,168 @@
+{
+ "endpoint_id": "fal-ai/flux-pro/v1.1-ultra/redux",
+ "class_key": "ArkFal_fal_ai_flux_pro_v1_1_ultra_redux",
+ "title": "Flux Pro v1.1 Ultra Redux",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-pro_v1.1-ultra_redux",
+ "page": "https://fal.ai/models/fal-ai/flux-pro/v1.1-ultra/redux",
+ "description": "FLUX1.1 [pro] ultra Redux is a high-performance endpoint for the FLUX1.1 [pro] model that enables rapid transformation of existing images, delivering high-quality style transfers and image modifications with the core FLUX capabilities.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.05
+  },
+  "text": "$0.05 per megapixel (fal's billing unit).",
+  "tag": "$0.05/image",
+  "estimate": {
+   "auto": true,
+   "per": "image",
+   "rate": 0.05,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from. Empty leaves it out."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "default": "2",
+   "tooltip": "The safety tolerance level for the generated image. 1 being the most strict and 5 being the most permissive."
+  },
+  {
+   "name": "enhance_prompt",
+   "path": "enhance_prompt",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to enhance the prompt for better results."
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The image URL to generate an image from. Needs to match the dimensions of the mask."
+  },
+  {
+   "name": "image_prompt_strength",
+   "path": "image_prompt_strength",
+   "required": false,
+   "kind": "float",
+   "default": 0.1,
+   "min": 0,
+   "max": 1,
+   "tooltip": "The strength of the image prompt, between 0 and 1.",
+   "step": 0.01
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "21:9",
+    "16:9",
+    "4:3",
+    "3:2",
+    "1:1",
+    "2:3",
+    "3:4",
+    "9:16",
+    "9:21"
+   ],
+   "default": "16:9",
+   "tooltip": "The aspect ratio of the generated image."
+  },
+  {
+   "name": "raw",
+   "path": "raw",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Generate less processed, more natural-looking images."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

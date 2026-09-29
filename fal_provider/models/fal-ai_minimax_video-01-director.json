@@ -1,0 +1,51 @@
+{
+ "endpoint_id": "fal-ai/minimax/video-01-director",
+ "class_key": "ArkFal_fal_ai_minimax_video_01_director",
+ "title": "MiniMax Video 01 Director",
+ "category": "Video/MiniMax",
+ "folder": "fal-ai_minimax_video-01-director",
+ "page": "https://fal.ai/models/fal-ai/minimax/video-01-director",
+ "description": "Generate video clips more accurately with respect to natural language descriptions and using camera movement instructions for shot control.",
+ "pricing": {
+  "billing": {
+   "unit": "videos",
+   "price": 0.5
+  },
+  "text": "$0.5 per video (fal's billing unit).",
+  "tag": "$0.5/run",
+  "estimate": {
+   "auto": true,
+   "per": "run",
+   "rate": 0.5
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text prompt for video generation. Camera movement instructions can be added using square brackets (e.g. [Pan left] or [Zoom in]). You can use up to 3 combined movements per prompt. Supported movements: Truck left/right, Pan left/right, Push in/Pull out, Pedestal up/down, Tilt up/down, Zoom in/out, Shake, Tracking shot, Static shot. For example: [Truck left, Pan right, Zoom in]. For a more detailed guide, refer https:",
+   "max_length": 2000
+  },
+  {
+   "name": "prompt_optimizer",
+   "path": "prompt_optimizer",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to use the model's prompt optimizer"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

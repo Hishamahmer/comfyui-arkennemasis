@@ -1,0 +1,131 @@
+{
+ "endpoint_id": "blackforestlabs/flux-3/text-to-video",
+ "class_key": "ArkFal_blackforestlabs_flux_3_text_to_video",
+ "title": "Flux 3 Text to Video",
+ "category": "Video/Flux",
+ "folder": "blackforestlabs_flux-3_text-to-video",
+ "page": "https://fal.ai/models/blackforestlabs/flux-3/text-to-video",
+ "description": "FLUX 3 is Black Forest Labs' frontier video model. This endpoint generates video directly from a text prompt, translating a written description into motion, composition, and scene.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.085
+  },
+  "text": "Your request will be charged at 0.17 $ per second of generated video at 720p, and 0.29 $ per second at 1080p.",
+  "tag": "$0.17-0.29/s",
+  "estimate": {
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "720p": 0.17,
+     "1080p": 0.29
+    }
+   },
+   "quantity": {
+    "widget": "duration",
+    "auto_max": 20
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text prompt describing the video you want to generate."
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "21:9",
+    "2:1",
+    "16:9",
+    "4:3",
+    "1:1",
+    "3:4",
+    "9:16"
+   ],
+   "default": "auto",
+   "tooltip": "Aspect ratio of the generated video. `auto` lets the model choose."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "720p",
+    "1080p"
+   ],
+   "default": "720p",
+   "tooltip": "Resolution of the generated video."
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "value_type": "mixed",
+   "kind": "enum",
+   "options": [
+    "auto",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20"
+   ],
+   "default": "auto",
+   "tooltip": "Duration of the generated video in seconds. `auto` lets the model choose."
+  },
+  {
+   "name": "generate_audio",
+   "path": "generate_audio",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to generate audio for the video."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "int",
+   "default": 2,
+   "min": 0,
+   "max": 4,
+   "tooltip": "The safety tolerance level for the generated video. 0 is the strictest and 4 is the most permissive."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

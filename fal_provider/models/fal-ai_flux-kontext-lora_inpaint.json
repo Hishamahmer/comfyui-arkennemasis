@@ -1,0 +1,181 @@
+{
+ "endpoint_id": "fal-ai/flux-kontext-lora/inpaint",
+ "class_key": "ArkFal_fal_ai_flux_kontext_lora_inpaint",
+ "title": "Flux Kontext LoRA Inpaint",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-kontext-lora_inpaint",
+ "page": "https://fal.ai/models/fal-ai/flux-kontext-lora/inpaint",
+ "description": "Fast inpainting endpoint for the FLUX.1 Kontext [dev] model with LoRA support, enabling rapid and high-quality image inpainting with reference images, while using pre-trained LoRA adaptations for specific styles, brand identities, and product-specific outputs.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.035
+  },
+  "text": "$0.035 per megapixel (fal's billing unit).",
+  "tag": "$0.035/image",
+  "estimate": {
+   "auto": true,
+   "per": "image",
+   "rate": 0.035,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The URL of the image to be inpainted."
+  },
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt for the image to image task."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 30,
+   "min": 10,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 2.5,
+   "min": 0,
+   "max": 20,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled. Disabling it requires account authorization; unauthorized requests are always checked, and images flagged as unsafe are returned as black images."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "loras",
+   "path": "loras",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The LoRAs to use for the image generation. You can use any number of LoRAs and they will be merged together to generate the final image. JSON. Empty leaves it out."
+  },
+  {
+   "name": "acceleration",
+   "path": "acceleration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "none",
+    "regular",
+    "high"
+   ],
+   "default": "none",
+   "tooltip": "The speed of the generation. The higher the speed, the faster the generation."
+  },
+  {
+   "name": "reference_image",
+   "path": "reference_image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The URL of the reference image for inpainting."
+  },
+  {
+   "name": "mask",
+   "path": "mask_url",
+   "required": true,
+   "kind": "mask",
+   "tooltip": "The URL of the mask for inpainting."
+  },
+  {
+   "name": "strength",
+   "path": "strength",
+   "required": false,
+   "kind": "float",
+   "default": 0.88,
+   "min": 0.01,
+   "max": 1,
+   "tooltip": "The strength of the initial image. Higher strength values are better for this model.",
+   "step": 0.01
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  }
+ ]
+}

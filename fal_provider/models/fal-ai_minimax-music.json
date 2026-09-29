@@ -1,0 +1,51 @@
+{
+ "endpoint_id": "fal-ai/minimax-music",
+ "class_key": "ArkFal_fal_ai_minimax_music",
+ "title": "MiniMax Music",
+ "category": "Audio/MiniMax",
+ "folder": "fal-ai_minimax-music",
+ "page": "https://fal.ai/models/fal-ai/minimax-music",
+ "description": "Generate music from text prompts using the MiniMax model, which leverages advanced AI techniques to create high-quality, diverse musical compositions.",
+ "pricing": {
+  "billing": {
+   "unit": "generations",
+   "price": 0.035
+  },
+  "text": "$0.035 per generation (fal's billing unit).",
+  "tag": "$0.035/run",
+  "estimate": {
+   "auto": true,
+   "per": "run",
+   "rate": 0.035
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Lyrics with optional formatting. You can use a newline to separate each line of lyrics. You can use two newlines to add a pause between lines. You can use double hash marks (##) at the beginning and end of the lyrics to add accompaniment. Maximum 600 characters.",
+   "max_length": 600,
+   "min_length": 1
+  },
+  {
+   "name": "reference_audio",
+   "path": "reference_audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "Reference song, should contain music and vocals. Must be a .wav or .mp3 file longer than 15 seconds."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  }
+ ]
+}

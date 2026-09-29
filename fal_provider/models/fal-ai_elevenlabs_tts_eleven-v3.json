@@ -1,0 +1,99 @@
+{
+ "endpoint_id": "fal-ai/elevenlabs/tts/eleven-v3",
+ "class_key": "ArkFal_fal_ai_elevenlabs_tts_eleven_v3",
+ "title": "ElevenLabs TTS Eleven v3",
+ "category": "Audio/ElevenLabs",
+ "folder": "fal-ai_elevenlabs_tts_eleven-v3",
+ "page": "https://fal.ai/models/fal-ai/elevenlabs/tts/eleven-v3",
+ "description": "Generate text-to-speech audio using Eleven-v3 from ElevenLabs.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 characters",
+   "price": 0.1
+  },
+  "text": "$0.1 per 1000 character (fal's billing unit).",
+  "tag": "$0.1/1k chars",
+  "estimate": {
+   "auto": true,
+   "per": "kchar",
+   "rate": 0.1,
+   "quantity": {
+    "chars": "text"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "text",
+   "path": "text",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text to convert to speech",
+   "max_length": 5000,
+   "min_length": 1
+  },
+  {
+   "name": "voice",
+   "path": "voice",
+   "required": false,
+   "kind": "string",
+   "default": "Rachel",
+   "tooltip": "The voice to use for speech generation Empty leaves it out."
+  },
+  {
+   "name": "stability",
+   "path": "stability",
+   "required": false,
+   "kind": "float",
+   "default": 0.5,
+   "min": 0,
+   "max": 1,
+   "tooltip": "Voice stability (0-1)",
+   "step": 0.01
+  },
+  {
+   "name": "timestamps",
+   "path": "timestamps",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to return timestamps for each word in the generated speech"
+  },
+  {
+   "name": "language_code",
+   "path": "language_code",
+   "required": false,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Language code (ISO 639-1) used to enforce a language for the model. Empty leaves it out."
+  },
+  {
+   "name": "apply_text_normalization",
+   "path": "apply_text_normalization",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "on",
+    "off"
+   ],
+   "default": "auto",
+   "tooltip": "This parameter controls text normalization with three modes: 'auto', 'on', and 'off'. When set to 'auto', the system will automatically decide whether to apply text normalization (e.g., spelling out numbers). With 'on', text normalization will always be applied, while with 'off', it will be skipped."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "timestamps",
+   "kind": "json"
+  }
+ ]
+}

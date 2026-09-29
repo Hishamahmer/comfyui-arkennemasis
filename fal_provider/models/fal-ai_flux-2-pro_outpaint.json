@@ -1,0 +1,125 @@
+{
+ "endpoint_id": "fal-ai/flux-2-pro/outpaint",
+ "class_key": "ArkFal_fal_ai_flux_2_pro_outpaint",
+ "title": "Flux 2 Pro Outpaint",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-2-pro_outpaint",
+ "page": "https://fal.ai/models/fal-ai/flux-2-pro/outpaint",
+ "description": "Outpainting generation with FLUX.2 [pro] from Black Forest Labs. Optimized for maximum quality, exceptional photorealism and artistic images.",
+ "pricing": {
+  "billing": {
+   "unit": "processed megapixels",
+   "price": 0.03
+  },
+  "text": "Your request will cost $0.03 for the first megapixel of output, plus $0.015 per extra megapixel of input and output, rounded up to the nearest megapixel. For example, a 1024x1024 image will cost $0.03, and a 1920x1080 image will cost $0.045 ($0.03 for first megapixel + $0.015 for the second megapixel). Similarly, a 512x512 output will cost $0.03 ($0.03 for 0.25 megapixels, rounded to 1 megapixel).",
+  "tag": "~$0.05/run",
+  "estimate": {
+   "per": "run",
+   "rate": 0.06
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The image URL to expand using outpainting."
+  },
+  {
+   "name": "expand_top",
+   "path": "expand_top",
+   "required": false,
+   "kind": "int",
+   "default": 0,
+   "min": 0,
+   "max": 2048,
+   "tooltip": "Pixels to expand at the top of the image."
+  },
+  {
+   "name": "expand_bottom",
+   "path": "expand_bottom",
+   "required": false,
+   "kind": "int",
+   "default": 0,
+   "min": 0,
+   "max": 2048,
+   "tooltip": "Pixels to expand at the bottom of the image."
+  },
+  {
+   "name": "expand_left",
+   "path": "expand_left",
+   "required": false,
+   "kind": "int",
+   "default": 0,
+   "min": 0,
+   "max": 2048,
+   "tooltip": "Pixels to expand on the left of the image."
+  },
+  {
+   "name": "expand_right",
+   "path": "expand_right",
+   "required": false,
+   "kind": "int",
+   "default": 0,
+   "min": 0,
+   "max": 2048,
+   "tooltip": "Pixels to expand on the right of the image."
+  },
+  {
+   "name": "auto_crop",
+   "path": "auto_crop",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to automatically crop the reference image when the expanded canvas does not fully contain it."
+  },
+  {
+   "name": "mode",
+   "path": "mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "high",
+    "fast"
+   ],
+   "default": "high",
+   "tooltip": "Quality/speed trade-off for outpainting. `high` (default) delivers the highest-fidelity results; `fast` is significantly faster and extends most scenes well but may produce lower fidelity."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to enable the safety checker. Disabling it requires account authorization; unauthorized requests are always checked."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  }
+ ]
+}

@@ -1,0 +1,69 @@
+{
+ "endpoint_id": "fal-ai/minimax/hailuo-2.3/standard/text-to-video",
+ "class_key": "ArkFal_fal_ai_minimax_hailuo_2_3_standard_text_to_video",
+ "title": "MiniMax Hailuo 2.3 Standard Text to Video",
+ "category": "Video/MiniMax",
+ "folder": "fal-ai_minimax_hailuo-2.3_standard_text-to-video",
+ "page": "https://fal.ai/models/fal-ai/minimax/hailuo-2.3/standard/text-to-video",
+ "description": "MiniMax Hailuo-2.3 Text To Video API (Standard, 768p): Advanced text-to-video generation model with 768p resolution",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 0.28
+  },
+  "text": "Your request will cost $0.28 per 6 second video generation, and a $0.56 per 10 second video generation.",
+  "tag": "$0.28-0.56/video",
+  "estimate": {
+   "per": "run",
+   "rate": {
+    "widget": "duration",
+    "map": {
+     "6": 0.28,
+     "10": 0.56
+    }
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "",
+   "max_length": 2000,
+   "min_length": 1
+  },
+  {
+   "name": "prompt_optimizer",
+   "path": "prompt_optimizer",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to use the model's prompt optimizer"
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "6",
+    "10"
+   ],
+   "default": "6",
+   "tooltip": "The duration of the video in seconds."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

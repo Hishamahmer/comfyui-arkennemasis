@@ -1,0 +1,83 @@
+{
+ "endpoint_id": "resemble-ai/chatterboxhd/speech-to-speech",
+ "class_key": "ArkFal_resemble_ai_chatterboxhd_speech_to_speech",
+ "title": "Resemble ChatterboxHD Speech to Speech",
+ "category": "Audio/Chatterbox",
+ "folder": "resemble-ai_chatterboxhd_speech-to-speech",
+ "page": "https://fal.ai/models/resemble-ai/chatterboxhd/speech-to-speech",
+ "description": "Transform voices using Resemble AI's Chatterbox. Convert audio to new voices or your own samples, with expressive results and built-in perceptual watermarking.",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 0.02
+  },
+  "text": "$0.02 per minute (fal's billing unit).",
+  "tag": "$0.02/min",
+  "estimate": {
+   "auto": true,
+   "per": "minute",
+   "rate": 0.02,
+   "quantity": {
+    "media": [
+     "source_audio",
+     "target_voice_audio"
+    ]
+   },
+   "label": " of video"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "source_audio",
+   "path": "source_audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL to the source audio file to be voice-converted."
+  },
+  {
+   "name": "target_voice",
+   "path": "target_voice",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "Aurora",
+    "Blade",
+    "Britney",
+    "Carl",
+    "Cliff",
+    "Richard",
+    "Rico",
+    "Siobhan",
+    "Vicky"
+   ],
+   "default": "(not set)",
+   "tooltip": "The voice to use for the speech-to-speech request. If neither target_voice nor target_voice_audio_url are provided, a random target voice will be used. '(not set)' leaves it to the model."
+  },
+  {
+   "name": "target_voice_audio",
+   "path": "target_voice_audio_url",
+   "required": false,
+   "kind": "audio",
+   "tooltip": "URL to the audio file which represents the voice of the output audio. If provided, this will override the target_voice setting. If neither target_voice nor target_voice_audio_url are provided, the default target voice will be used."
+  },
+  {
+   "name": "high_quality_audio",
+   "path": "high_quality_audio",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "If True, the generated audio will be upscaled to 48kHz. The generation of the audio will take longer, but the quality will be higher. If False, the generated audio will be 24kHz."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  }
+ ]
+}

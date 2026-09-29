@@ -1,0 +1,56 @@
+{
+ "endpoint_id": "fal-ai/minimax/voice-design",
+ "class_key": "ArkFal_fal_ai_minimax_voice_design",
+ "title": "MiniMax Voice Design",
+ "category": "Audio/MiniMax",
+ "folder": "fal-ai_minimax_voice-design",
+ "page": "https://fal.ai/models/fal-ai/minimax/voice-design",
+ "description": "Design a personalized voice from a text description, and generate speech from text prompts using the MiniMax model, which leverages advanced AI techniques to create high-quality text-to-speech.",
+ "pricing": {
+  "billing": {
+   "unit": "cloned voices",
+   "price": 3.0
+  },
+  "text": "Designing a voice will cost $3 per created voice, with 0.03 per 1000 preview characters",
+  "tag": "$3/voice",
+  "estimate": {
+   "per": "run",
+   "rate": 3.0
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Voice description prompt for generating a personalized voice",
+   "max_length": 2000
+  },
+  {
+   "name": "preview_text",
+   "path": "preview_text",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text for audio preview. Must be at least 1 character and limited to 500 characters. A fee of $30 per 1M characters will be charged for the generation of the preview audio.",
+   "max_length": 500,
+   "min_length": 1
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "custom_voice_id",
+   "kind": "string"
+  }
+ ]
+}

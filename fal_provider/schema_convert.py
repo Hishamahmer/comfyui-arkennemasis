@@ -16,6 +16,8 @@ Every field becomes one of these kinds:
   tribool           a dropdown of "(not set)", "true", "false" for an optional yes/no
   int / float       a number; an optional one with no default uses -1 for "not set"
   image_size        a dropdown of fal's size presets plus "custom", with width/height boxes
+  json              a multi-line box holding JSON, for lists and nested structures (LoRA
+                    lists, dialogue lines, composition plans); pre-filled with fal's example
 
 Fields that must not be exposed are left out and listed under ``omitted`` with the
 reason: ``sync_mode`` (the yes/no one - it would return the result inline and drop it
@@ -24,6 +26,7 @@ from fal's request history), ``end_user_id`` (fal-internal), and constants.
 
 from __future__ import annotations
 
+import json
 import re
 
 NOT_SET = "(not set)"
@@ -33,8 +36,22 @@ TOOLTIP_MAX = 420
 
 
 def _ref(schema, root):
+    """Resolve $ref, and merge an ``allOf`` wrapper ({"allOf": [{"$ref": ...}], ...})."""
     while isinstance(schema, dict) and "$ref" in schema:
         schema = root["components"]["schemas"][schema["$ref"].split("/")[-1]]
+    if isinstance(schema, dict) and schema.get("allOf"):
+        merged = {k: v for k, v in schema.items() if k != "allOf"}
+        props = {}
+        for part in schema["allOf"]:
+            part = _ref(part, root)
+            for k, v in part.items():
+                if k == "properties":
+                    props.update(v)
+                else:
+                    merged.setdefault(k, v)
+        if props:
+            merged["properties"] = dict(props, **merged.get("properties", {}))
+        return merged
     return schema
 
 
@@ -88,6 +105,8 @@ def convert_inputs(root):
             post = ops["post"]
             break
     body = _ref(post["requestBody"]["content"]["application/json"]["schema"], root)
+    _ROOT.clear()
+    _ROOT.update(root)
     props = body.get("properties") or {}
     required = set(body.get("required") or [])
     order = body.get("x-fal-order-properties") or list(props)
@@ -163,26 +182,40 @@ def _convert_field(name, prop, required, root, inputs, omitted, path, prefix="")
                                         "'custom' uses the width and height below.")))
         return
 
-    # ---- a nested object: flatten its simple fields -----------------------------------
+    # ---- a nested object: flatten it when every part is a plain value, else JSON -------
     obj = next((v for v in variants if v.get("type") == "object" and v.get("properties")), None)
     if obj is not None and not _is_file_object(obj, root):
-        for sub_name, sub_prop in obj["properties"].items():
+        def simple(sub_prop):
             sub_variants, _ = _variants(sub_prop, root)
-            simple = [v for v in sub_variants if v.get("type") in
-                      ("string", "integer", "number", "boolean")]
-            if not simple:
-                omitted.append({"path": "%s.%s" % (path, sub_name),
-                                "why": "nested object - send it through extra_json"})
-                continue
-            _convert_field(sub_name, sub_prop, False, root, inputs, omitted,
-                           path="%s.%s" % (path, sub_name), prefix=name + "_")
+            return any(v.get("type") in ("string", "integer", "number", "boolean")
+                       for v in sub_variants) and media_kind(str(sub_prop)) is None
+        subs = obj["properties"]
+        if any(simple(p) for p in subs.values()):
+            # plain parts become their own boxes; a complex part gets its own JSON box
+            for sub_name, sub_prop in subs.items():
+                if simple(sub_prop):
+                    _convert_field(sub_name, sub_prop, False, root, inputs, omitted,
+                                   path="%s.%s" % (path, sub_name), prefix=name + "_")
+                else:
+                    sub = _ref(sub_prop, root)
+                    inputs.append(_json_input({"name": "%s_%s" % (name, sub_name),
+                                               "path": "%s.%s" % (path, sub_name), "required": False},
+                                              sub, sub_prop, sub.get("description") or "", False))
+            return
+        inputs.append(_json_input(base, prop, raw, desc, required))   # nothing plain: one JSON box
         return
 
     # ---- scalars ----------------------------------------------------------------------
     scalar = next((v for v in variants if v.get("type") in
                    ("string", "integer", "number", "boolean")), None)
     if scalar is None:
-        omitted.append({"path": path, "why": "unsupported shape - send it through extra_json"})
+        # an enum with no declared type, e.g. duration: ["auto", 5, 6, ... 20]
+        scalar = next((dict(v, type="string") for v in variants if v.get("enum")), None)
+    if scalar is None:
+        if any(v.get("type") in ("array", "object") for v in variants):
+            inputs.append(_json_input(base, prop, raw, desc, required))
+        else:
+            omitted.append({"path": path, "why": "unsupported shape - send it through extra_json"})
         return
     has_default = "default" in prop or "default" in raw
     default = prop.get("default", raw.get("default"))
@@ -199,6 +232,18 @@ def _convert_field(name, prop, required, root, inputs, omitted, path, prefix="")
 
     if scalar.get("enum"):
         options = [str(o) for o in scalar["enum"]]
+        if all(isinstance(o, bool) for o in scalar["enum"]):
+            value_type = None
+        elif all(isinstance(o, int) for o in scalar["enum"]):
+            value_type = "int"
+        elif all(isinstance(o, (int, float)) for o in scalar["enum"]):
+            value_type = "number"
+        elif any(isinstance(o, (int, float)) and not isinstance(o, bool) for o in scalar["enum"]):
+            value_type = "mixed"             # send numbers as numbers, words as words
+        else:
+            value_type = None
+        if value_type:
+            base = dict(base, value_type=value_type)
         if has_default and default is not None:
             inputs.append(dict(base, kind="enum", options=options, default=str(default),
                                tooltip=_tip({"description": desc})))
@@ -215,7 +260,7 @@ def _convert_field(name, prop, required, root, inputs, omitted, path, prefix="")
 
     if stype in ("integer", "number"):
         kind = "int" if stype == "integer" else "float"
-        step = 1 if kind == "int" else 0.01
+        step = 1 if kind == "int" else float(scalar.get("multipleOf") or 0.01)
         lo = scalar.get("minimum")
         if lo is None and scalar.get("exclusiveMinimum") is not None:
             lo = scalar["exclusiveMinimum"] + step
@@ -230,6 +275,13 @@ def _convert_field(name, prop, required, root, inputs, omitted, path, prefix="")
             if hi is not None:
                 entry["max"] = hi
             entry["tooltip"] = _tip({"description": desc})
+        elif required:
+            # required, no default: start at fal's minimum and always send it
+            entry.update(default=lo if lo is not None else 0, tooltip=_tip({"description": desc}))
+            if lo is not None:
+                entry["min"] = lo
+            if hi is not None:
+                entry["max"] = hi
         else:
             if lo is not None and lo < 0:
                 omitted.append({"path": path, "why": "optional number that may be negative - "
@@ -237,12 +289,15 @@ def _convert_field(name, prop, required, root, inputs, omitted, path, prefix="")
                 return
             entry.update(default=SENTINEL, min=SENTINEL, not_set=SENTINEL,
                          tooltip=_tip({"description": desc}, "-1 leaves it to the model."))
+            if lo is not None:
+                entry["schema_min"] = lo            # checked before anything is sent
             if hi is not None:
                 entry["max"] = hi
+                entry["schema_max"] = hi
             elif kind == "int":
                 entry["max"] = 2147483647
         if kind == "float":
-            entry["step"] = 0.01
+            entry["step"] = step
         inputs.append(entry)
         return
 
@@ -257,6 +312,55 @@ def _convert_field(name, prop, required, root, inputs, omitted, path, prefix="")
     if scalar.get("minLength"):
         entry["min_length"] = scalar["minLength"]
     inputs.append(entry)
+
+
+_ROOT = {}      # the schema being converted, for _skeleton's $refs (set by convert_inputs)
+
+
+def _skeleton(schema, depth=0):
+    """A fill-in-the-blanks value from a schema: [{"path": "", "scale": 1}] for a LoRA list."""
+    schema = _ref(schema, _ROOT) if _ROOT else schema
+    if depth > 4 or not isinstance(schema, dict):
+        return None
+    if "default" in schema and schema["default"] not in (None, [], {}):
+        return schema["default"]
+    variants = [v for v in schema.get("anyOf", schema.get("oneOf", [schema]))
+                if isinstance(v, dict) and v.get("type") != "null"]
+    v = _ref(variants[0], _ROOT) if variants and _ROOT else (variants[0] if variants else schema)
+    t = v.get("type")
+    if t == "array":
+        item = _skeleton(v.get("items", {}), depth + 1)
+        return [item] if item is not None else []
+    if t == "object" or v.get("properties"):
+        required = set(v.get("required") or [])
+        out = {}
+        for k, p in (v.get("properties") or {}).items():
+            p_res = _ref(p, _ROOT) if _ROOT else p
+            if k in required or "default" in p_res:
+                out[k] = _skeleton(p, depth + 1)
+        return out
+    if v.get("enum"):
+        return v["enum"][0]
+    return {"string": "", "integer": 0, "number": 1.0, "boolean": False}.get(t)
+
+
+def _json_input(base, prop, raw, desc, required):
+    """A JSON box for a list or nested structure, pre-filled with fal's own example - or, when
+    fal gives none, a skeleton of the structure to fill in."""
+    examples = prop.get("examples") or raw.get("examples") or []
+    if examples:
+        default = json.dumps(examples[0], ensure_ascii=False)
+    elif "default" in prop or "default" in raw:
+        value = prop.get("default", raw.get("default"))
+        default = "" if value in (None, [], {}) else json.dumps(value, ensure_ascii=False)
+    elif required:
+        skeleton = _skeleton(raw)
+        default = json.dumps(skeleton, ensure_ascii=False) if skeleton not in (None, [], {}) else ""
+    else:
+        default = ""
+    return dict(base, kind="json", default=default,
+                tooltip=_tip({"description": desc},
+                             "JSON. %s" % ("Required." if required else "Empty leaves it out.")))
 
 
 def convert_outputs(root):
@@ -275,11 +379,13 @@ def convert_outputs(root):
             outputs.append({"field": name, "kind": kind, "list": True})
         elif _is_file_object(v, root):
             kind = ("video" if "video" in name else "images" if "image" in name
-                    else "audio_file" if "audio" in name else "file")
+                    else "audio" if "audio" in name else "file")
             outputs.append({"field": name, "kind": kind, "list": False})
         elif v.get("type") in ("string", "integer", "number", "boolean"):
             outputs.append({"field": name, "kind": {"string": "string", "integer": "int",
                                                      "number": "float", "boolean": "bool"}[v["type"]]})
+        elif v.get("type") in ("array", "object"):
+            outputs.append({"field": name, "kind": "json"})     # word timings, chunks...
     # files first (the picture or clip is what the node is for), then the plain values
     return files + scalars
 

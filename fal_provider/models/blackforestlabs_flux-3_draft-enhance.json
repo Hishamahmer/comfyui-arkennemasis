@@ -1,0 +1,55 @@
+{
+ "endpoint_id": "blackforestlabs/flux-3/draft-enhance",
+ "class_key": "ArkFal_blackforestlabs_flux_3_draft_enhance",
+ "title": "Flux 3 Draft Enhance",
+ "category": "Video/Flux",
+ "folder": "blackforestlabs_flux-3_draft-enhance",
+ "page": "https://fal.ai/models/blackforestlabs/flux-3/draft-enhance",
+ "description": "FLUX.3 is Black Forest Labs' frontier audio/video model. Re-render a previously generated draft at full quality — same seed, same motion, no re-planning.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.085
+  },
+  "text": "Your request will be charged at 0.29 $ per second of the enhanced video (full-quality 1080p render). Synchronized audio is included at no extra cost.",
+  "tag": "$0.29/s",
+  "estimate": {
+   "per": "second",
+   "rate": 0.29,
+   "quantity": {
+    "unknown": true
+   },
+   "label": " of the draft"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "draft_cache_url",
+   "path": "draft_cache_url",
+   "required": true,
+   "kind": "url",
+   "default": "",
+   "tooltip": "URL or data URI of the encrypted draft cache bundle to enhance. Paste a link; leave empty to leave it out."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "int",
+   "default": 2,
+   "min": 0,
+   "max": 4,
+   "tooltip": "The safety tolerance level for the generated video. 0 is the strictest and 4 is the most permissive."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

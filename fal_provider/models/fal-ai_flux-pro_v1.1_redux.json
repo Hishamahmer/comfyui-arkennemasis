@@ -1,0 +1,171 @@
+{
+ "endpoint_id": "fal-ai/flux-pro/v1.1/redux",
+ "class_key": "ArkFal_fal_ai_flux_pro_v1_1_redux",
+ "title": "Flux Pro v1.1 Redux",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-pro_v1.1_redux",
+ "page": "https://fal.ai/models/fal-ai/flux-pro/v1.1/redux",
+ "description": "FLUX1.1 [pro] Redux is a high-performance endpoint for the FLUX1.1 [pro] model that enables rapid transformation of existing images, delivering high-quality style transfers and image modifications with the core FLUX capabilities.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.05
+  },
+  "text": "$0.05 per megapixel (fal's billing unit).",
+  "tag": "$0.05/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.05,
+   "quantity": {
+    "megapixels": "image_size",
+    "count": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from. Empty leaves it out."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "landscape_4_3",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. 'custom' uses the width and height below."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 28,
+   "min": 1,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 3.5,
+   "min": 1,
+   "max": 20,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "default": "2",
+   "tooltip": "The safety tolerance level for the generated image. 1 being the most strict and 5 being the most permissive."
+  },
+  {
+   "name": "enhance_prompt",
+   "path": "enhance_prompt",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to enhance the prompt for better results."
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The image URL to generate an image from. Needs to match the dimensions of the mask."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

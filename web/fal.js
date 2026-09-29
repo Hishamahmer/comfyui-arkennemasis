@@ -1,8 +1,9 @@
 // arkennemasis fal nodes - their own look, so they never read as stock ComfyUI nodes.
 //
 // Every fal node gets a colour identity from its menu category:
-//   Image -> magenta/amber   Video -> electric blue/violet
+//   Image -> magenta/amber   Video -> electric blue/violet   Audio -> green/cyan
 //   Lip Sync -> orange/gold  Tools -> teal/blue
+// (the TYPE is the menu level after "fal/"; the family - Flux, MiniMax... - is in the tag)
 // applied as the node's own colours (works in the classic canvas AND the Vue "Nodes 2.0"
 // renderer) plus, on the classic canvas, a gradient edge, a category tag and a card shape.
 // The running animation (activity.js) picks up the same accent colour.
@@ -18,14 +19,17 @@ const LOOKS = {
   Image: { title: "#6b1d52", body: "#241020", a: "#ff4fa3", b: "#ffb347", rgb: "255,79,163", tag: "IMAGE" },
   Video: { title: "#1a3a78", body: "#0d1729", a: "#3aa0ff", b: "#8a5cff", rgb: "58,160,255", tag: "VIDEO" },
   "Lip Sync": { title: "#743510", body: "#26150b", a: "#ff8a3d", b: "#ffd23d", rgb: "255,138,61", tag: "LIP SYNC" },
+  Audio: { title: "#1f5a2c", body: "#0e2214", a: "#5dff8a", b: "#27d8ff", rgb: "93,255,138", tag: "AUDIO" },
   Tools: { title: "#14544b", body: "#0c211e", a: "#2ee6b8", b: "#3aa0ff", rgb: "46,230,184", tag: "TOOLS" },
 };
 const DEFAULT_LOOK = LOOKS.Tools;
 
 function lookFor(nodeData) {
-  const cat = String(nodeData?.category || "");
-  const last = cat.split("/").pop();
-  return LOOKS[last] || DEFAULT_LOOK;
+  // arkennemasis/fal/<Type>/<Family>
+  const parts = String(nodeData?.category || "").split("/");
+  const look = LOOKS[parts[2]] || DEFAULT_LOOK;
+  const family = parts.length > 3 ? parts.slice(3).join(" ").toUpperCase() : "";
+  return family ? { ...look, tag: look.tag + " · " + family } : look;
 }
 
 function isFal(name) {

@@ -2,7 +2,7 @@
  "endpoint_id": "bytedance/seedance-2.5/draft/complete",
  "class_key": "ArkFal_bytedance_seedance_2_5_draft_complete",
  "title": "Seedance 2.5 Draft to 1080p",
- "category": "Video",
+ "category": "Video/Seedance",
  "folder": "bytedance_seedance-2.5_draft_complete",
  "page": "https://fal.ai/models/bytedance/seedance-2.5/draft/complete",
  "description": "Draft completion endpoint for Seedance 2.5 - submit a draft id to regenerate the task at 1080p.",

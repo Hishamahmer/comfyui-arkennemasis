@@ -1,0 +1,94 @@
+{
+ "endpoint_id": "blackforestlabs/flux-video-upscale",
+ "class_key": "ArkFal_blackforestlabs_flux_video_upscale",
+ "title": "Flux Video Upscale",
+ "category": "Video/Flux",
+ "folder": "blackforestlabs_flux-video-upscale",
+ "page": "https://fal.ai/models/blackforestlabs/flux-video-upscale",
+ "description": "Upscale videos to 1080p, 2K, or 4K via API. FLUX 3 powered super-resolution with a precise mode and a creative detail-enhancement mode.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.075
+  },
+  "text": "Billing is calculated per second of output video, by resolution and mode. In precise mode, 1080p costs $0.14 per second, 2K costs $0.25 per second, and 4K costs $0.55 per second. Creative mode costs more at each tier: $0.20, $0.35, and $0.79 per second respectively. A 10-second 1080p clip runs $1.40 in precise mode or $2.00 in creative mode. You are charged for the delivered output only.",
+  "tag": "$0.14-0.79/s",
+  "estimate": {
+   "per": "second",
+   "rate": {
+    "widget": "creativity",
+    "map": {
+     "0": 0.55,
+     "1": 0.79
+    }
+   },
+   "quantity": {
+    "media": [
+     "video"
+    ]
+   },
+   "label": " of video (4K rate - lower for 1080p/2K)"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL of the MP4 video to upscale. The video must be at most 20 seconds and 50 MB."
+  },
+  {
+   "name": "upscale_factor",
+   "path": "upscale_factor",
+   "required": false,
+   "kind": "float",
+   "default": 2,
+   "min": 1.5,
+   "max": 3,
+   "tooltip": "Output scaling factor. The source aspect ratio is preserved.",
+   "step": 0.01
+  },
+  {
+   "name": "creativity",
+   "path": "creativity",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "0",
+    "1"
+   ],
+   "default": "1",
+   "tooltip": "Use 0 for a source-faithful upscale or 1 for creative detail enhancement."
+  },
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Optional description used to guide creative detail enhancement. Empty leaves it out."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "int",
+   "default": 2,
+   "min": 0,
+   "max": 4,
+   "tooltip": "Moderation strictness. Lower values are stricter."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

@@ -1,0 +1,152 @@
+{
+ "endpoint_id": "elevenlabs/tts/eleven-v4",
+ "class_key": "ArkFal_elevenlabs_tts_eleven_v4",
+ "title": "ElevenLabs TTS Eleven v4",
+ "category": "Audio/ElevenLabs",
+ "folder": "elevenlabs_tts_eleven-v4",
+ "page": "https://fal.ai/models/elevenlabs/tts/eleven-v4",
+ "description": "Generate expressive speech with Eleven v4 from ElevenLabs. Control delivery with audio tags, voice stability, similarity settings, and IPA pronunciation.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 characters",
+   "price": 0.08
+  },
+  "text": "$0.08 per 1000 character (fal's billing unit).",
+  "tag": "$0.08/1k chars",
+  "estimate": {
+   "auto": true,
+   "per": "kchar",
+   "rate": 0.08,
+   "quantity": {
+    "chars": "text"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "text",
+   "path": "text",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text to convert to speech. Supports audio tags such as [whispering] and IPA pronunciation enclosed in forward slashes.",
+   "max_length": 5000,
+   "min_length": 1
+  },
+  {
+   "name": "voice",
+   "path": "voice",
+   "required": false,
+   "kind": "string",
+   "default": "Rachel",
+   "tooltip": "The voice to use for speech generation Empty leaves it out."
+  },
+  {
+   "name": "stability",
+   "path": "stability",
+   "required": false,
+   "kind": "float",
+   "default": 0.5,
+   "min": 0,
+   "max": 1,
+   "tooltip": "Voice stability. Lower values allow more expressive delivery; higher values make delivery more consistent.",
+   "step": 0.01
+  },
+  {
+   "name": "similarity_boost",
+   "path": "similarity_boost",
+   "required": false,
+   "kind": "float",
+   "default": 0.75,
+   "min": 0,
+   "max": 1,
+   "tooltip": "How closely the output follows the reference voice. Higher values increase similarity but may reduce naturalness.",
+   "step": 0.01
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Seed for best-effort reproducibility. Identical output is not guaranteed. -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 4294967295,
+   "schema_max": 4294967295
+  },
+  {
+   "name": "language_code",
+   "path": "language_code",
+   "required": false,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Language code (ISO 639-1) for speech generation and text normalization. Empty leaves it out."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "mp3_22050_32",
+    "mp3_44100_32",
+    "mp3_44100_64",
+    "mp3_44100_96",
+    "mp3_44100_128",
+    "mp3_44100_192",
+    "pcm_8000",
+    "pcm_16000",
+    "pcm_22050",
+    "pcm_24000",
+    "pcm_44100",
+    "pcm_48000",
+    "ulaw_8000",
+    "alaw_8000",
+    "opus_48000_32",
+    "opus_48000_64",
+    "opus_48000_96",
+    "opus_48000_128",
+    "opus_48000_192"
+   ],
+   "default": "mp3_44100_128",
+   "tooltip": "Output format of the generated audio. Formatted as codec_sample_rate_bitrate."
+  },
+  {
+   "name": "apply_text_normalization",
+   "path": "apply_text_normalization",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "on",
+    "off"
+   ],
+   "default": "auto",
+   "tooltip": "Whether to normalize text such as numbers and dates before generation."
+  },
+  {
+   "name": "timestamps",
+   "path": "timestamps",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to return character-level timing information with the generated audio."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "timestamps",
+   "kind": "json"
+  }
+ ]
+}

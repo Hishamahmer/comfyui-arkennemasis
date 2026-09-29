@@ -2,7 +2,7 @@
  "endpoint_id": "bytedance/seedance-2.5/us/image-to-video",
  "class_key": "ArkFal_bytedance_seedance_2_5_us_image_to_video",
  "title": "Seedance 2.5 US Image to Video",
- "category": "Video",
+ "category": "Video/Seedance",
  "folder": "bytedance_seedance-2.5_us_image-to-video",
  "page": "https://fal.ai/models/bytedance/seedance-2.5/us/image-to-video",
  "description": "US-hosted ByteDance Seedance 2.5 animates still images with synchronized audio and optional end-frame control. Generate videos up to 30 seconds at 480p, 720p or 1080p.",

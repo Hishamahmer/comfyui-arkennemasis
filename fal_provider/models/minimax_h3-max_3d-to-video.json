@@ -1,0 +1,94 @@
+{
+ "endpoint_id": "minimax/h3-max/3d-to-video",
+ "class_key": "ArkFal_minimax_h3_max_3d_to_video",
+ "title": "MiniMax H3 Max 3D to Video",
+ "category": "Video/MiniMax",
+ "folder": "minimax_h3-max_3d-to-video",
+ "page": "https://fal.ai/models/minimax/h3-max/3d-to-video",
+ "description": "Transform Blender renders and 3D previs into photorealistic video. H3 Max uses the source clip to guide scene layout, camera movement, and timing, with optional image references for appearance.",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 0.05
+  },
+  "text": "For every second of video you generate you will be charged $0.05 at 480p, $0.08 at 768p or $0.16 at 1080p (minimum 5 seconds), plus reference token usage for your input video and images, the same as H3 Max Reference to Video. If you don't provide reference images, up to max_generated_reference_images (default 2) are generated automatically at about $0.02–$0.04 each. For example, a 5 second 16:9 video at 768p with your own reference images costs about $0.96.",
+  "tag": "$0.05-0.16/s",
+  "estimate": {
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.05,
+     "768p": 0.08,
+     "1080p": 0.16
+    }
+   },
+   "quantity": {
+    "media": [
+     "video"
+    ]
+   },
+   "label": " of video (+ reference tokens)"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "Blender video, up to 15 seconds and 32 shots, at a public HTTPS URL."
+  },
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Optional clarification of what your proxies represent or how they move, for example: 'The moving block represents a running person.' Camera, trajectories, timing and object count remain defined by the video. Empty leaves it out.",
+   "max_length": 2000
+  },
+  {
+   "name": "reference_image",
+   "path": "reference_image_urls",
+   "required": false,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": 8,
+   "tooltip": "Optional environment, subject, interior or detail references. When supplied, uses these images directly without visual planning or generating new images; Scene Intent is optional. Without references, automatically creates appearance references within your new-image limit. Camera and movement always come from the video. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is numb"
+  },
+  {
+   "name": "max_generated_reference_images",
+   "path": "max_generated_reference_images",
+   "required": false,
+   "kind": "int",
+   "default": 2,
+   "min": 1,
+   "max": 8,
+   "tooltip": "Maximum NEW images to generate when no reference images are supplied. Ignored when reference images are supplied. Uses fewer when enough views are covered. Uncovered shots stay in the video."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480P",
+    "768P",
+    "1080P"
+   ],
+   "default": "768P",
+   "tooltip": "Output quality. Duration is taken automatically from the video."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

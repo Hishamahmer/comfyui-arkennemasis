@@ -2,7 +2,7 @@
  "endpoint_id": "fal-ai/sync-lipsync/react-1",
  "class_key": "ArkFal_fal_ai_sync_lipsync_react_1",
  "title": "Sync React-1",
- "category": "Lip Sync",
+ "category": "Lip Sync/Sync",
  "folder": "fal-ai_sync-lipsync_react-1",
  "page": "https://fal.ai/models/fal-ai/sync-lipsync/react-1",
  "description": "Use React-1 from SyncLabs to refine human emotions and do realistic lip-sync without losing details!",

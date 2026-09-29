@@ -2,7 +2,7 @@
  "endpoint_id": "fal-ai/sync-lipsync/v2",
  "class_key": "ArkFal_fal_ai_sync_lipsync_v2",
  "title": "Sync Lipsync 2",
- "category": "Lip Sync",
+ "category": "Lip Sync/Sync",
  "folder": "fal-ai_sync-lipsync_v2",
  "page": "https://fal.ai/models/fal-ai/sync-lipsync/v2",
  "description": "Generate realistic lipsync animations from audio using advanced algorithms for high-quality synchronization with Sync Lipsync 2.0 model",

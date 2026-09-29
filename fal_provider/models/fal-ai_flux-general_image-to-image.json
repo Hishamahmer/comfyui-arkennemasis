@@ -1,0 +1,387 @@
+{
+ "endpoint_id": "fal-ai/flux-general/image-to-image",
+ "class_key": "ArkFal_fal_ai_flux_general_image_to_image",
+ "title": "Flux General Image to Image",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-general_image-to-image",
+ "page": "https://fal.ai/models/fal-ai/flux-general/image-to-image",
+ "description": "FLUX General Image-to-Image is a versatile endpoint that transforms existing images with support for LoRA, ControlNet, and IP-Adapter extensions, enabling precise control over style transfer, modifications, and artistic variations through multiple guidance methods.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.075
+  },
+  "text": "$0.075 per megapixel (fal's billing unit).",
+  "tag": "$0.075/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.075,
+   "quantity": {
+    "megapixels": "image_size",
+    "count": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "square_hd",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. 'custom' uses the width and height below."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 28,
+   "min": 1,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "loras",
+   "path": "loras",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The LoRAs to use for the image generation. You can use any number of LoRAs and they will be merged together to generate the final image. JSON. Empty leaves it out."
+  },
+  {
+   "name": "control_loras",
+   "path": "control_loras",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The LoRAs to use for the image generation which use a control image. You can use any number of LoRAs and they will be merged together to generate the final image. JSON. Empty leaves it out."
+  },
+  {
+   "name": "controlnets",
+   "path": "controlnets",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The controlnets to use for the image generation. Only one controlnet is supported at the moment. JSON. Empty leaves it out."
+  },
+  {
+   "name": "controlnet_unions",
+   "path": "controlnet_unions",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The controlnet unions to use for the image generation. Only one controlnet is supported at the moment. JSON. Empty leaves it out."
+  },
+  {
+   "name": "ip_adapters",
+   "path": "ip_adapters",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "IP-Adapter to use for image generation. JSON. Empty leaves it out."
+  },
+  {
+   "name": "easycontrols",
+   "path": "easycontrols",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "EasyControl Inputs to use for image generation. JSON. Empty leaves it out."
+  },
+  {
+   "name": "fill_image_fill_image",
+   "path": "fill_image.fill_image_url",
+   "required": false,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "URLs of images to be filled for redux prompting Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 3.5,
+   "min": 0,
+   "max": 20,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "real_cfg_scale",
+   "path": "real_cfg_scale",
+   "required": false,
+   "kind": "float",
+   "default": 3.5,
+   "min": 0,
+   "max": 5,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "use_real_cfg",
+   "path": "use_real_cfg",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Uses classical CFG as in SD1.5, SDXL, etc. Increases generation times and price when set to be true. If using XLabs IP-Adapter v1, this will be turned on!."
+  },
+  {
+   "name": "use_cfg_zero",
+   "path": "use_cfg_zero",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Uses CFG-zero init sampling as in https://arxiv.org/abs/2503.18886."
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 10,
+   "tooltip": "The number of images to generate. This is always set to 1 for streaming output."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled. Disabling it requires account authorization; unauthorized requests are always checked, and images flagged as unsafe are returned as black images."
+  },
+  {
+   "name": "reference_image",
+   "path": "reference_image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "URL of Image for Reference-Only"
+  },
+  {
+   "name": "reference_strength",
+   "path": "reference_strength",
+   "required": false,
+   "kind": "float",
+   "default": 0.65,
+   "min": -3,
+   "max": 3,
+   "tooltip": "Strength of reference_only generation. Only used if a reference image is provided.",
+   "step": 0.01
+  },
+  {
+   "name": "reference_start",
+   "path": "reference_start",
+   "required": false,
+   "kind": "float",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "tooltip": "The percentage of the total timesteps when the reference guidance is to bestarted.",
+   "step": 0.01
+  },
+  {
+   "name": "reference_end",
+   "path": "reference_end",
+   "required": false,
+   "kind": "float",
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "tooltip": "The percentage of the total timesteps when the reference guidance is to be ended.",
+   "step": 0.01
+  },
+  {
+   "name": "base_shift",
+   "path": "base_shift",
+   "required": false,
+   "kind": "float",
+   "default": 0.5,
+   "min": 0.01,
+   "max": 5,
+   "tooltip": "Base shift for the scheduled timesteps",
+   "step": 0.01
+  },
+  {
+   "name": "max_shift",
+   "path": "max_shift",
+   "required": false,
+   "kind": "float",
+   "default": 1.15,
+   "min": 0.01,
+   "max": 5,
+   "tooltip": "Max shift for the scheduled timesteps",
+   "step": 0.01
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "use_beta_schedule",
+   "path": "use_beta_schedule",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Specifies whether beta sigmas ought to be used."
+  },
+  {
+   "name": "scheduler",
+   "path": "scheduler",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "euler",
+    "dpmpp_2m"
+   ],
+   "default": "euler",
+   "tooltip": "Scheduler for the denoising process."
+  },
+  {
+   "name": "negative_prompt",
+   "path": "negative_prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Negative prompt to steer the image generation away from unwanted features. By default, we will be using NAG for processing the negative prompt. Empty leaves it out."
+  },
+  {
+   "name": "nag_scale",
+   "path": "nag_scale",
+   "required": false,
+   "kind": "float",
+   "default": 3,
+   "min": 1.01,
+   "max": 10,
+   "tooltip": "The scale for NAG. Higher values will result in a image that is more distant to the negative prompt.",
+   "step": 0.01
+  },
+  {
+   "name": "nag_tau",
+   "path": "nag_tau",
+   "required": false,
+   "kind": "float",
+   "default": 2.5,
+   "min": 0.01,
+   "tooltip": "The tau for NAG. Controls the normalization of the hidden state. Higher values will result in a less aggressive normalization, but may also lead to unexpected changes with respect to the original image. Not recommended to change this value.",
+   "step": 0.01
+  },
+  {
+   "name": "nag_alpha",
+   "path": "nag_alpha",
+   "required": false,
+   "kind": "float",
+   "default": 0.25,
+   "min": 0.01,
+   "max": 1,
+   "tooltip": "The alpha value for NAG. This value is used as a final weighting factor for steering the normalized guidance (positive and negative prompts) in the direction of the positive prompt. Higher values will result in less steering on the normalized guidance where lower values will result in considering the positive prompt guidance more.",
+   "step": 0.01
+  },
+  {
+   "name": "nag_end",
+   "path": "nag_end",
+   "required": false,
+   "kind": "float",
+   "default": 0.25,
+   "min": 0.01,
+   "max": 1,
+   "tooltip": "The proportion of steps to apply NAG. After the specified proportion of steps has been iterated, the remaining steps will use original attention processors in FLUX.",
+   "step": 0.01
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "URL of image to use for inpainting. or img2img"
+  },
+  {
+   "name": "strength",
+   "path": "strength",
+   "required": false,
+   "kind": "float",
+   "default": 0.85,
+   "min": 0.01,
+   "max": 1,
+   "tooltip": "The strength to use for inpainting/image-to-image. Only used if the image_url is provided. 1.0 is completely remakes the image while 0.0 preserves the original.",
+   "step": 0.01
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  },
+  {
+   "path": "sigma_schedule",
+   "why": "constant 'sgm_uniform' - fal fills it in"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

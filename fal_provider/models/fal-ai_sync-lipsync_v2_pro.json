@@ -2,7 +2,7 @@
  "endpoint_id": "fal-ai/sync-lipsync/v2/pro",
  "class_key": "ArkFal_fal_ai_sync_lipsync_v2_pro",
  "title": "Sync Lipsync 2 Pro",
- "category": "Lip Sync",
+ "category": "Lip Sync/Sync",
  "folder": "fal-ai_sync-lipsync_v2_pro",
  "page": "https://fal.ai/models/fal-ai/sync-lipsync/v2/pro",
  "description": "Generate high-quality realistic lipsync animations from audio while preserving unique details like natural teeth and unique facial features using the state-of-the-art Sync Lipsync 2 Pro model.",

@@ -1,0 +1,144 @@
+{
+ "endpoint_id": "fal-ai/nano-banana/edit",
+ "class_key": "ArkFal_fal_ai_nano_banana_edit",
+ "title": "Nano Banana Edit",
+ "category": "Image/Google",
+ "folder": "fal-ai_nano-banana_edit",
+ "page": "https://fal.ai/models/fal-ai/nano-banana/edit",
+ "description": "Google's famous original image generation and editing model",
+ "pricing": {
+  "billing": {
+   "unit": "images",
+   "price": 0.0398
+  },
+  "text": "Your request will cost $0.039 per image. For $1.00, you can run this model 25 times.",
+  "tag": "$0.0398/image",
+  "estimate": {
+   "auto": true,
+   "per": "image",
+   "rate": 0.0398,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt for image editing.",
+   "max_length": 50000,
+   "min_length": 3
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The seed for the random number generator. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "21:9",
+    "16:9",
+    "3:2",
+    "4:3",
+    "5:4",
+    "1:1",
+    "4:5",
+    "3:4",
+    "2:3",
+    "9:16"
+   ],
+   "default": "auto",
+   "tooltip": "The aspect ratio of the generated image."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png",
+    "webp"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "default": "4",
+   "tooltip": "The safety tolerance level for content moderation. 1 is the most strict (blocks most content), 6 is the least strict."
+  },
+  {
+   "name": "image",
+   "path": "image_urls",
+   "required": true,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "The URLs of the images to use for image-to-image generation or image editing. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "limit_generations",
+   "path": "limit_generations",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Experimental parameter to limit the number of generations from each round of prompting to 1. Set to `True` to to disregard any instructions in the prompt regarding the number of images to generate."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "description",
+   "kind": "string"
+  }
+ ]
+}

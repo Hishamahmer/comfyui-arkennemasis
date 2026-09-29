@@ -1,0 +1,161 @@
+{
+ "endpoint_id": "fal-ai/flux/krea",
+ "class_key": "ArkFal_fal_ai_flux_krea",
+ "title": "Flux Krea",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux_krea",
+ "page": "https://fal.ai/models/fal-ai/flux/krea",
+ "description": "FLUX.1 Krea [dev] is a 12 billion parameter flow transformer that generates high-quality images from text with incredible aesthetics. It is suitable for personal and commercial use.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.025
+  },
+  "text": "$0.025 per megapixel (fal's billing unit).",
+  "tag": "$0.025/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.025,
+   "quantity": {
+    "megapixels": "image_size",
+    "count": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "landscape_4_3",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. 'custom' uses the width and height below."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 28,
+   "min": 1,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 4.5,
+   "min": 1,
+   "max": 20,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled. Disabling it requires account authorization; unauthorized requests are always checked, and images flagged as unsafe are returned as black images."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "acceleration",
+   "path": "acceleration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "none",
+    "regular",
+    "high"
+   ],
+   "default": "none",
+   "tooltip": "The speed of the generation. The higher the speed, the faster the generation."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  }
+ ]
+}

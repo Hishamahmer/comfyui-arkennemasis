@@ -1,0 +1,156 @@
+{
+ "endpoint_id": "fal-ai/flux-pro/v1/fill-finetuned",
+ "class_key": "ArkFal_fal_ai_flux_pro_v1_fill_finetuned",
+ "title": "Flux Pro v1 Fill Finetuned",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-pro_v1_fill-finetuned",
+ "page": "https://fal.ai/models/fal-ai/flux-pro/v1/fill-finetuned",
+ "description": "FLUX.1 [pro] Fill Fine-tuned is a high-performance endpoint for the FLUX.1 [pro] model with a fine-tuned LoRA that enables rapid transformation of existing images, delivering high-quality style transfers and image modifications with the core FLUX capabilities.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.06
+  },
+  "text": "$0.06 per megapixel (fal's billing unit).",
+  "tag": "$0.06/image",
+  "estimate": {
+   "auto": true,
+   "per": "image",
+   "rate": 0.06,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to fill the masked part of the image."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "default": "2",
+   "tooltip": "The safety tolerance level for the generated image. 1 being the most strict and 5 being the most permissive."
+  },
+  {
+   "name": "enhance_prompt",
+   "path": "enhance_prompt",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to enhance the prompt for better results."
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The image URL to generate an image from. Needs to match the dimensions of the mask."
+  },
+  {
+   "name": "mask",
+   "path": "mask_url",
+   "required": true,
+   "kind": "mask",
+   "tooltip": "The mask URL to inpaint the image. Needs to match the dimensions of the input image."
+  },
+  {
+   "name": "finetune_id",
+   "path": "finetune_id",
+   "required": true,
+   "kind": "string",
+   "default": "",
+   "tooltip": "References your specific model"
+  },
+  {
+   "name": "finetune_strength",
+   "path": "finetune_strength",
+   "required": true,
+   "kind": "float",
+   "default": 0,
+   "tooltip": "Controls finetune influence. Increase this value if your target concept isn't showing up strongly enough. The optimal setting depends on your finetune and prompt",
+   "min": 0,
+   "max": 2,
+   "step": 0.01
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

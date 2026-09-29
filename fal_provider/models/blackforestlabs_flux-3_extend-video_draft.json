@@ -1,0 +1,121 @@
+{
+ "endpoint_id": "blackforestlabs/flux-3/extend-video/draft",
+ "class_key": "ArkFal_blackforestlabs_flux_3_extend_video_draft",
+ "title": "Flux 3 Extend Video Draft",
+ "category": "Video/Flux",
+ "folder": "blackforestlabs_flux-3_extend-video_draft",
+ "page": "https://fal.ai/models/blackforestlabs/flux-3/extend-video/draft",
+ "description": "FLUX.3 is Black Forest Labs' frontier audio/video model. Generate fast, low-cost draft previews that continue an existing clip, with a reusable draft cache for full-quality enhancement.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.06
+  },
+  "text": "Your request will be charged at 0.12 $ per second of generated draft video (720p).",
+  "tag": "$0.12/s",
+  "estimate": {
+   "per": "second",
+   "rate": 0.12,
+   "quantity": {
+    "widget": "duration",
+    "auto_max": 20
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text prompt describing the draft video."
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "21:9",
+    "2:1",
+    "16:9",
+    "4:3",
+    "1:1",
+    "3:4",
+    "9:16"
+   ],
+   "default": "auto",
+   "tooltip": "Aspect ratio of the generated draft. `auto` lets the model choose."
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "value_type": "mixed",
+   "kind": "enum",
+   "options": [
+    "auto",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20"
+   ],
+   "default": "auto",
+   "tooltip": "Draft duration in whole seconds from 5 through 20, or `auto`."
+  },
+  {
+   "name": "generate_audio",
+   "path": "generate_audio",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to generate audio for the draft video."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "int",
+   "default": 2,
+   "min": 0,
+   "max": 4,
+   "tooltip": "The safety tolerance level for the generated video. 0 is the strictest and 4 is the most permissive."
+  },
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL or data URI of the source MP4, at most 50 MiB."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "draft_cache",
+   "kind": "file",
+   "list": false
+  }
+ ]
+}

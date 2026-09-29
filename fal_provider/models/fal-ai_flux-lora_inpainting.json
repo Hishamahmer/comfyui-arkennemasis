@@ -1,0 +1,193 @@
+{
+ "endpoint_id": "fal-ai/flux-lora/inpainting",
+ "class_key": "ArkFal_fal_ai_flux_lora_inpainting",
+ "title": "Flux LoRA Inpainting",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-lora_inpainting",
+ "page": "https://fal.ai/models/fal-ai/flux-lora/inpainting",
+ "description": "Super fast endpoint for the FLUX.1 [dev] inpainting model with LoRA support, enabling rapid and high-quality image inpaingting using pre-trained LoRA adaptations for personalization, specific styles, brand identities, and product-specific outputs.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.035
+  },
+  "text": "$0.035 per megapixel (fal's billing unit).",
+  "tag": "$0.035/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.035,
+   "quantity": {
+    "megapixels": "image_size",
+    "count": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "square_hd",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. 'custom' uses the width and height below."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 28,
+   "min": 1,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "loras",
+   "path": "loras",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The LoRAs to use for the image generation. You can use any number of LoRAs and they will be merged together to generate the final image. JSON. Empty leaves it out."
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 3.5,
+   "min": 0,
+   "max": 35,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate. This is always set to 1 for streaming output."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "acceleration",
+   "path": "acceleration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "none",
+    "regular"
+   ],
+   "default": "none",
+   "tooltip": "Acceleration level for image generation. 'regular' balances speed and quality."
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "URL of image to use for inpainting. or img2img"
+  },
+  {
+   "name": "strength",
+   "path": "strength",
+   "required": false,
+   "kind": "float",
+   "default": 0.85,
+   "min": 0.01,
+   "max": 1,
+   "tooltip": "The strength to use for inpainting/image-to-image. Only used if the image_url is provided. 1.0 is completely remakes the image while 0.0 preserves the original.",
+   "step": 0.01
+  },
+  {
+   "name": "mask",
+   "path": "mask_url",
+   "required": true,
+   "kind": "mask",
+   "tooltip": "The mask to area to Inpaint in."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  }
+ ]
+}

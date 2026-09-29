@@ -1,0 +1,163 @@
+{
+ "endpoint_id": "fal-ai/flux-pro/kontext/multi",
+ "class_key": "ArkFal_fal_ai_flux_pro_kontext_multi",
+ "title": "Flux Pro Kontext Multi",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-pro_kontext_multi",
+ "page": "https://fal.ai/models/fal-ai/flux-pro/kontext/multi",
+ "description": "Experimental version of FLUX.1 Kontext [pro] with multi image handling capabilities",
+ "pricing": {
+  "billing": {
+   "unit": "images",
+   "price": 0.04
+  },
+  "text": "$0.04 per image (fal's billing unit).",
+  "tag": "$0.04/image",
+  "estimate": {
+   "auto": true,
+   "per": "image",
+   "rate": 0.04,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 3.5,
+   "min": 1,
+   "max": 20,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "default": "2",
+   "tooltip": "The safety tolerance level for the generated image. 1 being the most strict and 5 being the most permissive."
+  },
+  {
+   "name": "enhance_prompt",
+   "path": "enhance_prompt",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to enhance the prompt for better results."
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "21:9",
+    "16:9",
+    "4:3",
+    "3:2",
+    "1:1",
+    "2:3",
+    "3:4",
+    "9:16",
+    "9:21"
+   ],
+   "default": "(not set)",
+   "tooltip": "The aspect ratio of the generated image. '(not set)' leaves it to the model."
+  },
+  {
+   "name": "image",
+   "path": "image_urls",
+   "required": true,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "Image prompt for the omni model. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

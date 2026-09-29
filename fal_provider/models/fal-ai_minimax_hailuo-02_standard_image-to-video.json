@@ -1,0 +1,99 @@
+{
+ "endpoint_id": "fal-ai/minimax/hailuo-02/standard/image-to-video",
+ "class_key": "ArkFal_fal_ai_minimax_hailuo_02_standard_image_to_video",
+ "title": "MiniMax Hailuo 02 Standard Image to Video",
+ "category": "Video/MiniMax",
+ "folder": "fal-ai_minimax_hailuo-02_standard_image-to-video",
+ "page": "https://fal.ai/models/fal-ai/minimax/hailuo-02/standard/image-to-video",
+ "description": "MiniMax Hailuo-02 Image To Video API (Standard, 768p, 512p): Advanced image-to-video generation model with 768p and 512p resolutions",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.045
+  },
+  "text": "For each second of video generated at 768P, it will cost $0.045/sec. For each second of video generated at 512P, it will cost roughly $0.017/sec. A single 6 second 768p video will cost $0.27/video.",
+  "tag": "$0.017-0.045/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "512p": 0.017,
+     "768p": 0.045
+    }
+   },
+   "quantity": {
+    "widget": "duration",
+    "auto_max": 10.0
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "",
+   "max_length": 2000
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": ""
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "6",
+    "10"
+   ],
+   "default": "6",
+   "tooltip": "The duration of the video in seconds. 10 seconds videos are not supported for 1080p resolution."
+  },
+  {
+   "name": "prompt_optimizer",
+   "path": "prompt_optimizer",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to use the model's prompt optimizer"
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "512P",
+    "768P"
+   ],
+   "default": "768P",
+   "tooltip": "The resolution of the generated video."
+  },
+  {
+   "name": "end_image",
+   "path": "end_image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "Optional URL of the image to use as the last frame of the video"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

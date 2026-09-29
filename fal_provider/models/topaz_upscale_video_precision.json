@@ -1,0 +1,179 @@
+{
+ "endpoint_id": "topaz/upscale/video/precision",
+ "class_key": "ArkFal_topaz_upscale_video_precision",
+ "title": "Topaz Upscale Video Precision",
+ "category": "Video/Topaz",
+ "folder": "topaz_upscale_video_precision",
+ "page": "https://fal.ai/models/topaz/upscale/video/precision",
+ "description": "Professional video upscaling powered by Topaz Labs. Precision models (Proteus, Artemis, Iris, Dione, Theia, Gaia, Rhea) enhance footage up to 4x while staying faithful to the source. Best for clean, natural upscales of real-world footage.",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 0.01
+  },
+  "text": "Your request will cost $0.10 per 10 seconds of output at 720p, $0.20 at 1080p, and $0.60 at 4K with the precision models (Proteus, Artemis, Iris, Dione, Theia, Gaia HQ/CG, and Rhea). Proteus Natural (2x only) costs $0.10 per 10 seconds at 720p, $0.20 at 1080p, and $0.50 at 4K. Gaia 2 (2x, animation) costs $0.10 at 720p or 1080p and $0.30 at 4K. Longer clips scale with duration, with credits rounded once per job: a 1-minute upscale with the standard precision models costs $0.40 at 720p, $0.80 at 1080p, and $3.10 at 4K. These examples assume 30 fps. The final cost depends on output resolution, duration, and frame rate.",
+  "tag": "$0.01-0.06/s",
+  "estimate": {
+   "per": "second",
+   "rate": 0.06,
+   "quantity": {
+    "media": [
+     "video"
+    ]
+   },
+   "label": " of video (4K rate - $0.01/s at 720p)"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL of the video to upscale"
+  },
+  {
+   "name": "model",
+   "path": "model",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "Proteus",
+    "Proteus Natural",
+    "Iris",
+    "Iris Low Quality",
+    "Dione DV",
+    "Dione TV",
+    "Dione Robust",
+    "Dione Dehalo",
+    "Dione Robust Dehalo",
+    "Artemis High Quality",
+    "Artemis Medium Quality",
+    "Artemis Low Quality",
+    "Artemis Strong Halo",
+    "Artemis Medium Halo",
+    "Artemis Aliasing & Moire",
+    "Gaia HQ",
+    "Gaia CG",
+    "Gaia 2",
+    "Rhea",
+    "Theia Fine Tune Detail",
+    "Theia Fine Tune Fidelity"
+   ],
+   "default": "Proteus",
+   "tooltip": "Precision (non-generative) enhancement model. Proteus fits most real-world footage; Proteus Natural is a softer variant; Iris recovers faces; Dione deinterlaces legacy/interlaced sources; Artemis denoises and sharpens degraded footage; Gaia refines high-quality footage and CG (Gaia 2 upscales animation at 2x); Rhea maximizes fine detail via an internal 4x pass; Theia gives manual detail/fidelity control."
+  },
+  {
+   "name": "upscale_factor",
+   "path": "upscale_factor",
+   "required": false,
+   "kind": "float",
+   "default": 2,
+   "min": 1,
+   "max": 4,
+   "tooltip": "Factor to upscale the video by (e.g. 2.0 doubles width and height)",
+   "step": 0.01
+  },
+  {
+   "name": "target_fps",
+   "path": "target_fps",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Target FPS for the output. Frame interpolation is enabled only when this differs from the source FPS. -1 leaves it to the model.",
+   "schema_min": 16,
+   "max": 60,
+   "schema_max": 60
+  },
+  {
+   "name": "compression",
+   "path": "compression",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Compression artifact removal level (0.0-1.0). Default varies by model. -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 1,
+   "schema_max": 1,
+   "step": 0.01
+  },
+  {
+   "name": "noise",
+   "path": "noise",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Noise reduction level (0.0-1.0). Default varies by model. -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 1,
+   "schema_max": 1,
+   "step": 0.01
+  },
+  {
+   "name": "halo",
+   "path": "halo",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Halo reduction level (0.0-1.0). Default varies by model. -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 1,
+   "schema_max": 1,
+   "step": 0.01
+  },
+  {
+   "name": "grain",
+   "path": "grain",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Film grain amount (0.0-0.1). Default varies by model. -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 0.1,
+   "schema_max": 0.1,
+   "step": 0.01
+  },
+  {
+   "name": "recover_detail",
+   "path": "recover_detail",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Recover original detail level (0.0-1.0). Higher values preserve more original detail. -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 1,
+   "schema_max": 1,
+   "step": 0.01
+  },
+  {
+   "name": "H264_output",
+   "path": "H264_output",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to use H264 codec for output video. Default is H265."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

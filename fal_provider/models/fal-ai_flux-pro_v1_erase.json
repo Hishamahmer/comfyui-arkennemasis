@@ -1,0 +1,91 @@
+{
+ "endpoint_id": "fal-ai/flux-pro/v1/erase",
+ "class_key": "ArkFal_fal_ai_flux_pro_v1_erase",
+ "title": "Flux Pro v1 Erase",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-pro_v1_erase",
+ "page": "https://fal.ai/models/fal-ai/flux-pro/v1/erase",
+ "description": "Latest object erasing model from Black Forest Labs. Remove undesired objects, texts from images.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.004
+  },
+  "text": "Your request will cost $0.03 for the first megapixel generated, then $0.004 for each subsequent megapixel. Each reference megapixel also costs $0.004 set at 3 MP minimum.",
+  "tag": "$0.004/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.004
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The URL of the input image to erase content from."
+  },
+  {
+   "name": "mask",
+   "path": "mask_url",
+   "required": true,
+   "kind": "mask",
+   "tooltip": "The URL of a black/white mask image where white (255) marks pixels to erase and black (0) marks pixels to keep. Needs to match the dimensions of the input image."
+  },
+  {
+   "name": "dilate_pixels",
+   "path": "dilate_pixels",
+   "required": false,
+   "kind": "int",
+   "default": 10,
+   "min": 0,
+   "max": 100,
+   "tooltip": "Number of pixels to expand the mask edges by. Higher values produce cleaner erase results around the masked region."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

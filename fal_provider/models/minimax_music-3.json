@@ -1,0 +1,104 @@
+{
+ "endpoint_id": "minimax/music-3",
+ "class_key": "ArkFal_minimax_music_3",
+ "title": "MiniMax Music 3",
+ "category": "Audio/MiniMax",
+ "folder": "minimax_music-3",
+ "page": "https://fal.ai/models/minimax/music-3",
+ "description": "MiniMax Music 3 is a high-performance music generation model for creating complete songs up to five minutes long",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.002
+  },
+  "text": "$0.002 per second (fal's billing unit).",
+  "tag": "$0.002/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": 0.002,
+   "quantity": {
+    "widget": "duration"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Music description: style, mood, vocals, instrumentation and arrangement. For precise control use a Structured Caption with global metadata (genre, BPM, key, emotional progression), vocal details, and a section-by-section arrangement."
+  },
+  {
+   "name": "lyrics",
+   "path": "lyrics",
+   "required": true,
+   "kind": "string",
+   "default": "",
+   "tooltip": "The lyrics to sing. Structure tags such as [intro], [verse], [pre-chorus], [chorus], [post-chorus], [bridge], [instrumental], [solo] and [outro] must each be on their own line; text on the same line as a leading tag is dropped by the model's input contract."
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "float",
+   "default": 60,
+   "min": 1,
+   "max": 300,
+   "tooltip": "Upper bound on the generated audio length in seconds. The model may stop earlier; the actual duration is returned in the output.",
+   "step": 0.01
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Random seed for reproducibility. If not provided, a random seed will be used. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 30,
+   "min": 1,
+   "max": 100,
+   "tooltip": "Number of flow-matching Euler steps per 8-second denoising chunk. More steps improve quality at the cost of speed."
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 1.7,
+   "min": 0,
+   "max": 20,
+   "tooltip": "Classifier-free guidance scale of the flow-matching stage.",
+   "step": 0.01
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "duration",
+   "kind": "float"
+  }
+ ]
+}

@@ -22,6 +22,7 @@ import copy
 import datetime
 import json
 import os
+import re
 import time
 
 from comfy_api.latest import io
@@ -63,9 +64,9 @@ def _schema_inputs(spec):
             cls = {"image_list": io.Image, "video_list": io.Video, "audio_list": io.Audio}[kind]
             for i, sock in enumerate(socket_names(inp)):
                 out.append(cls.Input(sock, optional=(socket_optional or i > 0), tooltip=tip))
-        elif kind in ("text", "string", "url"):
-            out.append(io.String.Input(name, multiline=(kind == "text"), default=inp.get("default", ""),
-                                       optional=optional, tooltip=tip))
+        elif kind in ("text", "string", "url", "json"):
+            out.append(io.String.Input(name, multiline=(kind in ("text", "json")),
+                                       default=inp.get("default", ""), optional=optional, tooltip=tip))
         elif kind in ("enum", "tribool"):
             out.append(io.Combo.Input(name, options=list(inp["options"]), default=inp["default"],
                                       optional=optional, tooltip=tip))
@@ -119,9 +120,11 @@ def _schema_outputs(spec):
             out += [io.Image.Output("images"), io.String.Output("image_paths")]
         elif kind == "video":
             out += [io.Video.Output("video"), io.String.Output("video_path")]
-        elif kind in ("files", "file", "audio_file"):
+        elif kind == "audio":
+            out += [io.Audio.Output("audio"), io.String.Output("audio_path")]
+        elif kind in ("files", "file"):
             out.append(io.String.Output(field + "_path"))
-        elif kind == "string":
+        elif kind in ("string", "json"):
             out.append(io.String.Output(field))
         elif kind == "int":
             out.append(io.Int.Output(field))
@@ -344,6 +347,18 @@ def _prepare(spec, kw, say):
                      % (name, inp["min_length"]))
             provided.add(name)
             _set_path(payload, path, text)
+        elif kind == "json":
+            text = "" if value is None else str(value).strip()
+            if not text:
+                need(not inp.get("required"), "'%s' is required - it is empty (it takes JSON)." % name)
+                continue
+            try:
+                parsed = json.loads(text)
+            except ValueError as exc:
+                raise media.InputError("fal %s: '%s' is not valid JSON (%s)."
+                                       % (spec["title"], name, exc)) from None
+            provided.add(name)
+            _set_path(payload, path, parsed)
         elif kind == "enum":
             if value is None or value == NOT_SET:
                 continue
@@ -352,6 +367,12 @@ def _prepare(spec, kw, say):
                 value = int(value)
             elif inp.get("value_type") == "number":
                 value = float(value)
+            elif inp.get("value_type") == "mixed":
+                text = str(value)
+                if re.fullmatch(r"-?[0-9]+", text):
+                    value = int(text)
+                elif re.fullmatch(r"-?[0-9]*\.[0-9]+", text):
+                    value = float(text)
             _set_path(payload, path, value)
         elif kind == "tribool":
             if value is None or value == NOT_SET:
@@ -364,6 +385,11 @@ def _prepare(spec, kw, say):
                 continue
             if "not_set" in inp and float(value) == float(inp["not_set"]):
                 continue
+            lo, hi = inp.get("schema_min"), inp.get("schema_max")
+            need((lo is None or float(value) >= float(lo) - 1e-9) and
+                 (hi is None or float(value) <= float(hi) + 1e-9),
+                 "'%s' is %s; fal takes %s to %s (or -1 to leave it to the model)."
+                 % (name, value, "-inf" if lo is None else lo, "inf" if hi is None else hi))
             _set_path(payload, path, int(value) if kind == "int" else float(value))
         elif kind == "image_size":
             if value == "custom":
@@ -407,17 +433,17 @@ def _download(spec, handle, answer, say):
     field_files = {}
     for o in spec["outputs"]:
         kind, field = o["kind"], o["field"]
-        if kind not in ("images", "video", "files", "file", "audio_file"):
+        if kind not in ("images", "video", "audio", "files", "file"):
             continue
         files = _files_in(answer.get(field))
-        if not files and kind in ("images", "video"):
+        if not files and kind in ("images", "video", "audio"):
             raise client.FalError("fal %s: the answer has no '%s'. Request %s. Answer: %s"
                                   % (spec["title"], field, handle["request_id"],
                                      json.dumps(answer)[:800]))
-        if kind == "video":
+        if kind in ("video", "audio"):
             files = files[:1]
         paths = []
-        fallback = {"images": ".png", "video": ".mp4"}.get(kind, ".bin")
+        fallback = {"images": ".png", "video": ".mp4", "audio": ".mp3"}.get(kind, ".bin")
         for f in files:
             ext = media.extension_for(f, fallback)
             path, filename, _ = _save_target(folder, ext)
@@ -444,7 +470,7 @@ def _build(spec, answer, field_files, say):
     import torch
     from comfy_api.latest import InputImpl
 
-    values, ui_images, ui_video = [], [], None
+    values, ui_images, ui_video, ui_audio = [], [], None, None
     for o in spec["outputs"]:
         kind, field = o["kind"], o["field"]
         raw = answer.get(field)
@@ -461,10 +487,17 @@ def _build(spec, answer, field_files, say):
         elif kind == "video":
             values += [InputImpl.VideoFromFile(paths[0]), paths[0]]
             ui_video = _ui_entry(paths[0])
-        elif kind in ("files", "file", "audio_file"):
+        elif kind == "audio":
+            from comfy_extras.nodes_audio import load as load_audio
+            waveform, rate = load_audio(paths[0])
+            values += [{"waveform": waveform.unsqueeze(0), "sample_rate": rate}, paths[0]]
+            ui_audio = _ui_entry(paths[0])
+        elif kind in ("files", "file"):
             values.append("\n".join(paths))
         elif kind == "string":
             values.append("" if raw is None else str(raw))
+        elif kind == "json":
+            values.append("" if raw is None else json.dumps(raw, ensure_ascii=False, indent=1))
         elif kind == "int":
             values.append(int(raw) if isinstance(raw, (int, float)) else 0)
         elif kind == "float":
@@ -475,6 +508,8 @@ def _build(spec, answer, field_files, say):
         ui = {"images": [ui_video], "animated": (True,)}
     elif ui_images:
         ui = {"images": ui_images}
+    elif ui_audio:
+        ui = {"audio": [ui_audio]}
     else:
         ui = None
     return values, ui

@@ -2,7 +2,7 @@
  "endpoint_id": "veed/fabric-1.0",
  "class_key": "ArkFal_veed_fabric_1_0",
  "title": "VEED Fabric 1.0",
- "category": "Lip Sync",
+ "category": "Lip Sync/VEED",
  "folder": "veed_fabric-1.0",
  "page": "https://fal.ai/models/veed/fabric-1.0",
  "description": "VEED Fabric 1.0 is an image-to-video API that turns any image into a talking video",

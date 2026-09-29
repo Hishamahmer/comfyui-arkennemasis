@@ -2,7 +2,7 @@
  "endpoint_id": "bytedance/seedance-2.5/us/reference-to-video",
  "class_key": "ArkFal_bytedance_seedance_2_5_us_reference_to_video",
  "title": "Seedance 2.5 US Reference to Video",
- "category": "Video",
+ "category": "Video/Seedance",
  "folder": "bytedance_seedance-2.5_us_reference-to-video",
  "page": "https://fal.ai/models/bytedance/seedance-2.5/us/reference-to-video",
  "description": "US-hosted ByteDance Seedance 2.5 generates video with native audio from up to 30 images, 10 videos, and 10 audio references. Supports reference-guided generation, video editing, and extension at 480p, 720p or 1080p.",

@@ -1,0 +1,111 @@
+{
+ "endpoint_id": "xai/grok-voice",
+ "class_key": "ArkFal_xai_grok_voice",
+ "title": "xAI Grok Voice",
+ "category": "Audio/xAI",
+ "folder": "xai_grok-voice",
+ "page": "https://fal.ai/models/xai/grok-voice",
+ "description": "Build real-time voice applications powered by Grok. Send recorded audio and get a voice and text response.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.00083
+  },
+  "text": "$0.00083 per second (fal's billing unit).",
+  "tag": "$0.00083/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": 0.00083,
+   "quantity": {
+    "media": [
+     "audio"
+    ]
+   },
+   "label": " of audio"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the audio containing the user's speech. The Grok agent listens to it and replies with speech. Most common audio formats are supported; the audio is converted to 16-bit 24 kHz mono PCM before being sent to Grok. Maximum duration 10 minutes, maximum file size 50 MB."
+  },
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Optional system instructions describing the agent's persona and conversation context. Uses Grok's default persona when omitted. Empty leaves it out.",
+   "max_length": 20000
+  },
+  {
+   "name": "voice",
+   "path": "voice",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "carina",
+    "zagan",
+    "helix",
+    "orion",
+    "luna",
+    "iris",
+    "altair",
+    "zenith",
+    "perseus",
+    "helios",
+    "lux",
+    "kepler",
+    "rigel",
+    "cosmo",
+    "celeste",
+    "ursa",
+    "sirius",
+    "lumen",
+    "castor",
+    "naksh",
+    "atlas",
+    "aurora",
+    "liora",
+    "ara",
+    "eve",
+    "leo",
+    "rex",
+    "sal"
+   ],
+   "default": "(not set)",
+   "tooltip": "Built-in xAI voice for the agent's reply. Uses Grok's default voice when omitted. '(not set)' leaves it to the model."
+  },
+  {
+   "name": "tools",
+   "path": "tools",
+   "required": false,
+   "kind": "json",
+   "default": "{\"x_search\": {\"enabled\": false}, \"web_search\": {\"enabled\": false}, \"mcp_servers\": []}",
+   "tooltip": "Typed xAI tools supported by this app's convenience configuration. Every tool is disabled in the default configuration: the searches must be switched on via their ``enabled`` flags and ``mcp_servers`` starts empty. ``file_search`` / collections are intentionally absent and unsupported due to Zero Data Retention (ZDR) requirements. Caller-side function tools are likewise absent from the typed configuration — they requ"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "text",
+   "kind": "string"
+  },
+  {
+   "field": "duration",
+   "kind": "float"
+  }
+ ]
+}

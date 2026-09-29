@@ -1,0 +1,82 @@
+{
+ "endpoint_id": "fal-ai/elevenlabs/speech-to-text",
+ "class_key": "ArkFal_fal_ai_elevenlabs_speech_to_text",
+ "title": "ElevenLabs Speech to Text",
+ "category": "Audio/ElevenLabs",
+ "folder": "fal-ai_elevenlabs_speech-to-text",
+ "page": "https://fal.ai/models/fal-ai/elevenlabs/speech-to-text",
+ "description": "Generate text from speech using ElevenLabs advanced speech-to-text model.",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 0.03
+  },
+  "text": "$0.03 per minute (fal's billing unit).",
+  "tag": "$0.03/min",
+  "estimate": {
+   "auto": true,
+   "per": "minute",
+   "rate": 0.03,
+   "quantity": {
+    "media": [
+     "audio"
+    ]
+   },
+   "label": " of audio"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the audio file to transcribe"
+  },
+  {
+   "name": "language_code",
+   "path": "language_code",
+   "required": false,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Language code of the audio Empty leaves it out."
+  },
+  {
+   "name": "tag_audio_events",
+   "path": "tag_audio_events",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Tag audio events like laughter, applause, etc."
+  },
+  {
+   "name": "diarize",
+   "path": "diarize",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to annotate who is speaking"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "language_probability",
+   "kind": "float"
+  },
+  {
+   "field": "language_code",
+   "kind": "string"
+  },
+  {
+   "field": "text",
+   "kind": "string"
+  },
+  {
+   "field": "words",
+   "kind": "json"
+  }
+ ]
+}

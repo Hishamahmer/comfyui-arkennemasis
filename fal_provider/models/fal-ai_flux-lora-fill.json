@@ -1,0 +1,223 @@
+{
+ "endpoint_id": "fal-ai/flux-lora-fill",
+ "class_key": "ArkFal_fal_ai_flux_lora_fill",
+ "title": "Flux LoRA Fill",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-lora-fill",
+ "page": "https://fal.ai/models/fal-ai/flux-lora-fill",
+ "description": "FLUX.1 [dev] Fill is a high-performance endpoint for the FLUX.1 [pro] model that enables rapid transformation of existing images, delivering high-quality style transfers and image modifications with the core FLUX capabilities.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.035
+  },
+  "text": "$0.035 per megapixel (fal's billing unit).",
+  "tag": "$0.035/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.035,
+   "quantity": {
+    "megapixels": "image_size",
+    "count": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from. Empty leaves it out."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "square_hd",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. 'custom' uses the width and height below."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 28,
+   "min": 1,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "loras",
+   "path": "loras",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The LoRAs to use for the image generation. You can use any number of LoRAs and they will be merged together to generate the final image. JSON. Empty leaves it out."
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 30,
+   "min": 28,
+   "max": 35,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate. This is always set to 1 for streaming output."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled. Disabling it requires account authorization; unauthorized requests are always checked, and images flagged as unsafe are returned as black images."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "acceleration",
+   "path": "acceleration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "none",
+    "regular"
+   ],
+   "default": "none",
+   "tooltip": "Acceleration level for image generation. 'regular' balances speed and quality."
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "URL of image to use for fill operation"
+  },
+  {
+   "name": "mask",
+   "path": "mask_url",
+   "required": true,
+   "kind": "mask",
+   "tooltip": "The mask to area to Inpaint in."
+  },
+  {
+   "name": "paste_back",
+   "path": "paste_back",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Specifies whether to paste-back the original image onto to the non-inpainted areas of the output"
+  },
+  {
+   "name": "fill_image_in_context_fill",
+   "path": "fill_image.in_context_fill",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Uses the provided fill image in context with the base image to fill in more faithfully. Will increase price."
+  },
+  {
+   "name": "fill_image_fill_image",
+   "path": "fill_image.fill_image_url",
+   "required": false,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "URLs of images to be filled into the masked area. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "fill_image_use_prompt",
+   "path": "fill_image.use_prompt",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to use the prompt as well in the generation, along with the redux image."
+  },
+  {
+   "name": "resize_to_original",
+   "path": "resize_to_original",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Resizes the image back to the original size. Use when you wish to preserve the exact image size as the originally provided image."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

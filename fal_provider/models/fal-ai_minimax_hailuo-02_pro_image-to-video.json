@@ -1,0 +1,64 @@
+{
+ "endpoint_id": "fal-ai/minimax/hailuo-02/pro/image-to-video",
+ "class_key": "ArkFal_fal_ai_minimax_hailuo_02_pro_image_to_video",
+ "title": "MiniMax Hailuo 02 Pro Image to Video",
+ "category": "Video/MiniMax",
+ "folder": "fal-ai_minimax_hailuo-02_pro_image-to-video",
+ "page": "https://fal.ai/models/fal-ai/minimax/hailuo-02/pro/image-to-video",
+ "description": "MiniMax Hailuo-02 Image To Video API (Pro, 1080p): Advanced image-to-video generation model with 1080p resolution",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.08
+  },
+  "text": "For each second of video generated, it will cost $0.08/sec. A single 6 second video will cost $0.48/video.",
+  "tag": "$0.48/video",
+  "estimate": {
+   "per": "run",
+   "rate": 0.48
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "",
+   "max_length": 2000
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": ""
+  },
+  {
+   "name": "prompt_optimizer",
+   "path": "prompt_optimizer",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to use the model's prompt optimizer"
+  },
+  {
+   "name": "end_image",
+   "path": "end_image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "Optional URL of the image to use as the last frame of the video"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

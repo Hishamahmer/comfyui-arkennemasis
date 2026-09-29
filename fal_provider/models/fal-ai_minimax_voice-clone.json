@@ -1,0 +1,97 @@
+{
+ "endpoint_id": "fal-ai/minimax/voice-clone",
+ "class_key": "ArkFal_fal_ai_minimax_voice_clone",
+ "title": "MiniMax Voice Clone",
+ "category": "Audio/MiniMax",
+ "folder": "fal-ai_minimax_voice-clone",
+ "page": "https://fal.ai/models/fal-ai/minimax/voice-clone",
+ "description": "Clone a voice from a sample audio and generate speech from text prompts using the MiniMax model, which leverages advanced AI techniques to create high-quality text-to-speech.",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 1.5
+  },
+  "text": "Each voice clone request will cost $1.5, with preview inputs costing $0.3 per 1000 characters.",
+  "tag": "$1.50/voice",
+  "estimate": {
+   "per": "run",
+   "rate": 1.5
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the input audio file for voice cloning. Should be at least 10 seconds long. To retain the voice permanently, use it with a TTS (text-to-speech) endpoint at least once within 7 days. Otherwise, it will be automatically deleted."
+  },
+  {
+   "name": "noise_reduction",
+   "path": "noise_reduction",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Enable noise reduction for the cloned voice"
+  },
+  {
+   "name": "need_volume_normalization",
+   "path": "need_volume_normalization",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Enable volume normalization for the cloned voice"
+  },
+  {
+   "name": "accuracy",
+   "path": "accuracy",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Text validation accuracy threshold (0-1) -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 1,
+   "schema_max": 1,
+   "step": 0.01
+  },
+  {
+   "name": "text",
+   "path": "text",
+   "required": false,
+   "kind": "text",
+   "default": "Hello, this is a preview of your cloned voice! I hope you like it!",
+   "tooltip": "Text to generate a TTS preview with the cloned voice (optional) Empty leaves it out.",
+   "max_length": 1000
+  },
+  {
+   "name": "model",
+   "path": "model",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "speech-02-hd",
+    "speech-02-turbo",
+    "speech-01-hd",
+    "speech-01-turbo"
+   ],
+   "default": "speech-02-hd",
+   "tooltip": "TTS model to use for preview. Options: speech-02-hd, speech-02-turbo, speech-01-hd, speech-01-turbo"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "custom_voice_id",
+   "kind": "string"
+  }
+ ]
+}

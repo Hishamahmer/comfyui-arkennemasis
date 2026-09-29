@@ -1,0 +1,131 @@
+{
+ "endpoint_id": "minimax/h3-max/camera-controls",
+ "class_key": "ArkFal_minimax_h3_max_camera_controls",
+ "title": "MiniMax H3 Max Camera Controls",
+ "category": "Video/MiniMax",
+ "folder": "minimax_h3-max_camera-controls",
+ "page": "https://fal.ai/models/minimax/h3-max/camera-controls",
+ "description": "H3 Max Multi Angle turns a single image into a video with precise, keyframe-based control over the camera's orbit, elevation, and distance in 3D space",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.025
+  },
+  "text": "Video costs $0.025 per second at 480p, $0.04 per second at 768p, and $0.08 per second at 1080p. Note: these are promotional launch rates, 50% off for a limited time. The discount ends September 30, after which 480p is $0.05/second, 768p is $0.08/second, and 1080p is $0.16/second.",
+  "tag": "$0.04-0.08/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.04,
+     "768p": 0.08,
+     "1080p": 0.08
+    }
+   },
+   "quantity": {
+    "widget": "duration"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "The same elements in the reference are rigid. Preserve every element exactly. The entire scene is frozen. Only the camera moves. no scene motion only camera motion",
+   "tooltip": "Text prompt for video generation. When omitted or blank, defaults to preserving the frozen reference scene while only the camera moves. Empty leaves it out.",
+   "max_length": 50000
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "int",
+   "default": 5,
+   "min": 3,
+   "max": 15,
+   "tooltip": "The duration of the video in seconds."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480P",
+    "768P",
+    "1080P"
+   ],
+   "default": "480P",
+   "tooltip": "The native generation resolution, or 1080P latent refinement from a native 768P source."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Random seed. A random seed is selected when omitted. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled."
+  },
+  {
+   "name": "prompt_expansion_mode",
+   "path": "prompt_expansion_mode",
+   "required": true,
+   "kind": "text",
+   "default": "balanced",
+   "tooltip": "How much effort to spend rewriting the prompt before generation. 'disabled' skips prompt expansion. 'balanced' returns in about a second. 'quality' spends up to ~30s on a richer prompt."
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "URL of the image to use as the first frame."
+  },
+  {
+   "name": "camera_trajectory",
+   "path": "camera_trajectory",
+   "required": false,
+   "kind": "json",
+   "default": "[{\"time\": 0, \"elevation\": 0, \"azimuth\": 0, \"distance\": 1}, {\"time\": 0.3, \"elevation\": 15, \"azimuth\": 45, \"distance\": 0.2}, {\"time\": 0.8, \"elevation\": -90, \"azimuth\": 90, \"distance\": 1}]",
+   "tooltip": "Ordered camera keyframes. The first pose is held before its time and the final pose is held for the remainder of the video. Signed full turns are preserved, with at most 32 turns of total azimuth travel. JSON. Empty leaves it out."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "expanded_prompt",
+   "kind": "string"
+  }
+ ]
+}

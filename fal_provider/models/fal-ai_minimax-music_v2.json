@@ -1,0 +1,99 @@
+{
+ "endpoint_id": "fal-ai/minimax-music/v2",
+ "class_key": "ArkFal_fal_ai_minimax_music_v2",
+ "title": "MiniMax Music v2",
+ "category": "Audio/MiniMax",
+ "folder": "fal-ai_minimax-music_v2",
+ "page": "https://fal.ai/models/fal-ai/minimax-music/v2",
+ "description": "Generate music from text prompts using the MiniMax Music 2.0 model, which leverages advanced AI techniques to create high-quality, diverse musical compositions.",
+ "pricing": {
+  "billing": {
+   "unit": "generations",
+   "price": 0.03
+  },
+  "text": "$0.03 per generation (fal's billing unit).",
+  "tag": "$0.03/run",
+  "estimate": {
+   "auto": true,
+   "per": "run",
+   "rate": 0.03
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "A description of the music, specifying style, mood, and scenario. 10-300 characters.",
+   "max_length": 2000,
+   "min_length": 10
+  },
+  {
+   "name": "lyrics_prompt",
+   "path": "lyrics_prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Lyrics of the song. Use n to separate lines. You may add structure tags like [Intro], [Verse], [Chorus], [Bridge], [Outro] to enhance the arrangement. 10-3000 characters.",
+   "max_length": 3000,
+   "min_length": 10
+  },
+  {
+   "name": "audio_setting_sample_rate",
+   "path": "audio_setting.sample_rate",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "8000",
+    "16000",
+    "22050",
+    "24000",
+    "32000",
+    "44100"
+   ],
+   "default": "44100",
+   "tooltip": "Sample rate of generated audio"
+  },
+  {
+   "name": "audio_setting_bitrate",
+   "path": "audio_setting.bitrate",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "32000",
+    "64000",
+    "128000",
+    "256000"
+   ],
+   "default": "256000",
+   "tooltip": "Bitrate of generated audio"
+  },
+  {
+   "name": "audio_setting_format",
+   "path": "audio_setting.format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "mp3",
+    "pcm",
+    "flac"
+   ],
+   "default": "mp3",
+   "tooltip": "Audio format"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  }
+ ]
+}

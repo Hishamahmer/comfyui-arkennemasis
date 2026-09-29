@@ -1,0 +1,115 @@
+{
+ "endpoint_id": "fal-ai/flux-vision-upscaler",
+ "class_key": "ArkFal_fal_ai_flux_vision_upscaler",
+ "title": "Flux Vision Upscaler",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-vision-upscaler",
+ "page": "https://fal.ai/models/fal-ai/flux-vision-upscaler",
+ "description": "Flux Vision Upscaler for magnify/upscaling images with high fidelity and creativity.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.1
+  },
+  "text": "$0.1 per megapixel (fal's billing unit).",
+  "tag": "$0.1/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.1
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The URL of the image to upscale."
+  },
+  {
+   "name": "upscale_factor",
+   "path": "upscale_factor",
+   "required": false,
+   "kind": "float",
+   "default": 2,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The upscale factor (1-4x).",
+   "step": 0.01
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The seed to use for the upscale. If not provided, a random seed will be used. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "creativity",
+   "path": "creativity",
+   "required": false,
+   "kind": "float",
+   "default": 0.3,
+   "min": 0,
+   "max": 1,
+   "tooltip": "The creativity of the model. The higher the creativity, the more the model will deviate from the original. Refers to the denoise strength of the sampling.",
+   "step": 0.01
+  },
+  {
+   "name": "guidance",
+   "path": "guidance",
+   "required": false,
+   "kind": "float",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "CFG/guidance scale (1-4). Controls how closely the model follows the prompt.",
+   "step": 0.01
+  },
+  {
+   "name": "steps",
+   "path": "steps",
+   "required": false,
+   "kind": "int",
+   "default": 20,
+   "min": 4,
+   "max": 50,
+   "tooltip": "Number of inference steps (4-50)."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to enable the safety checker."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "image",
+   "kind": "images",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "caption",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

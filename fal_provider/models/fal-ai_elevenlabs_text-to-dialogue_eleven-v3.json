@@ -1,0 +1,102 @@
+{
+ "endpoint_id": "fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
+ "class_key": "ArkFal_fal_ai_elevenlabs_text_to_dialogue_eleven_v3",
+ "title": "ElevenLabs Text to Dialogue Eleven v3",
+ "category": "Audio/ElevenLabs",
+ "folder": "fal-ai_elevenlabs_text-to-dialogue_eleven-v3",
+ "page": "https://fal.ai/models/fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
+ "description": "Generate realistic audio dialogues using Eleven-v3 from ElevenLabs.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 characters",
+   "price": 0.1
+  },
+  "text": "$0.1 per 1000 character (fal's billing unit).",
+  "tag": "$0.10/1k chars",
+  "estimate": {
+   "per": "kchar",
+   "rate": 0.1,
+   "quantity": {
+    "chars": "inputs"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "inputs",
+   "path": "inputs",
+   "required": true,
+   "kind": "json",
+   "default": "[{\"text\": \"[applause] Thank you all for coming tonight! Today we have a very special guest with us.\", \"voice\": \"Aria\"}, {\"text\": \"[gulps] ... [strong canadian accent] [excited] Hello everyone! Thank you all for having me tonight on this special day.\", \"voice\": \"Charlotte\"}]",
+   "tooltip": "A list of dialogue inputs, each containing text and a voice ID which will be converted into speech. JSON. Required."
+  },
+  {
+   "name": "stability",
+   "path": "stability",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Determines how stable the voice is and the randomness between each generation. Lower values introduce broader emotional range for the voice. Higher values can result in a monotonous voice with limited emotion. Must be one of 0.0, 0.5, 1.0, else it will be rounded to the nearest value. -1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 1,
+   "schema_max": 1,
+   "step": 0.01
+  },
+  {
+   "name": "use_speaker_boost",
+   "path": "use_speaker_boost",
+   "required": false,
+   "kind": "tribool",
+   "options": [
+    "(not set)",
+    "true",
+    "false"
+   ],
+   "default": "(not set)",
+   "tooltip": "This setting boosts the similarity to the original speaker. Using this setting requires a slightly higher computational load, which in turn increases latency."
+  },
+  {
+   "name": "pronunciation_dictionary_locators",
+   "path": "pronunciation_dictionary_locators",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "A list of pronunciation dictionary locators (id, version_id) to be applied to the text. They will be applied in order. You may have up to 3 locators per request JSON. Empty leaves it out."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Random seed for reproducibility. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "language_code",
+   "path": "language_code",
+   "required": false,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Language code (ISO 639-1) used to enforce a language for the model. An error will be returned if language code is not supported by the model. Empty leaves it out."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

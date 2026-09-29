@@ -1,0 +1,162 @@
+{
+ "endpoint_id": "minimax/h3-max/extend-video",
+ "class_key": "ArkFal_minimax_h3_max_extend_video",
+ "title": "MiniMax H3 Max Extend Video",
+ "category": "Video/MiniMax",
+ "folder": "minimax_h3-max_extend-video",
+ "page": "https://fal.ai/models/minimax/h3-max/extend-video",
+ "description": "H3 Max Extend Video adds a text-guided continuation to an existing video. It supports prompt expansion, adjustable duration and aspect ratio, and output resolutions from 480p to 2K, returning either the full extended video or only the new footage.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.05
+  },
+  "text": "Billing is calculated per second of generated video, plus reference input charges beyond the included allowance. Video costs $0.05 per second at 480p, $0.08 per second at 768p, $0.16 per second at 1080p, and $0.32 per second at 2K. Each request includes 4,096 reference tokens at no additional charge. Reference usage above this allowance costs $0.02 per 1,000 tokens, prorated to the actual token count.",
+  "tag": "$0.08-0.32/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.08,
+     "768p": 0.16,
+     "1080p": 0.32,
+     "2k": 0.32
+    }
+   },
+   "quantity": {
+    "widget": "duration"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL of the video to extend. Must be 1.625 s to 60 s long, up to 50 MB, aspect ratio between 0.4 and 2.5."
+  },
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "What happens next. Describe the continuation, not the source.",
+   "max_length": 50000,
+   "min_length": 1
+  },
+  {
+   "name": "enable_prompt_expansion",
+   "path": "enable_prompt_expansion",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Automatically enhance the prompt using the source video to help keep the continuation consistent. May increase processing time."
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "int",
+   "default": 5,
+   "min": 5,
+   "max": 15,
+   "tooltip": "Seconds of new footage to add after the source. The actual duration may be slightly longer."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480P",
+    "768P",
+    "1080P",
+    "2K"
+   ],
+   "default": "768P",
+   "tooltip": "Output video resolution."
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "21:9",
+    "16:9",
+    "4:3",
+    "1:1",
+    "3:4",
+    "9:16"
+   ],
+   "default": "auto",
+   "tooltip": "Output aspect ratio. 'auto' follows the source video. Other values crop the video to fit the selected ratio."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Seed for the continuation. Random when omitted. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "output",
+   "path": "output",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "extended",
+    "continuation"
+   ],
+   "default": "extended",
+   "tooltip": "'extended' returns the whole source video followed by the new footage. 'continuation' returns only the generated continuation."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Moderate the source video and the prompt."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "source",
+   "kind": "json"
+  },
+  {
+   "field": "duration",
+   "kind": "float"
+  },
+  {
+   "field": "expanded_prompt",
+   "kind": "string"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  }
+ ]
+}

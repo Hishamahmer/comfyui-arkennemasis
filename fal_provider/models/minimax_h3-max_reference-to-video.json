@@ -1,0 +1,165 @@
+{
+ "endpoint_id": "minimax/h3-max/reference-to-video",
+ "class_key": "ArkFal_minimax_h3_max_reference_to_video",
+ "title": "MiniMax H3 Max Reference to Video",
+ "category": "Video/MiniMax",
+ "folder": "minimax_h3-max_reference-to-video",
+ "page": "https://fal.ai/models/minimax/h3-max/reference-to-video",
+ "description": "fal's H3 Max is a post-trained variant of MiniMax H3, tuned for stronger prompt adherence and better aesthetics while co-optimized with our custom inference stack for higher throughput with no compromises on output quality",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.05
+  },
+  "text": "Billing uses the requested output duration at $0.05 per second for 480p, $0.08 for 768p, and $0.16 for 1080p. Each request includes 4,096 reference tokens, shared across all reference images, videos, and audio clips; additional usage costs $0.02 per 1,000 tokens, prorated. Square reference images, including 1024 × 1024 and 2048 × 2048 uploads, contribute 1,024 tokens each. With no video or audio references, the first four square images add no reference charge, and each additional square image adds $0.02048 (about $0.02). For example, a 5-second 768p output costs $0.40 with up to four square reference images, or $0.42048 with five. See the pricing details below for other image shapes, video references, and audio references.",
+  "tag": "$0.08-0.16/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.08,
+     "768p": 0.08,
+     "1080p": 0.16
+    }
+   },
+   "quantity": {
+    "widget": "duration"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text prompt for video generation. Refer to reference assets by their modality and order in the reference lists: Image 1, Image 2, Video 1, Audio 1, and so on.",
+   "max_length": 50000,
+   "min_length": 1
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "int",
+   "default": 5,
+   "min": 5,
+   "max": 15,
+   "tooltip": "The duration of the video in seconds."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480P",
+    "768P",
+    "1080P"
+   ],
+   "default": "768P",
+   "tooltip": "The native generation resolution, or 1080P latent refinement from a native 768P source."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Random seed. A random seed is selected when omitted. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled."
+  },
+  {
+   "name": "prompt_expansion_mode",
+   "path": "prompt_expansion_mode",
+   "required": true,
+   "kind": "text",
+   "default": "balanced",
+   "tooltip": "How much effort to spend rewriting the prompt before generation. 'disabled' skips prompt expansion. 'balanced' returns in about a second. 'quality' spends up to ~30s on a richer prompt."
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "adaptive",
+    "21:9",
+    "16:9",
+    "4:3",
+    "1:1",
+    "3:4",
+    "9:16"
+   ],
+   "default": "adaptive",
+   "tooltip": "The aspect ratio of the generated video."
+  },
+  {
+   "name": "reference_image",
+   "path": "reference_image_urls",
+   "required": false,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": 9,
+   "tooltip": "URLs of subject/style reference images, referenced in the prompt as Image 1, Image 2, and so on. Reference images, videos, and audio clips must add up to at most 12 files. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "reference_video",
+   "path": "reference_video_urls",
+   "required": false,
+   "kind": "video_list",
+   "count": 3,
+   "max_items": 3,
+   "tooltip": "URLs of motion/reference video clips (2-15 seconds each, combined duration at most 15 seconds), referenced in the prompt as Video 1, Video 2, and so on. Reference images, videos, and audio clips must add up to at most 12 files. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "reference_audio",
+   "path": "reference_audio_urls",
+   "required": false,
+   "kind": "audio_list",
+   "count": 3,
+   "max_items": 3,
+   "tooltip": "URLs of reference audio clips (2-15 seconds each, combined duration at most 15 seconds), referenced in the prompt as Audio 1, Audio 2, and so on. Images, videos, and audio can be provided individually or together. Reference images, videos, and audio clips must add up to at most 12 files. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "expanded_prompt",
+   "kind": "string"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

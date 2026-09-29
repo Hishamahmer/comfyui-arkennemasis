@@ -1,0 +1,83 @@
+{
+ "endpoint_id": "fal-ai/minimax/image-01",
+ "class_key": "ArkFal_fal_ai_minimax_image_01",
+ "title": "MiniMax Image 01",
+ "category": "Image/MiniMax",
+ "folder": "fal-ai_minimax_image-01",
+ "page": "https://fal.ai/models/fal-ai/minimax/image-01",
+ "description": "Generate high quality images from text prompts using MiniMax Image-01. Longer text prompts will result in better quality images.",
+ "pricing": {
+  "billing": {
+   "unit": "images",
+   "price": 0.01
+  },
+  "text": "For 1 image your request will cost 0.01$. For $1 you can run this model approximately 100 times.",
+  "tag": "$0.01/image",
+  "estimate": {
+   "auto": true,
+   "per": "image",
+   "rate": 0.01,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text prompt for image generation (max 1500 characters)",
+   "max_length": 1500,
+   "min_length": 1
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1:1",
+    "16:9",
+    "4:3",
+    "3:2",
+    "2:3",
+    "3:4",
+    "9:16",
+    "21:9"
+   ],
+   "default": "1:1",
+   "tooltip": "Aspect ratio of the generated image"
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 9,
+   "tooltip": "Number of images to generate (1-9)"
+  },
+  {
+   "name": "prompt_optimizer",
+   "path": "prompt_optimizer",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Whether to enable automatic prompt optimization"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  }
+ ]
+}

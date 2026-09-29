@@ -1,0 +1,64 @@
+{
+ "endpoint_id": "fal-ai/elevenlabs/forced-alignment",
+ "class_key": "ArkFal_fal_ai_elevenlabs_forced_alignment",
+ "title": "ElevenLabs Forced Alignment",
+ "category": "Audio/ElevenLabs",
+ "folder": "fal-ai_elevenlabs_forced-alignment",
+ "page": "https://fal.ai/models/fal-ai/elevenlabs/forced-alignment",
+ "description": "Align the transcript and your audio recording using Elevenlab's forced alignment feature!",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 0.22
+  },
+  "text": "Your request will cost $0.22 per hour of audio input. It will be rounded upwards to the nearest hour.",
+  "tag": "$0.22/hour",
+  "estimate": {
+   "per": "hour",
+   "rate": 0.22,
+   "round_up": true,
+   "quantity": {
+    "media": [
+     "audio"
+    ]
+   },
+   "label": " of audio, whole hours"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the audio file to align. The file can be up to 3 GB and the audio can be up to 10 hours long."
+  },
+  {
+   "name": "text",
+   "path": "text",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Transcript to align with the audio",
+   "max_length": 675000,
+   "min_length": 1
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "characters",
+   "kind": "json"
+  },
+  {
+   "field": "loss",
+   "kind": "float"
+  },
+  {
+   "field": "words",
+   "kind": "json"
+  }
+ ]
+}

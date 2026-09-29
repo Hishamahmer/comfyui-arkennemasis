@@ -1,0 +1,90 @@
+{
+ "endpoint_id": "fal-ai/kling-video/v3/pro/motion-control",
+ "class_key": "ArkFal_fal_ai_kling_video_v3_pro_motion_control",
+ "title": "Kling v3 Pro Motion Control",
+ "category": "Video/Kling",
+ "folder": "fal-ai_kling-video_v3_pro_motion-control",
+ "page": "https://fal.ai/models/fal-ai/kling-video/v3/pro/motion-control",
+ "description": "Transfer movements from a reference video to any character image. Cost-effective mode for motion transfer, perfect for portraits and simple animations.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.168
+  },
+  "text": "$0.168 per second (fal's billing unit).",
+  "tag": "$0.168/s",
+  "estimate": {
+   "per": "second",
+   "rate": 0.168,
+   "quantity": {
+    "media": [
+     "video"
+    ]
+   },
+   "label": " of video"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Empty leaves it out.",
+   "max_length": 2500
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "Reference image URL. The characters, backgrounds, and other elements in the generated video are based on this reference image. Characters should have clear body proportions, avoid occlusion, and occupy more than 5% of the image area."
+  },
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "Reference video URL. The character actions in the generated video will be consistent with this reference video. Should contain a realistic style character with entire body or upper body visible, including head, without obstruction. Duration limit depends on character_orientation: 10s max for 'image', 30s max for 'video'."
+  },
+  {
+   "name": "keep_original_sound",
+   "path": "keep_original_sound",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to keep the original sound from the reference video."
+  },
+  {
+   "name": "character_orientation",
+   "path": "character_orientation",
+   "required": true,
+   "kind": "enum",
+   "options": [
+    "image",
+    "video"
+   ],
+   "default": "image",
+   "tooltip": "Controls whether the output character's orientation matches the reference image or video. 'video': orientation matches reference video - better for complex motions (max 30s). 'image': orientation matches reference image - better for following camera movements (max 10s)."
+  },
+  {
+   "name": "elements",
+   "path": "elements",
+   "required": false,
+   "kind": "json",
+   "default": "null",
+   "tooltip": "Optional element for facial consistency binding. Upload a facial element to enhance identity preservation in the generated video. Only 1 element is supported. Reference in prompt as @Element1. Element binding is only supported when character_orientation is 'video'. JSON. Empty leaves it out."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

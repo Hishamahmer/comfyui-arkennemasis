@@ -1,0 +1,55 @@
+{
+ "endpoint_id": "fal-ai/chatterbox/speech-to-speech",
+ "class_key": "ArkFal_fal_ai_chatterbox_speech_to_speech",
+ "title": "Chatterbox Speech to Speech",
+ "category": "Audio/Chatterbox",
+ "folder": "fal-ai_chatterbox_speech-to-speech",
+ "page": "https://fal.ai/models/fal-ai/chatterbox/speech-to-speech",
+ "description": "Whether you're working on memes, videos, games, or AI agents, Chatterbox brings your content to life. Use the first tts from resemble ai.",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 0.015
+  },
+  "text": "$0.015 per minute (fal's billing unit).",
+  "tag": "$0.015/min",
+  "estimate": {
+   "auto": true,
+   "per": "minute",
+   "rate": 0.015,
+   "quantity": {
+    "media": [
+     "source_audio",
+     "target_voice_audio"
+    ]
+   },
+   "label": " of video"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "source_audio",
+   "path": "source_audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": ""
+  },
+  {
+   "name": "target_voice_audio",
+   "path": "target_voice_audio_url",
+   "required": false,
+   "kind": "audio",
+   "tooltip": "Required URL to an audio file to use as the target reference voice for speech-to-speech voice conversion."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  }
+ ]
+}

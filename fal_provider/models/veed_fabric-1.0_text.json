@@ -2,7 +2,7 @@
  "endpoint_id": "veed/fabric-1.0/text",
  "class_key": "ArkFal_veed_fabric_1_0_text",
  "title": "VEED Fabric 1.0 Text",
- "category": "Lip Sync",
+ "category": "Lip Sync/VEED",
  "folder": "veed_fabric-1.0_text",
  "page": "https://fal.ai/models/veed/fabric-1.0/text",
  "description": "VEED Fabric 1.0 text-to-video API",

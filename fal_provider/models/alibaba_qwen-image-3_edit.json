@@ -1,0 +1,142 @@
+{
+ "endpoint_id": "alibaba/qwen-image-3/edit",
+ "class_key": "ArkFal_alibaba_qwen_image_3_edit",
+ "title": "Qwen Image 3 Edit",
+ "category": "Image/Qwen",
+ "folder": "alibaba_qwen-image-3_edit",
+ "page": "https://fal.ai/models/alibaba/qwen-image-3/edit",
+ "description": "Edits images from one to three reference images and a natural-language instruction, preserving key details such as facial features and identity while applying the requested changes",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 0.01
+  },
+  "text": "Your request will cost $0.04 per generated image at 1K resolution, and $0.075 per generated image at 2K resolution.",
+  "tag": "$0.04-0.075/image",
+  "estimate": {
+   "per": "image",
+   "rate": 0.075,
+   "quantity": {
+    "widget": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Text prompt describing the desired edit. Supports Chinese and English. Max 5000 characters.",
+   "max_length": 5000,
+   "min_length": 1
+  },
+  {
+   "name": "negative_prompt",
+   "path": "negative_prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Content to avoid in the generated image. Max 500 characters. Empty leaves it out.",
+   "max_length": 500
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "square_hd",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. If not provided, the model determines the resolution automatically. Total number of pixels must be between 512x512 and 2048x2048. 'custom' uses the width and height below."
+  },
+  {
+   "name": "enable_prompt_expansion",
+   "path": "enable_prompt_expansion",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Enable automatic LLM prompt rewriting for better results."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Random seed for reproducibility (0-2147483647). -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Enable content moderation for input and output. Disabling it requires account authorization; unauthorized requests are always checked."
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 6,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png",
+    "webp"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "image",
+   "path": "image_urls",
+   "required": true,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "Reference images for editing (1-3 images required). Order matters: reference as 'image 1', 'image 2', 'image 3' in prompt. Resolution: 384-2048px each dimension. Max size: 10MB each. Formats: JPEG, JPG, PNG (no alpha), WEBP. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

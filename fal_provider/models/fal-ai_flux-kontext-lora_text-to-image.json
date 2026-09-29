@@ -1,0 +1,169 @@
+{
+ "endpoint_id": "fal-ai/flux-kontext-lora/text-to-image",
+ "class_key": "ArkFal_fal_ai_flux_kontext_lora_text_to_image",
+ "title": "Flux Kontext LoRA Text to Image",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-kontext-lora_text-to-image",
+ "page": "https://fal.ai/models/fal-ai/flux-kontext-lora/text-to-image",
+ "description": "Super fast text-to-image endpoint for the FLUX.1 Kontext [dev] model with LoRA support, enabling rapid and high-quality image generation using pre-trained LoRA adaptations for personalization, specific styles, brand identities, and product-specific outputs.",
+ "pricing": {
+  "billing": {
+   "unit": "megapixels",
+   "price": 0.035
+  },
+  "text": "$0.035 per megapixel (fal's billing unit).",
+  "tag": "$0.035/MP",
+  "estimate": {
+   "auto": true,
+   "per": "megapixel",
+   "rate": 0.035,
+   "quantity": {
+    "megapixels": "image_size",
+    "count": "num_images"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate the image with"
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "landscape_4_3",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. 'custom' uses the width and height below."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 30,
+   "min": 10,
+   "max": 50,
+   "tooltip": "The number of inference steps to perform."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The same seed and the same prompt given to the same version of the model will output the same image every time. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 2.5,
+   "min": 0,
+   "max": 20,
+   "tooltip": "The CFG (Classifier Free Guidance) scale is a measure of how close you want the model to stick to your prompt when looking for a related image to show you.",
+   "step": 0.01
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "If set to true, the safety checker will be enabled. Disabling it requires account authorization; unauthorized requests are always checked, and images flagged as unsafe are returned as black images."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "loras",
+   "path": "loras",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "The LoRAs to use for the image generation. You can use any number of LoRAs and they will be merged together to generate the final image. JSON. Empty leaves it out."
+  },
+  {
+   "name": "acceleration",
+   "path": "acceleration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "none",
+    "regular",
+    "high"
+   ],
+   "default": "none",
+   "tooltip": "The speed of the generation. The higher the speed, the faster the generation."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "has_nsfw_concepts",
+   "kind": "json"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "prompt",
+   "kind": "string"
+  }
+ ]
+}

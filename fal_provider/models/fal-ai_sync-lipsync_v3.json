@@ -2,7 +2,7 @@
  "endpoint_id": "fal-ai/sync-lipsync/v3",
  "class_key": "ArkFal_fal_ai_sync_lipsync_v3",
  "title": "Sync Lipsync 3",
- "category": "Lip Sync",
+ "category": "Lip Sync/Sync",
  "folder": "fal-ai_sync-lipsync_v3",
  "page": "https://fal.ai/models/fal-ai/sync-lipsync/v3",
  "description": "sync-3 most powerful lipsync model yet, featuring native visual intelligence for professional-quality video.",
@@ -98,9 +98,19 @@
    "min": -1,
    "not_set": -1,
    "tooltip": "Controls how expressive lipsync can be; 0 is least expressive, 1 is most expressive. Sync.so handles this natively for sync-3, so this option is ignored by sync-3. -1 leaves it to the model.",
+   "schema_min": 0,
    "max": 1,
+   "schema_max": 1,
    "step": 0.01,
    "label": "temperature"
+  },
+  {
+   "name": "options_active_speaker_detection",
+   "path": "options.active_speaker_detection",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "Active speaker detection configuration for videos with multiple people. JSON. Empty leaves it out."
   },
   {
    "name": "options_model_mode",
@@ -122,10 +132,6 @@
   }
  ],
  "omitted": [
-  {
-   "path": "options.active_speaker_detection",
-   "why": "nested object - send it through extra_json"
-  },
   {
    "path": "options.sync_mode",
    "why": "same as sync_mode above - that is the one the node sends"

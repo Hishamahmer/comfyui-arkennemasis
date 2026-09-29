@@ -1,0 +1,145 @@
+{
+ "endpoint_id": "fal-ai/flux-3-action/so101",
+ "class_key": "ArkFal_fal_ai_flux_3_action_so101",
+ "title": "Flux 3 Action SO-101",
+ "category": "Video/Flux",
+ "folder": "fal-ai_flux-3-action_so101",
+ "page": "https://fal.ai/models/fal-ai/flux-3-action/so101",
+ "description": "FLUX 3 Action turns what the robot sees into what it does next. Give it the scene camera image, the wrist camera image, the current SO-101 joint state (shoulder pan, shoulder lift, elbow flex, wrist flex, wrist roll, gripper) and a plain-language instruction such as \"Pick up the yellow cube and place it inside the black rectangle\". It returns a chunk of 42 target joint positions at 30 Hz, that is 1.4 s of motion. In a control loop, execute the first 32 steps (about 1 s), then call again with fresh images and joint state.",
+ "pricing": {
+  "billing": {
+   "unit": "compute seconds",
+   "price": 0.003
+  },
+  "text": "Pricing can change for this endpoint. Your request will cost $0.003 per compute second. A typical call (one 42-step action chunk) is billed about 0.5 to 2 s of compute, so roughly $0.0015 to $0.006 per call, or about 1 s of robot motion.",
+  "tag": "$0.003/compute s",
+  "estimate": {
+   "note": "billed by compute time - no per-run figure"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Natural-language task instruction for the robot.",
+   "max_length": 2000,
+   "min_length": 1
+  },
+  {
+   "name": "scene_image",
+   "path": "scene_image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "Current frame from the fixed scene camera (tiled left). Resized to 256x256."
+  },
+  {
+   "name": "wrist_image",
+   "path": "wrist_image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "Current frame from the wrist camera (tiled right). Resized to 256x256."
+  },
+  {
+   "name": "state",
+   "path": "state",
+   "required": true,
+   "kind": "json",
+   "default": "[-18.94, 134.52, 120.15, 28.3, -32.17, 27.02]",
+   "tooltip": "Measured state: shoulder pan, shoulder lift, elbow flex, wrist flex, wrist roll (degrees), gripper (percent). JSON. Required."
+  },
+  {
+   "name": "state_history",
+   "path": "state_history",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "Measured states at the 7 control ticks (30 Hz) before `state`, oldest first. Requires `command_history`. Omit for a fresh episode. JSON. Empty leaves it out."
+  },
+  {
+   "name": "command_history",
+   "path": "command_history",
+   "required": false,
+   "kind": "json",
+   "default": "",
+   "tooltip": "Absolute commands in effect at each of the 8 observation ticks, oldest first; the last row is the most recent command sent. Requires `state_history`. JSON. Empty leaves it out."
+  },
+  {
+   "name": "history_scene_image",
+   "path": "history_scene_image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "Scene frame from the oldest history tick (7 ticks before now). Requires `state_history`. Defaults to the current frame."
+  },
+  {
+   "name": "history_wrist_image",
+   "path": "history_wrist_image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "Wrist frame from the oldest history tick. Requires `state_history`."
+  },
+  {
+   "name": "num_inference_steps",
+   "path": "num_inference_steps",
+   "required": false,
+   "kind": "int",
+   "default": 4,
+   "min": 1,
+   "max": 8,
+   "tooltip": "Euler denoising steps. The checkpoint was validated at 4."
+  },
+  {
+   "name": "guidance_scale",
+   "path": "guidance_scale",
+   "required": false,
+   "kind": "float",
+   "default": 3,
+   "min": 1,
+   "max": 10,
+   "tooltip": "Classifier-free guidance on video and action; 1.0 disables CFG.",
+   "step": 0.01
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Sampling seed. Omit for a random seed; the reference evaluation seed is 0 for DROID and 42 for SO-101. -1 leaves it to the model.",
+   "max": 2147483647
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "action_hz",
+   "kind": "float"
+  },
+  {
+   "field": "actions",
+   "kind": "json"
+  },
+  {
+   "field": "action_labels",
+   "kind": "json"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "execute_steps",
+   "kind": "int"
+  }
+ ]
+}

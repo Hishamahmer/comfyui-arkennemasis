@@ -1,0 +1,196 @@
+{
+ "endpoint_id": "minimax/h3-max/insert-video",
+ "class_key": "ArkFal_minimax_h3_max_insert_video",
+ "title": "MiniMax H3 Max Insert Video",
+ "category": "Video/MiniMax",
+ "folder": "minimax_h3-max_insert-video",
+ "page": "https://fal.ai/models/minimax/h3-max/insert-video",
+ "description": "Insert a new scene into an existing video with H3 Max. Guide the scene with a prompt, reference images, or reference videos, then return to the original footage.",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.05
+  },
+  "text": "Your request will cost $0.05 per second of generated scene at 480p or $0.06 per second at 768p. Only the newly generated scene duration is billed, not the full output video. The first 4,096 reference tokens are included; additional reference tokens cost $0.02 per 1,000 tokens, prorated.",
+  "tag": "$0.06-0.06/s",
+  "estimate": {
+   "auto": true,
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.06,
+     "768p": 0.06
+    }
+   },
+   "quantity": {
+    "widget": "duration"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": ""
+  },
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Empty leaves it out.",
+   "max_length": 50000,
+   "min_length": 1
+  },
+  {
+   "name": "reference_image",
+   "path": "reference_image_urls",
+   "required": false,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": 9,
+   "tooltip": "Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "reference_video",
+   "path": "reference_video_urls",
+   "required": false,
+   "kind": "video_list",
+   "count": 3,
+   "max_items": 3,
+   "tooltip": "Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "start_time",
+   "path": "start_time",
+   "required": true,
+   "kind": "float",
+   "default": 1.625,
+   "tooltip": "",
+   "min": 1.625,
+   "max": 60,
+   "step": 0.01
+  },
+  {
+   "name": "resume_time",
+   "path": "resume_time",
+   "required": true,
+   "kind": "float",
+   "default": 1.635,
+   "tooltip": "",
+   "min": 1.635,
+   "max": 60,
+   "step": 0.01
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "float",
+   "default": 5,
+   "min": 5,
+   "max": 13,
+   "tooltip": "",
+   "step": 0.01
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480p",
+    "768p"
+   ],
+   "default": "768p",
+   "tooltip": ""
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "-1 leaves it to the model.",
+   "schema_min": 0,
+   "max": 2147483647,
+   "schema_max": 2147483647
+  },
+  {
+   "name": "enable_prompt_expansion",
+   "path": "enable_prompt_expansion",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": ""
+  },
+  {
+   "name": "color_match",
+   "path": "color_match",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": ""
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "frame_count",
+   "kind": "int"
+  },
+  {
+   "field": "height",
+   "kind": "int"
+  },
+  {
+   "field": "injected_duration",
+   "kind": "float"
+  },
+  {
+   "field": "start_time",
+   "kind": "float"
+  },
+  {
+   "field": "duration",
+   "kind": "float"
+  },
+  {
+   "field": "width",
+   "kind": "int"
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "expanded_prompt",
+   "kind": "string"
+  },
+  {
+   "field": "timings",
+   "kind": "json"
+  },
+  {
+   "field": "source",
+   "kind": "json"
+  },
+  {
+   "field": "resume_time",
+   "kind": "float"
+  }
+ ]
+}

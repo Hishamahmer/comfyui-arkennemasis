@@ -2,7 +2,7 @@
  "endpoint_id": "minimax/h3-max/lip-sync/image-to-video",
  "class_key": "ArkFal_minimax_h3_max_lip_sync_image_to_video",
  "title": "MiniMax H3 Max Lip Sync",
- "category": "Lip Sync",
+ "category": "Lip Sync/MiniMax",
  "folder": "minimax_h3-max_lip-sync_image-to-video",
  "page": "https://fal.ai/models/minimax/h3-max/lip-sync/image-to-video",
  "description": "H3 Max Lip Sync generates a video from an image and supplied audio, synchronizing mouth movements to the soundtrack. It supports optional transcription guidance and output resolutions from 480p to 2K.",
@@ -91,7 +91,9 @@
    "min": -1,
    "not_set": -1,
    "tooltip": "Random seed; selected randomly if omitted. -1 leaves it to the model.",
-   "max": 2147483647
+   "schema_min": 0,
+   "max": 2147483647,
+   "schema_max": 2147483647
   },
   {
    "name": "enable_safety_checker",
@@ -108,6 +110,10 @@
    "field": "video",
    "kind": "video",
    "list": false
+  },
+  {
+   "field": "timings",
+   "kind": "json"
   },
   {
    "field": "duration",

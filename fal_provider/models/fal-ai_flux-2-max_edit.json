@@ -1,0 +1,130 @@
+{
+ "endpoint_id": "fal-ai/flux-2-max/edit",
+ "class_key": "ArkFal_fal_ai_flux_2_max_edit",
+ "title": "Flux 2 Max Edit",
+ "category": "Image/Flux",
+ "folder": "fal-ai_flux-2-max_edit",
+ "page": "https://fal.ai/models/fal-ai/flux-2-max/edit",
+ "description": "FLUX.2 [max] delivers state-of-the-art image generation and advanced image editing with exceptional realism, precision, and consistency.",
+ "pricing": {
+  "billing": {
+   "unit": "processed megapixels",
+   "price": 0.07
+  },
+  "text": "The first processed megapixel will cost $0.07. Each additional megapixel will cost 0.03. Input images counted as processed megapixel.",
+  "tag": "$0.07 + $0.03/MP",
+  "estimate": {
+   "per": "megapixel",
+   "first": 0.07,
+   "rate": 0.03,
+   "round_up": true,
+   "quantity": {
+    "megapixels": "image_size"
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt to generate an image from."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "auto",
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "custom"
+   ],
+   "default": "auto",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. If `auto`, the size will be determined by the model. 'custom' uses the width and height below."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The seed to use for the generation. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "default": "2",
+   "tooltip": "The safety tolerance level for the generated image. 1 being the most strict and 5 being the most permissive."
+  },
+  {
+   "name": "enable_safety_checker",
+   "path": "enable_safety_checker",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to enable the safety checker. Disabling it requires account authorization; unauthorized requests are always checked."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png"
+   ],
+   "default": "jpeg",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "image",
+   "path": "image_urls",
+   "required": true,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "List of URLs of input images for editing Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  }
+ ]
+}

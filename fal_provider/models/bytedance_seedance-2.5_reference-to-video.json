@@ -2,7 +2,7 @@
  "endpoint_id": "bytedance/seedance-2.5/reference-to-video",
  "class_key": "ArkFal_bytedance_seedance_2_5_reference_to_video",
  "title": "Seedance 2.5 Reference to Video",
- "category": "Video",
+ "category": "Video/Seedance",
  "folder": "bytedance_seedance-2.5_reference-to-video",
  "page": "https://fal.ai/models/bytedance/seedance-2.5/reference-to-video",
  "description": "Dreamina Seedance 2.5 generates video from up to 50 multimodal references images, video, audio, and style inputs, locking a character, set, and palette across a full 30-second take for production-grade consistency.",

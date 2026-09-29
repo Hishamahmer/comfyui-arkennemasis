@@ -1,0 +1,112 @@
+{
+ "endpoint_id": "fal-ai/minimax-music/v2.5",
+ "class_key": "ArkFal_fal_ai_minimax_music_v2_5",
+ "title": "MiniMax Music v2.5",
+ "category": "Audio/MiniMax",
+ "folder": "fal-ai_minimax-music_v2.5",
+ "page": "https://fal.ai/models/fal-ai/minimax-music/v2.5",
+ "description": "MiniMax Music 2.5 creates complete tracks with singing, backing music, and detailed arrangements from lyrics and a style description.",
+ "pricing": {
+  "billing": {
+   "unit": "audios",
+   "price": 0.15
+  },
+  "text": "$0.15 per audio (fal's billing unit).",
+  "tag": "$0.15/run",
+  "estimate": {
+   "auto": true,
+   "per": "run",
+   "rate": 0.15
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "A description of the music style, mood, genre, and scenario. Max 2000 characters.",
+   "max_length": 2000,
+   "min_length": 1
+  },
+  {
+   "name": "lyrics",
+   "path": "lyrics",
+   "required": false,
+   "kind": "string",
+   "default": "",
+   "tooltip": "Lyrics of the song. Use \\n to separate lines. Supports structure tags: [Intro], [Verse], [Pre Chorus], [Chorus], [Bridge], [Outro], [Interlude], [Hook], [Break], [Solo], [Inst]. Max 3500 characters. Required when is_instrumental is false and lyrics_optimizer is false. Empty leaves it out.",
+   "max_length": 3500
+  },
+  {
+   "name": "is_instrumental",
+   "path": "is_instrumental",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "When true, generates vocal-free instrumental music."
+  },
+  {
+   "name": "lyrics_optimizer",
+   "path": "lyrics_optimizer",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "When true and lyrics is empty, auto-generates lyrics from the prompt."
+  },
+  {
+   "name": "audio_setting_sample_rate",
+   "path": "audio_setting.sample_rate",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "16000",
+    "24000",
+    "32000",
+    "44100"
+   ],
+   "default": "44100",
+   "tooltip": "Sample rate of generated audio"
+  },
+  {
+   "name": "audio_setting_bitrate",
+   "path": "audio_setting.bitrate",
+   "required": false,
+   "value_type": "int",
+   "kind": "enum",
+   "options": [
+    "32000",
+    "64000",
+    "128000",
+    "256000"
+   ],
+   "default": "256000",
+   "tooltip": "Bitrate of generated audio"
+  },
+  {
+   "name": "audio_setting_format",
+   "path": "audio_setting.format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "mp3",
+    "wav",
+    "pcm"
+   ],
+   "default": "mp3",
+   "tooltip": "Audio format"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  }
+ ]
+}

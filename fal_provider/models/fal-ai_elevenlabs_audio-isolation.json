@@ -1,0 +1,58 @@
+{
+ "endpoint_id": "fal-ai/elevenlabs/audio-isolation",
+ "class_key": "ArkFal_fal_ai_elevenlabs_audio_isolation",
+ "title": "ElevenLabs Audio Isolation",
+ "category": "Audio/ElevenLabs",
+ "folder": "fal-ai_elevenlabs_audio-isolation",
+ "page": "https://fal.ai/models/fal-ai/elevenlabs/audio-isolation",
+ "description": "Isolate audio tracks using ElevenLabs advanced audio isolation technology.",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 0.1
+  },
+  "text": "$0.1 per minute (fal's billing unit).",
+  "tag": "$0.1/min",
+  "estimate": {
+   "auto": true,
+   "per": "minute",
+   "rate": 0.1,
+   "quantity": {
+    "media": [
+     "audio"
+    ]
+   },
+   "label": " of audio"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": false,
+   "kind": "audio",
+   "tooltip": "URL of the audio file to isolate voice from"
+  },
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": false,
+   "kind": "video",
+   "tooltip": "Video file to use for audio isolation. Either `audio_url` or `video_url` must be provided."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "audio",
+   "kind": "audio",
+   "list": false
+  },
+  {
+   "field": "timestamps",
+   "kind": "json"
+  }
+ ]
+}
