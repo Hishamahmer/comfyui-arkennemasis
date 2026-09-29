@@ -44,20 +44,21 @@ Add the **`arkennemasis Codex Login Status`** node to any canvas. It outputs:
 
 ---
 
-## 3. Fallback: Replicate API Key
+## 3. Pay-per-use instead: the fal.ai nodes
 
-If you do not have a ChatGPT Plus subscription or prefer standard per-call cloud API billing:
+If you do not have a ChatGPT Plus subscription, or want other models, use the fal nodes
+(menu `arkennemasis/fal/`) - one node per model, billed per image / second / minute:
 
-1. Obtain a Replicate API token from [replicate.com](https://replicate.com).
-2. Set it in your environment:
-   ```sh
-   REPLICATE_API_TOKEN=r8_...
+1. Get an API key at [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys).
+2. Add one line to the `.env` file of your ComfyUI install (the portable build: the folder
+   holding `run_nvidia_gpu.bat`):
    ```
-   Or place it in a `.env` file at the root of your ComfyUI portable directory.
-3. Use the matching Replicate nodes:
-   * **`arkennemasis Replicate Image Gen (GPT-Image-2)`**
-   * **`arkennemasis Replicate LLM (GPT-5)`**
-4. The inputs and outputs map identically between Codex and Replicate nodes, allowing you to swap nodes seamlessly.
+   FAL_KEY=...
+   ```
+   The fal nodes read the key from there only - there is no key box on the nodes.
+3. Use **`arkennemasis fal · GPT Image 2 Edit`** for the same `gpt-image-2` model, or any other
+   fal node. Each shows a live price badge, and `max_cost_usd` stops a run whose estimate is
+   above your cap before anything is sent.
 
 ---
 

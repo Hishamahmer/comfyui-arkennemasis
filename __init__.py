@@ -1,17 +1,18 @@
 """arkennemasis — ComfyUI nodes for many AI use cases, under one brand.
 
 Menu layout:  arkennemasis/LLM  ·  /Image Gen  ·  /Utility  ·  /Video  ·  /Audio
-              /Variation  ·  /Avatar
+              /Variation  ·  /Avatar  ·  /fal (Image, Video, Lip Sync, Tools)
 
 Currently bundled:
-  * Replicate  — OpenAI GPT-5 LLM (text + vision) and gpt-image-2, via an API key.
-  * Codex      — the same image model through the ChatGPT/Codex CLI login, no API key.
+  * fal        — one node per fal.ai model (image edit, Seedance video, lip sync), built
+                 from the JSON files in fal_provider/models/; key FAL_KEY in ComfyUI's .env.
+  * Codex      — gpt-image-2 and GPT-5 through the ChatGPT/Codex CLI login, no API key.
                  Requires a paid ChatGPT plan and `codex login` already run in a terminal.
   * Utility    — System Instructions, Shot Selector, Run Folder, Text File Save,
                  Subject Line, Codex Login Status, and the shared Image Gen Settings.
   * Video      — Scene List (the loop), Hailuo Scene, Caption Style and Video Assemble:
                  a scene plan in, one narrated and subtitled video out.
-More providers/use cases (Ollama, Fal, Excalidraw, ...) drop in as sibling packages.
+More providers/use cases (Ollama, Excalidraw, ...) drop in as sibling packages.
 
 Each module is loaded independently, so a missing optional dependency only disables
 that one module instead of breaking the whole pack.
@@ -287,8 +288,15 @@ def _codex_llm():
     return c, d
 
 
-def _replicate():
-    from .replicate_provider.nodes import (
+def _image_gen_settings():
+    from .common.image_gen_settings import (
+        NODE_CLASS_MAPPINGS as c, NODE_DISPLAY_NAME_MAPPINGS as d,
+    )
+    return c, d
+
+
+def _fal():
+    from .fal_provider import (
         NODE_CLASS_MAPPINGS as c, NODE_DISPLAY_NAME_MAPPINGS as d,
     )
     return c, d
@@ -336,12 +344,12 @@ _load("variation pipeline", _variation)
 #
 # `variation` stays here by decision, prompts and all: its compiler meta-prompt and two
 # locks shipped publicly in 6d84cf4 and are staying public.
-_load("replicate provider", _replicate)
+_load("image gen settings", _image_gen_settings)
+_load("fal provider", _fal)
 _load("codex provider", _codex)
 _load("codex llm", _codex_llm)
 # Add future providers here, e.g.:
 # _load("ollama provider", _ollama)
-# _load("fal provider", _fal)
 
 # The load-time banner. Last, so it can report the final node count, and wrapped even
 # though `show()` is already defensive — nothing decorative may ever stop the pack

@@ -21,7 +21,7 @@ place; this node only ever replaces `aspect_ratio`.
 
 from __future__ import annotations
 
-from ..replicate_provider.settings import SETTINGS_TYPE
+from .image_gen_settings import SETTINGS_TYPE
 
 # The ratios gpt-image-2 actually renders, as the same vocabulary the Codex node's SIZES
 # table uses. Kept here as (label, width/height) so the nearest match is a number

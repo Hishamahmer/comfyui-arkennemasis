@@ -1,0 +1,89 @@
+{
+ "endpoint_id": "fal-ai/sync-lipsync/v2",
+ "class_key": "ArkFal_fal_ai_sync_lipsync_v2",
+ "title": "Sync Lipsync 2",
+ "category": "Lip Sync",
+ "folder": "fal-ai_sync-lipsync_v2",
+ "page": "https://fal.ai/models/fal-ai/sync-lipsync/v2",
+ "description": "Generate realistic lipsync animations from audio using advanced algorithms for high-quality synchronization with Sync Lipsync 2.0 model",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 3.0
+  },
+  "text": "Your request will cost $3 per minute of video.",
+  "tag": "$3/min",
+  "estimate": {
+   "per": "minute",
+   "rate": 3,
+   "quantity": {
+    "media": [
+     "video",
+     "audio"
+    ]
+   },
+   "label": " of video",
+   "multiply": [
+    {
+     "widget": "model",
+     "map": {
+      "lipsync-2-pro": 1.67
+     }
+    }
+   ]
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "model",
+   "path": "model",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "lipsync-2",
+    "lipsync-2-pro"
+   ],
+   "default": "lipsync-2",
+   "tooltip": "The model to use for lipsyncing. `lipsync-2-pro` will cost roughly 1.67 times as much as `lipsync-2` for the same duration."
+  },
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL of the input video"
+  },
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the input audio"
+  },
+  {
+   "name": "sync_mode",
+   "path": "sync_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "cut_off",
+    "loop",
+    "bounce",
+    "silence",
+    "remap"
+   ],
+   "default": "cut_off",
+   "tooltip": "Lipsync mode when audio and video durations are out of sync."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

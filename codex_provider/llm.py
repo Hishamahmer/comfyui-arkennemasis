@@ -5,9 +5,8 @@ The counterpart to `ArkCodexImageGen`: same Responses endpoint, same OAuth crede
 of pixels. Built for the storyboard/scene-planning step of a video pipeline, where one
 call has to turn an idea into a structured JSON array of scenes.
 
-Why this exists: the pack's only LLM was `ReplicateOpenAILLM`, which bills a Replicate
-balance per call. This routes the same class of model through a ChatGPT plan instead,
-so a workflow can plan AND render without an API key anywhere in it.
+Why this exists: it routes a GPT-5-class model through a ChatGPT plan, so a workflow
+can plan AND render without an API key anywhere in it.
 
 Model availability is account-dependent and undocumented — the backend is the Codex
 CLI's, not a published API. `model` is a combo of what this machine's Codex CLI has

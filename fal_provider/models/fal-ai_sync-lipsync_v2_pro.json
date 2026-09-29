@@ -1,0 +1,69 @@
+{
+ "endpoint_id": "fal-ai/sync-lipsync/v2/pro",
+ "class_key": "ArkFal_fal_ai_sync_lipsync_v2_pro",
+ "title": "Sync Lipsync 2 Pro",
+ "category": "Lip Sync",
+ "folder": "fal-ai_sync-lipsync_v2_pro",
+ "page": "https://fal.ai/models/fal-ai/sync-lipsync/v2/pro",
+ "description": "Generate high-quality realistic lipsync animations from audio while preserving unique details like natural teeth and unique facial features using the state-of-the-art Sync Lipsync 2 Pro model.",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 5.0
+  },
+  "text": "$5 per minute (fal's billing unit).",
+  "tag": "$5/min",
+  "estimate": {
+   "per": "minute",
+   "rate": 5,
+   "quantity": {
+    "media": [
+     "video",
+     "audio"
+    ]
+   },
+   "label": " of video"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL of the input video"
+  },
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the input audio"
+  },
+  {
+   "name": "sync_mode",
+   "path": "sync_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "cut_off",
+    "loop",
+    "bounce",
+    "silence",
+    "remap"
+   ],
+   "default": "cut_off",
+   "tooltip": "Lipsync mode when audio and video durations are out of sync."
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

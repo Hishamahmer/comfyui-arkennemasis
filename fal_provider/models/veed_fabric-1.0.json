@@ -1,0 +1,71 @@
+{
+ "endpoint_id": "veed/fabric-1.0",
+ "class_key": "ArkFal_veed_fabric_1_0",
+ "title": "VEED Fabric 1.0",
+ "category": "Lip Sync",
+ "folder": "veed_fabric-1.0",
+ "page": "https://fal.ai/models/veed/fabric-1.0",
+ "description": "VEED Fabric 1.0 is an image-to-video API that turns any image into a talking video",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.08
+  },
+  "text": "480p - $0.08 per second, 720p - $0.15 per second",
+  "tag": "$0.08-0.15/s",
+  "estimate": {
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.08,
+     "720p": 0.15
+    }
+   },
+   "quantity": {
+    "media": [
+     "audio"
+    ]
+   },
+   "label": " of audio"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": ""
+  },
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": ""
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": true,
+   "kind": "enum",
+   "options": [
+    "720p",
+    "480p"
+   ],
+   "default": "720p",
+   "tooltip": "Resolution"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

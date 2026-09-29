@@ -1,0 +1,181 @@
+{
+ "endpoint_id": "bytedance/seedance-2.5/text-to-video",
+ "class_key": "ArkFal_bytedance_seedance_2_5_text_to_video",
+ "title": "Seedance 2.5 Text to Video",
+ "category": "Video",
+ "folder": "bytedance_seedance-2.5_text-to-video",
+ "page": "https://fal.ai/models/bytedance/seedance-2.5/text-to-video",
+ "description": "Dreamina Seedance 2.5 generates native 30-second single-shot video at up to 720p from a single text prompt, reasoning about the whole shot at once so motion, lighting, and subject identity stay coherent from first frame to last.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 tokens",
+   "price": 0.0214
+  },
+  "text": "For 480p, your request will cost roughly $0.2205 per second of generated video, for 720p, you will be charged roughly $0.4730 per second of generated video, and for 1080p, roughly $1.164 per second of generated video. Your request will cost $0.0214 per 1000 tokens for 480p and 720p video and roughly $0.0234 per 1000 tokens for 1080p. The number of tokens is roughly given by (height of output video * width of output video * (input video duration + output video duration) * 24) / 1024.",
+  "tag": "$0.22-1.16/s",
+  "estimate": {
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.2205,
+     "720p": 0.473,
+     "1080p": 1.164
+    }
+   },
+   "quantity": {
+    "widget": "duration",
+    "auto_max": 30
+   },
+   "rate_if": [
+    {
+     "widget": "draft",
+     "equals": true,
+     "rate": 0.2205
+    }
+   ]
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text prompt used to generate the video"
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480p",
+    "720p",
+    "1080p"
+   ],
+   "default": "720p",
+   "tooltip": "Video resolution - 480p for faster generation, 720p for balance, 1080p for high quality."
+  },
+  {
+   "name": "draft",
+   "path": "draft",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Generate a draft preview at 480p, overriding resolution. Returns a draft_id for completing the draft at 1080p within seven days."
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30"
+   ],
+   "default": "auto",
+   "tooltip": "Duration of the video in seconds. Supports 4 to 30 seconds, or auto to let the model decide based on the prompt."
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "21:9",
+    "16:9",
+    "4:3",
+    "1:1",
+    "3:4",
+    "9:16"
+   ],
+   "default": "auto",
+   "tooltip": "The aspect ratio of the generated video. Use 16:9 for landscape, 9:16 for portrait/vertical, 1:1 for square, 21:9 for ultrawide cinematic, or auto to let the model decide."
+  },
+  {
+   "name": "generate_audio",
+   "path": "generate_audio",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to generate synchronized audio for the video, including sound effects, ambient sounds, and lip-synced speech. The cost of video generation is the same regardless of whether audio is generated or not."
+  },
+  {
+   "name": "bitrate_mode",
+   "path": "bitrate_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "standard",
+    "high"
+   ],
+   "default": "standard",
+   "tooltip": "Output bitrate mode. 'high' requests a higher-quality, larger-file encode from the model; 'standard' uses the default bitrate."
+  },
+  {
+   "name": "codec",
+   "path": "codec",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "H264",
+    "H265"
+   ],
+   "default": "auto",
+   "tooltip": "'auto' retains default video codec behaviour; 'H264' uses H.264; 'H265' uses H.265."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "end_user_id",
+   "why": "fal-internal user id, never needed"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "draft_id",
+   "kind": "string"
+  }
+ ]
+}

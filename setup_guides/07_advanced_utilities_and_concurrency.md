@@ -9,16 +9,16 @@ Technical reference for Arkennemasis batch utilities, concurrency locks, and cos
 ComfyUI natively rejects linking a `STRING` output into a `COMBO` widget. To control `aspect_ratio`, `quality`, or `timeout_seconds` across dozens of generator nodes without configuring each individually:
 
 1. Add one **`arkennemasis Image Gen Settings`** node.
-2. Connect its `ARK_IMAGE_SETTINGS` output to the optional `settings` input socket of downstream `Codex Image Gen` or `Replicate Image Gen` nodes.
+2. Connect its `ARK_IMAGE_SETTINGS` output to the optional `settings` input socket of downstream `Codex Image Gen` nodes (and `Match Aspect`, which reads the same bundle).
 3. Any setting left as `"use node's own"` falls back to that specific node's widgets, allowing you to establish global defaults with selective per-node overrides.
 
 ---
 
 ## 2. Rate Limits & Concurrency (`run_mode`)
 
-ComfyUI executes asynchronous nodes concurrently. When triggering 10–30 branches at once, parallel API calls can exceed provider rate limits (e.g. Replicate accounts under $5 credit drop to 6 req/min, returning 429 errors).
+ComfyUI executes asynchronous nodes concurrently. When triggering 10–30 branches at once, parallel API calls can exceed provider rate limits and come back as 429 errors.
 
-Both API generator nodes provide a **`run_mode`** widget:
+The Codex nodes provide a **`run_mode`** widget (the fal nodes need none - fal queues requests on its side):
 
 | `run_mode` | Behavior |
 | :--- | :--- |

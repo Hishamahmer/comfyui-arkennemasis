@@ -1,0 +1,150 @@
+{
+ "endpoint_id": "fal-ai/sync-lipsync/v3",
+ "class_key": "ArkFal_fal_ai_sync_lipsync_v3",
+ "title": "Sync Lipsync 3",
+ "category": "Lip Sync",
+ "folder": "fal-ai_sync-lipsync_v3",
+ "page": "https://fal.ai/models/fal-ai/sync-lipsync/v3",
+ "description": "sync-3 most powerful lipsync model yet, featuring native visual intelligence for professional-quality video.",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 8.0
+  },
+  "text": "$8 per minute (fal's billing unit).",
+  "tag": "$8/min",
+  "estimate": {
+   "per": "minute",
+   "rate": 8,
+   "quantity": {
+    "media": [
+     "video",
+     "audio"
+    ]
+   },
+   "label": " of video"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL of the input video"
+  },
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL of the input audio"
+  },
+  {
+   "name": "sync_mode",
+   "path": "sync_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "cut_off",
+    "loop",
+    "bounce",
+    "silence",
+    "remap"
+   ],
+   "default": "cut_off",
+   "tooltip": "Lipsync mode when audio and video durations are out of sync."
+  },
+  {
+   "name": "options_prompt",
+   "path": "options.prompt",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "happy",
+    "sad",
+    "angry",
+    "disgusted",
+    "surprised",
+    "neutral"
+   ],
+   "default": "(not set)",
+   "tooltip": "Emotion prompt for generation. This is a Sync.so option primarily used by react-1. '(not set)' leaves it to the model.",
+   "label": "emotion"
+  },
+  {
+   "name": "options_occlusion_detection_enabled",
+   "path": "options.occlusion_detection_enabled",
+   "required": false,
+   "kind": "tribool",
+   "options": [
+    "(not set)",
+    "true",
+    "false"
+   ],
+   "default": "(not set)",
+   "tooltip": "Whether to detect occlusion during generation. Sync.so handles this automatically for sync-3, so this option is ignored by sync-3.",
+   "label": "occlusion_detection"
+  },
+  {
+   "name": "options_temperature",
+   "path": "options.temperature",
+   "required": false,
+   "kind": "float",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "Controls how expressive lipsync can be; 0 is least expressive, 1 is most expressive. Sync.so handles this natively for sync-3, so this option is ignored by sync-3. -1 leaves it to the model.",
+   "max": 1,
+   "step": 0.01,
+   "label": "temperature"
+  },
+  {
+   "name": "options_model_mode",
+   "path": "options.model_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "lips",
+    "face",
+    "head",
+    "lipsync",
+    "emotion",
+    "talking_head"
+   ],
+   "default": "(not set)",
+   "tooltip": "Edit region for the model. This is a Sync.so option primarily used by react-1. '(not set)' leaves it to the model.",
+   "label": "model_mode"
+  }
+ ],
+ "omitted": [
+  {
+   "path": "options.active_speaker_detection",
+   "why": "nested object - send it through extra_json"
+  },
+  {
+   "path": "options.sync_mode",
+   "why": "same as sync_mode above - that is the one the node sends"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ],
+ "hide": {
+  "options.sync_mode": "same as sync_mode above - that is the one the node sends"
+ },
+ "labels": {
+  "options_prompt": "emotion",
+  "options_model_mode": "model_mode",
+  "options_temperature": "temperature",
+  "options_occlusion_detection_enabled": "occlusion_detection"
+ }
+}

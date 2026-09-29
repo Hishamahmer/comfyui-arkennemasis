@@ -87,7 +87,7 @@ def output_to_bytes_list(output):
             continue
         if hasattr(item, "read"):  # file-like / SDK FileOutput
             # The image is already generated and already paid for, so a dropped
-            # connection here must not lose it. Replicate's FileOutput.read() opens a
+            # connection here must not lose it. An SDK file object's read() opens a
             # fresh GET each call, so retrying it is safe.
             out.append(with_retry(item.read,
                                   log=lambda m: print("[arkennemasis] %s" % m)))

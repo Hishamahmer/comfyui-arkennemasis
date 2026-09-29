@@ -1,0 +1,114 @@
+{
+ "endpoint_id": "fal-ai/sync-lipsync/react-1",
+ "class_key": "ArkFal_fal_ai_sync_lipsync_react_1",
+ "title": "Sync React-1",
+ "category": "Lip Sync",
+ "folder": "fal-ai_sync-lipsync_react-1",
+ "page": "https://fal.ai/models/fal-ai/sync-lipsync/react-1",
+ "description": "Use React-1 from SyncLabs to refine human emotions and do realistic lip-sync without losing details!",
+ "pricing": {
+  "billing": {
+   "unit": "minutes",
+   "price": 10.0
+  },
+  "text": "$10 per minute (fal's billing unit).",
+  "tag": "$10/min",
+  "estimate": {
+   "per": "minute",
+   "rate": 10,
+   "quantity": {
+    "media": [
+     "video",
+     "audio"
+    ]
+   },
+   "label": " of video"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {
+  "max_seconds": {
+   "video": 15,
+   "audio": 15
+  }
+ },
+ "inputs": [
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": true,
+   "kind": "video",
+   "tooltip": "URL to the input video. Must be **15 seconds or shorter**."
+  },
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": true,
+   "kind": "audio",
+   "tooltip": "URL to the input audio. Must be **15 seconds or shorter**."
+  },
+  {
+   "name": "emotion",
+   "path": "emotion",
+   "required": true,
+   "kind": "enum",
+   "options": [
+    "happy",
+    "sad",
+    "angry",
+    "disgusted",
+    "surprised",
+    "neutral"
+   ],
+   "default": "neutral",
+   "tooltip": "Emotion prompt for the generation. Currently supports single-word emotions only."
+  },
+  {
+   "name": "model_mode",
+   "path": "model_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "lips",
+    "face",
+    "head"
+   ],
+   "default": "face",
+   "tooltip": "Controls the edit region and movement scope for the model. Available options: - `lips`: Only lipsync using react-1 (minimal facial changes). - `face`: Lipsync + facial expressions without head movements. - `head`: Lipsync + facial expressions + natural talking head movements."
+  },
+  {
+   "name": "lipsync_mode",
+   "path": "lipsync_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "cut_off",
+    "loop",
+    "bounce",
+    "silence",
+    "remap"
+   ],
+   "default": "bounce",
+   "tooltip": "Lipsync mode when audio and video durations are out of sync."
+  },
+  {
+   "name": "temperature",
+   "path": "temperature",
+   "required": false,
+   "kind": "float",
+   "default": 0.5,
+   "min": 0,
+   "max": 1,
+   "tooltip": "Controls the expresiveness of the lipsync.",
+   "step": 0.01
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}

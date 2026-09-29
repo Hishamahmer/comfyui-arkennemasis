@@ -1,0 +1,248 @@
+{
+ "endpoint_id": "fal-ai/nano-banana-2/edit",
+ "class_key": "ArkFal_fal_ai_nano_banana_2_edit",
+ "title": "Nano Banana 2 Edit",
+ "category": "Image",
+ "folder": "fal-ai_nano-banana-2_edit",
+ "page": "https://fal.ai/models/fal-ai/nano-banana-2/edit",
+ "description": "Nano Banana 2 is Google's new state-of-the-art image generation and editing model\n",
+ "pricing": {
+  "billing": {
+   "unit": "images",
+   "price": 0.08
+  },
+  "text": "Your request will cost $0.08 per image. For $1.00, you can run this model 12 times. 2K and 4K outputs will be charged at 1.5 times and 2 times the standard rate, respectively. 0.5K (512px) resolution outputs will be charged at 0.75 times the standard rate. If web search is used, an additional $0.015 will be charged. If high thinking is used, an additional $0.002 will be charged. Note: Pricing is subject to change.",
+  "tag": "$0.08/image",
+  "estimate": {
+   "per": "image",
+   "rate": 0.08,
+   "quantity": {
+    "widget": "num_images"
+   },
+   "multiply": [
+    {
+     "widget": "resolution",
+     "map": {
+      "0.5k": 0.75,
+      "1k": 1,
+      "2k": 1.5,
+      "4k": 2
+     }
+    }
+   ],
+   "add": [
+    {
+     "widget": "enable_web_search",
+     "equals": true,
+     "usd": 0.015
+    },
+    {
+     "widget": "thinking_level",
+     "equals": "high",
+     "usd": 0.002
+    }
+   ]
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {
+  "require_any": [
+   "image_1",
+   "image_2",
+   "image_3",
+   "image_4",
+   "image_5",
+   "image_6",
+   "video",
+   "audio",
+   "pdf_url"
+  ]
+ },
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt for image editing.",
+   "max_length": 50000,
+   "min_length": 3
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "The number of images to generate."
+  },
+  {
+   "name": "seed",
+   "path": "seed",
+   "required": false,
+   "kind": "int",
+   "default": -1,
+   "min": -1,
+   "not_set": -1,
+   "tooltip": "The seed for the random number generator. -1 leaves it to the model.",
+   "max": 2147483647
+  },
+  {
+   "name": "aspect_ratio",
+   "path": "aspect_ratio",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "21:9",
+    "16:9",
+    "3:2",
+    "4:3",
+    "5:4",
+    "1:1",
+    "4:5",
+    "3:4",
+    "2:3",
+    "9:16",
+    "4:1",
+    "1:4",
+    "8:1",
+    "1:8"
+   ],
+   "default": "auto",
+   "tooltip": "The aspect ratio of the generated image. Supports extreme ratios: 4:1, 1:4, 8:1, 1:8."
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png",
+    "webp"
+   ],
+   "default": "png",
+   "tooltip": "The format of the generated image."
+  },
+  {
+   "name": "safety_tolerance",
+   "path": "safety_tolerance",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "default": "4",
+   "tooltip": "The safety tolerance level for content moderation. 1 is the most strict (blocks most content), 6 is the least strict."
+  },
+  {
+   "name": "image",
+   "path": "image_urls",
+   "required": false,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": null,
+   "tooltip": "The URLs of the images to use for image-to-image generation or image editing. Optional when at least one of `video_url`, `audio_url`, or `pdf_url` is provided. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "system_prompt",
+   "path": "system_prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Optional system instruction that steers the model's persona and output style across the request. Leave blank to omit; when provided, it is sent as the system instruction to Gemini (or as a system message on OpenAI-compatible providers). Empty leaves it out.",
+   "max_length": 50000
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "0.5K",
+    "1K",
+    "2K",
+    "4K"
+   ],
+   "default": "1K",
+   "tooltip": "The resolution of the image to generate."
+  },
+  {
+   "name": "video",
+   "path": "video_url",
+   "required": false,
+   "kind": "video",
+   "tooltip": "Optional video to use as input context. Accepts an http(s)/data URL to a video file (downloaded and sent inline, max 15MB) or a YouTube URL (passed through to the model without downloading)."
+  },
+  {
+   "name": "audio",
+   "path": "audio_url",
+   "required": false,
+   "kind": "audio",
+   "tooltip": "Optional audio file to use as input context. Accepts an http(s)/data URL (downloaded and sent inline, max 15MB)."
+  },
+  {
+   "name": "pdf_url",
+   "path": "pdf_url",
+   "required": false,
+   "kind": "url",
+   "default": "",
+   "tooltip": "Optional PDF document to use as input context. Accepts an http(s)/data URL (downloaded and sent inline, max 15MB). Paste a link; leave empty to leave it out."
+  },
+  {
+   "name": "limit_generations",
+   "path": "limit_generations",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Experimental parameter to limit the number of generations from each round of prompting to 1. Set to `True` to to disregard any instructions in the prompt regarding the number of images to generate and ignore any intermediate images generated by the model. This may affect generation quality."
+  },
+  {
+   "name": "enable_web_search",
+   "path": "enable_web_search",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Enable web search for the image generation task. This will allow the model to use the latest information from the web to generate the image."
+  },
+  {
+   "name": "thinking_level",
+   "path": "thinking_level",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "(not set)",
+    "minimal",
+    "high"
+   ],
+   "default": "(not set)",
+   "tooltip": "When set, enables model thinking with the given level ('minimal' or 'high') and includes thoughts in the generation. Omit to disable. '(not set)' leaves it to the model."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  },
+  {
+   "field": "description",
+   "kind": "string"
+  }
+ ]
+}

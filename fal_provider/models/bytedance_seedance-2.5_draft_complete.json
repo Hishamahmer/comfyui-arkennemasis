@@ -1,0 +1,73 @@
+{
+ "endpoint_id": "bytedance/seedance-2.5/draft/complete",
+ "class_key": "ArkFal_bytedance_seedance_2_5_draft_complete",
+ "title": "Seedance 2.5 Draft to 1080p",
+ "category": "Video",
+ "folder": "bytedance_seedance-2.5_draft_complete",
+ "page": "https://fal.ai/models/bytedance/seedance-2.5/draft/complete",
+ "description": "Draft completion endpoint for Seedance 2.5 - submit a draft id to regenerate the task at 1080p.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 tokens",
+   "price": 0.0214
+  },
+  "text": "Your request will cost roughly $1.164 per second of generated video. Your request will cost roughly $0.0234 per 1000 tokens for 1080p video. The number of tokens is roughly given by (height of output video * width of output video * (input video duration + output video duration) * 24) / 1024. If video inputs are provided the price is multiplied by 0.6. With video references, you will be charged for both input and output videos.",
+  "tag": "$1.16/s",
+  "estimate": {
+   "per": "second",
+   "rate": 1.164,
+   "quantity": {
+    "unknown": true
+   },
+   "label": " of the draft (1080p)"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "draft_id",
+   "path": "draft_id",
+   "required": true,
+   "kind": "string",
+   "default": "",
+   "tooltip": "The draft_id returned with draft enabled. Valid for seven days and only for the original caller.",
+   "max_length": 8192,
+   "min_length": 1
+  },
+  {
+   "name": "codec",
+   "path": "codec",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "H264",
+    "H265"
+   ],
+   "default": "auto",
+   "tooltip": "'auto' retains default video codec behaviour; 'H264' uses H.264; 'H265' uses H.265."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "resolution",
+   "why": "constant '1080p' - fal fills it in"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "draft_id",
+   "kind": "string"
+  }
+ ]
+}

@@ -80,9 +80,11 @@ anything. Full details in [What each path needs](#what-each-path-needs).
 
 | Menu | Node | What it does | Out |
 |---|---|---|---|
-| arkennemasis/**LLM** | arkennemasis Replicate LLM (OpenAI GPT-5) | GPT-5 family (`gpt-5`, `-mini`, `-nano`, `-pro`, `-structured`, `5.1`, `5.2`, `5.4`, `5.6-luna/terra/sol`) — text + vision (4 image inputs) | `STRING` |
 | arkennemasis/**LLM** | arkennemasis Codex LLM (ChatGPT login) | GPT-5 text **and** vision through your **`codex login`** — no API key, billed to your ChatGPT plan. Reads images, and splits a long answer into batches so a 50-scene plan does not have to arrive in one reply | `STRING`, `STRING` |
-| arkennemasis/**Image Gen** | arkennemasis Replicate Image Gen (GPT-Image-2) | `openai/gpt-image-2` — text→image **and** image edit (4 image inputs) | `IMAGE` |
+| arkennemasis/**fal/Image** | arkennemasis fal · GPT Image 2 Edit · Nano Banana 2 Edit | image editing on fal.ai — one node per model, every model's own settings, live price badge | `IMAGE`, `STRING` |
+| arkennemasis/**fal/Video** | arkennemasis fal · Seedance 2.5 (text / image / reference to video, US-hosted copies, draft → 1080p) | video with native audio on fal.ai | `VIDEO`, `STRING` |
+| arkennemasis/**fal/Lip Sync** | arkennemasis fal · Sync Lipsync 2 / 2 Pro / 3 / React-1 · MiniMax H3 Max Lip Sync · VEED Fabric 1.0 (+ Fast, + Text) | talking video from a picture or a clip plus audio | `VIDEO`, `STRING` |
+| arkennemasis/**fal/Tools** | arkennemasis fal · Recover Result (free) | collects a finished fal request by its id without paying for it again | `STRING` |
 | arkennemasis/**Image Gen** | arkennemasis Image Gen Settings (shared) | one node driving `aspect_ratio` / `quality` / `run_mode` / `background` / `output_format` / `moderation` / `timeout_seconds` / `api_token` on **many** Image Gen nodes at once | `ARK_IMAGE_SETTINGS` |
 | arkennemasis/**Image Gen** | arkennemasis Codex Image Gen (ChatGPT login) | `gpt-image-2` through your **`codex login`** — no API key, billed to your ChatGPT plan | `IMAGE`, `STRING` |
 | arkennemasis/**Utility** | arkennemasis Codex Login Status | which ChatGPT account this machine will use, and when its token expires | `STRING` |
@@ -178,19 +180,19 @@ Install the dependencies, then restart ComfyUI:
 # portable build:
 python_embeded\python.exe -m pip install -r ComfyUI\custom_nodes\comfyui-arkennemasis\requirements.txt
 # normal install:
-pip install replicate httpx
+pip install httpx
 ```
 
 Or in **ComfyUI-Manager** → *Install via Git URL* → paste the repo URL (deps auto-install).
 
 ## What each path needs
 
-The two image-generation paths reach the **same** `gpt-image-2` model. Pick whichever you
-already pay for — you do not need both.
+Two ways to reach `gpt-image-2`, plus fal for everything else. Use whichever you already
+pay for.
 
 | Path | Nodes | What it requires |
 |---|---|---|
-| **Replicate** | Replicate LLM, Replicate Image Gen | A Replicate account and an API key. Pay-as-you-go per image. |
+| **fal.ai** | every `arkennemasis fal ·` node | A fal.ai account and an API key (`FAL_KEY`). Pay-as-you-go per image / second / minute — each node shows its price. |
 | **Codex / ChatGPT** | Codex Image Gen, Codex Login Status | A **paid ChatGPT subscription** and the **Codex CLI already logged in on this machine**. No API key. Images bill against your ChatGPT plan instead of per call. |
 
 ### Codex path — read this before you try it
@@ -216,41 +218,42 @@ Running several ChatGPT accounts? Give each its own `CODEX_HOME` folder and set 
 `codex_home` per node. The Codex Image Gen node's `account` output names the signed-in
 email, so you can see which login produced an image.
 
-## API keys — three ways (pasting is optional)
+## fal.ai nodes
 
-Keys are read in this order: **node field → OS env var → `.env` file**.
+**One node per model.** Each fal model is its own node with exactly that model's inputs,
+built from the model's file in [`fal_provider/models/`](fal_provider/models/). Under
+`arkennemasis/fal/`: **Image**, **Video**, **Lip Sync** and **Tools**.
 
-1. **Paste** into a node's `api_token` field, or
-2. **Env var:** set `REPLICATE_API_TOKEN`, or
-3. **`.env` file** containing:
-   ```
-   REPLICATE_API_TOKEN=r8_your_token_here
-   ```
-
-`.env` is looked for in **this folder** *and* in **ComfyUI's working directory** (its root).
-**Prefer the ComfyUI root** — keeping the key outside the repo means re-cloning or updating
-the pack never touches it, and no secret ever sits in a git working tree. `.env` is
-gitignored either way; `.env.example` is the template.
-
-Get a Replicate token at https://replicate.com/account/api-tokens.
-
-## Usage
-
-Typical LLM → image flow:
+**The key.** Put one line in the `.env` file of your ComfyUI install — in the portable build
+that is the folder holding `run_nvidia_gpu.bat`:
 
 ```
-System Instructions ─► Replicate LLM (system_prompt)
-Text  ───────────────► Replicate LLM (prompt)
-Image(s) ────────────► Replicate LLM (image_1..4)   ← vision
-                            │ text
-                            ▼
-                 Replicate Image Gen (prompt)  ◄─ image_1..4 (edit/reference)
-                            │
-                        Save Image
+FAL_KEY=your-key-from-fal.ai/dashboard/keys
 ```
 
-Optional params (`quality`, `aspect_ratio`, `reasoning_effort`, …) left on **`default`** are
-not sent, so the model's own defaults apply. `timeout_seconds = 0` waits indefinitely.
+The nodes read it from there and nowhere else — there is no key box on the nodes, so a key
+can never end up inside a workflow file or an image you share. Get a key at
+https://fal.ai/dashboard/keys.
+
+**Money.**
+- Each node carries a **live price badge** that follows its settings (resolution, duration,
+  number of images, quality…), and its title shows the model's rate.
+- **`max_cost_usd`** (default $20) is a cap: when the estimate for a run is above it, the node
+  stops **before** anything is uploaded or sent. `0` removes the cap.
+- While it runs, the node shows its status (queued / running / seconds / estimate).
+  ComfyUI's **Cancel** also cancels the request on fal.
+- Every request is written to `output/fal/_requests.jsonl`. If ComfyUI is restarted while a
+  job is running on fal, **fal Recover Result** collects it by its id — for free.
+- Results are saved to `output/fal/<model>/` and shown on the node.
+
+**Adding a model** is one command (free — it reads fal's public pages), then restart ComfyUI:
+
+```sh
+python_embeded\python.exe ComfyUI\custom_nodes\comfyui-arkennemasis\fal_provider\add_model.py https://fal.ai/models/<owner>/<model>
+```
+
+See [`fal_provider/README.md`](fal_provider/README.md) for how the model files and the
+price rules work.
 
 ## Advanced Utilities & Execution Controls
 
@@ -267,10 +270,9 @@ Arkennemasis provides dedicated utility nodes to manage execution flow, prevent 
 
 ## Notes
 
-- Replicate calls are **paid** — each run bills your Replicate account.
+- fal calls are **paid** — each run bills your fal account (see the node's price badge).
 - Long runs poll (no fixed timeout) and run off the UI thread, so ComfyUI stays responsive
   and **Cancel** works. A spinner + elapsed-time badge shows on the node while it runs.
-- GPT-5 models output **text only**; image generation is done by the Image Gen node.
 
 ## Example workflows
 

@@ -1,0 +1,182 @@
+{
+ "endpoint_id": "bytedance/seedance-2.5/image-to-video",
+ "class_key": "ArkFal_bytedance_seedance_2_5_image_to_video",
+ "title": "Seedance 2.5 Image to Video",
+ "category": "Video",
+ "folder": "bytedance_seedance-2.5_image-to-video",
+ "page": "https://fal.ai/models/bytedance/seedance-2.5/image-to-video",
+ "description": "Dreamina Seedance 2.5 animates a single still into a native 30-second clip at up to 720p, extending one frame into continuous, coherent motion without the drift or stitching of shorter multi-clip workflows.",
+ "pricing": {
+  "billing": {
+   "unit": "1000 tokens",
+   "price": 0.0214
+  },
+  "text": "For 480p, your request will cost roughly $0.2205 per second of generated video, for 720p, you will be charged roughly $0.4730 per second of generated video, and for 1080p, roughly $1.164 per second of generated video. Your request will cost $0.0214 per 1000 tokens for 480p and 720p video and roughly $0.0234 per 1000 tokens for 1080p. The number of tokens is roughly given by (height of output video * width of output video * (input video duration + output video duration) * 24) / 1024.",
+  "tag": "$0.22-1.16/s",
+  "estimate": {
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.2205,
+     "720p": 0.473,
+     "1080p": 1.164
+    }
+   },
+   "quantity": {
+    "widget": "duration",
+    "auto_max": 30
+   },
+   "rate_if": [
+    {
+     "widget": "draft",
+     "equals": true,
+     "rate": 0.2205
+    }
+   ]
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The text prompt describing the desired motion and action for the video. Empty leaves it out."
+  },
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": "The URL of the starting frame image to animate. Supported formats: JPEG, PNG, WebP. Max 30 MB."
+  },
+  {
+   "name": "end_image",
+   "path": "end_image_url",
+   "required": false,
+   "kind": "image",
+   "tooltip": "The URL of the image to use as the last frame of the video. When provided, the generated video will transition from the starting image to this ending image. Supported formats: JPEG, PNG, WebP. Max 30 MB."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "480p",
+    "720p",
+    "1080p"
+   ],
+   "default": "720p",
+   "tooltip": "Video resolution - 480p for faster generation, 720p for balance, 1080p for high quality."
+  },
+  {
+   "name": "draft",
+   "path": "draft",
+   "required": false,
+   "kind": "bool",
+   "default": false,
+   "tooltip": "Generate a draft preview at 480p, overriding resolution. Returns a draft_id for completing the draft at 1080p within seven days."
+  },
+  {
+   "name": "duration",
+   "path": "duration",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30"
+   ],
+   "default": "auto",
+   "tooltip": "Duration of the video in seconds. Supports 4 to 30 seconds, or auto to let the model decide based on the prompt."
+  },
+  {
+   "name": "generate_audio",
+   "path": "generate_audio",
+   "required": false,
+   "kind": "bool",
+   "default": true,
+   "tooltip": "Whether to generate synchronized audio for the video, including sound effects, ambient sounds, and lip-synced speech. The cost of video generation is the same regardless of whether audio is generated or not."
+  },
+  {
+   "name": "bitrate_mode",
+   "path": "bitrate_mode",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "standard",
+    "high"
+   ],
+   "default": "standard",
+   "tooltip": "Output bitrate mode. 'high' requests a higher-quality, larger-file encode from the model; 'standard' uses the default bitrate."
+  },
+  {
+   "name": "codec",
+   "path": "codec",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "H264",
+    "H265"
+   ],
+   "default": "auto",
+   "tooltip": "'auto' retains default video codec behaviour; 'H264' uses H.264; 'H265' uses H.265."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "aspect_ratio",
+   "why": "constant 'auto' - fal fills it in"
+  },
+  {
+   "path": "end_user_id",
+   "why": "fal-internal user id, never needed"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  },
+  {
+   "field": "seed",
+   "kind": "int"
+  },
+  {
+   "field": "draft_id",
+   "kind": "string"
+  }
+ ]
+}

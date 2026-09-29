@@ -1,9 +1,9 @@
 """Image generation through a ChatGPT/Codex login — no API key.
 
 Routes `gpt-image-2` through the ChatGPT Codex Responses API's ``image_generation``
-tool, authenticated with the OAuth credentials `codex login` already wrote. Same model
-as the Replicate Image Gen node; different billing path (your ChatGPT plan instead of a
-Replicate balance).
+tool, authenticated with the OAuth credentials `codex login` already wrote. Billed to
+your ChatGPT plan instead of per image; the pay-per-image route to the same model is the
+fal GPT Image 2 Edit node.
 
 Multiple accounts: give each its own ``CODEX_HOME`` folder, log into each with the CLI,
 and point ``codex_home`` at the one you want. Blank = ``~/.codex``.
@@ -24,7 +24,7 @@ from ..common.image_utils import (
 from ..common.throttle import (
     concurrency_gate, serial_lock, with_retry,
 )
-from ..replicate_provider.settings import SETTINGS_TYPE
+from ..common.image_gen_settings import SETTINGS_TYPE
 from . import auth as codex_auth
 from . import stream as codex_stream
 
@@ -62,8 +62,8 @@ HOST_MODEL = "gpt-5.5"
 INSTRUCTIONS = ("You are an assistant that must fulfill image generation and image "
                 "editing requests by using the image_generation tool when provided.")
 
-# gpt-image-2's supported canvases, keyed by the same vocabulary the Replicate node
-# uses so one shared Settings node can drive both.
+# gpt-image-2's supported canvases, keyed by the vocabulary the shared Image Gen Settings
+# node uses, so one Settings node can drive every Image Gen node.
 # Pixel sizes for the named ratios. Best-effort only — this backend ignores the tool's
 # `size` field, so the prompt line below is what actually shapes the output.
 SIZES = {
@@ -132,7 +132,7 @@ def _aspect_line(aspect_ratio):
 _UNSUPPORTED = "Tool choice 'image_generation' not found in 'tools' parameter."
 _UNSUPPORTED_HELP = (
     "This ChatGPT account cannot use the hosted image tool. Try another account via "
-    "codex_home, or use the Replicate Image Gen node instead.")
+    "codex_home, or use the fal GPT Image 2 Edit node instead.")
 
 
 class CodexImageUnavailable(RuntimeError):
@@ -313,8 +313,8 @@ class ArkCodexImageGen:
                 "aspect_ratio": ([DEFAULT, "1:1", "3:2", "2:3", "4:3", "3:4", "16:9", "9:16", "auto", "1024x1024", "1536x1024", "1024x1536", "1536x1152", "1152x1536", "2048x2048", "2048x1152", "1152x2048", "3840x2160", "2160x3840"], {
                     "tooltip": "Stated in the prompt, because this backend ignores "
                                "the size field. Wide/tall targets land close but not "
-                               "exact (16:9 came back as 7:4). Use the Replicate node "
-                               "when the ratio must be precise.",
+                               "exact (16:9 came back as 7:4). Use the fal GPT Image 2 "
+                               "Edit node when the size must be precise.",
                 }),
                 "quality": ([DEFAULT, "low", "medium", "high"],),
                 "background": ([DEFAULT, "opaque", "transparent", "auto"],),
@@ -359,7 +359,7 @@ class ArkCodexImageGen:
                 }),
                 "settings": (SETTINGS_TYPE, {
                     "tooltip": "Optional: the shared 'Image Gen Settings' node, so this "
-                               "and the Replicate nodes follow one place. Codex uses "
+                               "and other Image Gen nodes follow one place. Codex uses "
                                "aspect_ratio / quality / background / run_mode / "
                                "timeout_seconds; output_format, moderation and api_token "
                                "do not apply and are ignored.",

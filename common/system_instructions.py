@@ -1,7 +1,7 @@
 """System Instructions — a provider-neutral node.
 
 Holds reusable system instructions and outputs plain text (STRING), so it works with
-ANY LLM node (Replicate, Ollama, Fal, ...) that accepts a system prompt / text input.
+ANY LLM node (Codex, the local LLM, ...) that accepts a system prompt / text input.
 """
 
 

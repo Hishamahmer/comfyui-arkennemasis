@@ -2,8 +2,8 @@
 
 ComfyUI runs `async def` nodes **concurrently**, so several API nodes in one graph fire
 their requests at the same moment. That is great for throughput and fatal for providers
-with a small burst allowance — Replicate drops to "6 requests per minute with a burst of
-1" while an account holds less than $5 credit, so parallel calls reliably 429.
+with a small burst allowance - a low-credit or free-tier account can be held to a burst of
+one request, so parallel calls reliably 429.
 
 Three independent mitigations live here:
 
@@ -30,7 +30,7 @@ _LOCKS = {}
 _SEMAPHORES = {}
 
 
-def serial_lock(key="replicate"):
+def serial_lock(key="api"):
     """A per-event-loop asyncio.Lock, created on first use.
 
     Locks must belong to the running loop, and ComfyUI may restart it, so they are keyed
@@ -44,7 +44,7 @@ def serial_lock(key="replicate"):
     return lock
 
 
-def concurrency_gate(limit, key="replicate"):
+def concurrency_gate(limit, key="api"):
     """An async context manager capping concurrent calls to ``limit``.
 
     ``limit <= 0`` means no cap. Like :func:`serial_lock` the semaphore is keyed by the

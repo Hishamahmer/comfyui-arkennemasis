@@ -1,5 +1,5 @@
-// Minimal "cooking" activity indicator for the Replicate/OpenAI nodes.
-// While a node calls Replicate it shows:
+// Minimal "cooking" activity indicator for arkennemasis nodes that make the user wait.
+// While such a node runs it shows:
 //   - a title spinner + elapsed seconds  (works in ANY renderer, incl. Vue nodes)
 //   - a pulsing border + pill             (classic canvas renderer)
 // Detection uses the "executing" WebSocket event (fires reliably) with app.runningNodeId
@@ -13,8 +13,6 @@ import { api } from "../../scripts/api.js";
 // re-queue. Instant nodes stay out: a spinner that appears and vanishes in one frame is
 // just flicker.
 const ANIMATED_NODES = new Set([
-  "ReplicateOpenAILLM",
-  "ReplicateOpenAIGPTImage2",
   "ArkCodexImageGen",
   "ArkCodexLLM",
   // Local, but far from instant: each call starts a subprocess that loads ~2.5 GB of
@@ -47,8 +45,16 @@ let startTime = 0;
 let current = null; // the node instance currently "running"
 let loggedDraw = false;
 
+// Every fal model node is one network call that can take minutes; they are generated
+// from model files, so they are matched by their class-key prefix rather than listed.
+const ANIMATED_PREFIXES = ["ArkFal"];
+
+function isAnimatedType(type) {
+  return !!type && (ANIMATED_NODES.has(type) || ANIMATED_PREFIXES.some((p) => type.startsWith(p)));
+}
+
 function isOurs(node) {
-  return node && ANIMATED_NODES.has(node.comfyClass || node.type);
+  return node && isAnimatedType(node.comfyClass || node.type);
 }
 
 function resolveRunningNode() {
@@ -138,7 +144,9 @@ function drawCooking(node, ctx) {
   ctx.save();
   // pulsing border
   const pulse = 0.5 + 0.5 * Math.sin(now / 300);
-  ctx.strokeStyle = `rgba(90,170,255,${0.3 + 0.55 * pulse})`;
+  // fal nodes carry their category accent (web/fal.js); everything else keeps the blue
+  const rgb = node.__arkAccent || "90,170,255";
+  ctx.strokeStyle = `rgba(${rgb},${0.3 + 0.55 * pulse})`;
   ctx.lineWidth = 2.5;
   roundRect(ctx, 1, 1, W - 2, H - 2, 8);
   ctx.stroke();
@@ -147,7 +155,7 @@ function drawCooking(node, ctx) {
   const barW = W * 0.28;
   const t = (now / 900) % 1;
   const bx = (W - barW) * (0.5 - 0.5 * Math.cos(t * Math.PI * 2));
-  ctx.fillStyle = "rgba(90,170,255,0.9)";
+  ctx.fillStyle = `rgba(${rgb},0.9)`;
   roundRect(ctx, bx, 2, barW, 3, 1.5);
   ctx.fill();
   ctx.restore();
@@ -159,7 +167,7 @@ app.registerExtension({
     console.log("[arkennemasis] cooking indicator loaded");
   },
   async beforeRegisterNodeDef(nodeType, nodeData) {
-    if (!ANIMATED_NODES.has(nodeData.name)) return;
+    if (!isAnimatedType(nodeData.name)) return;
     const orig = nodeType.prototype.onDrawForeground;
     nodeType.prototype.onDrawForeground = function (ctx) {
       orig?.apply(this, arguments);

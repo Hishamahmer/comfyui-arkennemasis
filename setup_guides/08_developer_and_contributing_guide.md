@@ -30,9 +30,16 @@ comfyui-arkennemasis/
 │   ├── auth.py                 reads `codex login` creds, refreshes + persists them
 │   └── nodes.py                Codex Image Gen + Codex Login Status
 │
-├── replicate_provider/      ONE PROVIDER = ONE FOLDER
-│   ├── nodes.py                Replicate LLM + Image Gen nodes
-│   └── settings.py             the shared Image Gen Settings node
+├── fal_provider/            ONE PROVIDER = ONE FOLDER - one node per fal.ai model
+│   ├── models/*.json           one file per model: inputs, outputs, price rules
+│   ├── add_model.py            fal model link -> models/<model>.json (reads public pages)
+│   ├── schema_convert.py       fal's OpenAPI schema -> the node's inputs and outputs
+│   ├── node.py                 builds one ComfyUI node class per model file; the run
+│   ├── client.py               key from .env, uploads, queue, downloads (stdlib only)
+│   ├── media.py                IMAGE / MASK / VIDEO / AUDIO <-> files
+│   ├── pricing.py              the cost estimate and the live price-badge formula
+│   └── recover.py              fal Recover Result (free re-collection by request id)
+│
 │
 ├── variation/               PRODUCT-VARIATION PIPELINE — a use case, not a provider
 │   ├── schema.py               the canonical 3-table schema + every validator
@@ -68,12 +75,13 @@ comfyui-arkennemasis/
 
 ## 2. Menu Category Architecture
 
-Menu categories are set per node class, so **one provider folder can feed several categories** (Replicate serves both `LLM` and `Image Gen`):
+Menu categories are set per node class, so **one provider folder can feed several categories** (Codex serves both `LLM` and `Image Gen`):
 
 ```
 arkennemasis/
-├── LLM         ← replicate_provider · codex_provider
-├── Image Gen   ← replicate_provider · codex_provider · (fal_provider · …)
+├── LLM         ← codex_provider · common/local_llm
+├── Image Gen   ← codex_provider · common/image_gen_settings
+├── fal/…       ← fal_provider (Image · Video · Lip Sync · Tools)
 ├── Video       ← common/ modules (Scene List, Hailuo Scene, Video Assemble, …)
 ├── Audio       ← common/qwen_tts_node
 ├── Variation   ← variation/ (a USE CASE, not a provider — it calls the others)

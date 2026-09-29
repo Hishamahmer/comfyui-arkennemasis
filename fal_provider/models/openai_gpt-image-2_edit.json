@@ -1,0 +1,187 @@
+{
+ "endpoint_id": "openai/gpt-image-2/edit",
+ "class_key": "ArkFal_openai_gpt_image_2_edit",
+ "title": "GPT Image 2 Edit",
+ "category": "Image",
+ "folder": "openai_gpt-image-2_edit",
+ "page": "https://fal.ai/models/openai/gpt-image-2/edit",
+ "description": "GPT Image 2, OpenAI's latest image model, is capable of making fine-grained, detailed edits to images.",
+ "pricing": {
+  "billing": {
+   "unit": "units",
+   "price": 1.0
+  },
+  "text": "Text tokens (per 1M): $5.00 input, $1.25 cached, $10.00 output. Image tokens (per 1M): $8.00 input, $2.00 cached, $30.00 output. Changing the quality parameter significantly affects cost; by default we use high. Adjust it to your preference. See the description at the bottom of this page for more details on how much canonical image sizes cost. Total cost is rounded up to the closest hundredth of a cent ($0.0001). fal's table (one input image included): 1024x768 $0.011/$0.043/$0.151, 1024x1024 $0.015/$0.061/$0.219, 1024x1536 $0.018/$0.054/$0.178, 1920x1080 $0.017/$0.053/$0.158, 2560x1440 $0.019/$0.068/$0.234, 3840x2160 $0.024/$0.113/$0.413 (low/medium/high). More reference images and longer prompts cost a little more.",
+  "tag": "$0.01-0.41/image",
+  "estimate": {
+   "per": "table",
+   "table": {
+    "rows_widget": "image_size",
+    "cols_widget": "quality",
+    "count_widget": "num_images",
+    "cols": [
+     "low",
+     "medium",
+     "high"
+    ],
+    "col_alias": {
+     "auto": "high"
+    },
+    "rows": {
+     "1024x768": [
+      0.011,
+      0.043,
+      0.151
+     ],
+     "1024x1024": [
+      0.015,
+      0.061,
+      0.219
+     ],
+     "1024x1536": [
+      0.018,
+      0.054,
+      0.178
+     ],
+     "1920x1080": [
+      0.017,
+      0.053,
+      0.158
+     ],
+     "2560x1440": [
+      0.019,
+      0.068,
+      0.234
+     ],
+     "3840x2160": [
+      0.024,
+      0.113,
+      0.413
+     ]
+    },
+    "row_alias": {
+     "auto": "1024x1024",
+     "square_hd": "1024x1024",
+     "square": "1024x1024",
+     "portrait_4_3": "1024x768",
+     "landscape_4_3": "1024x768",
+     "portrait_16_9": "1024x1536",
+     "landscape_16_9": "1920x1080"
+    }
+   }
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "prompt",
+   "path": "prompt",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "The prompt for image generation",
+   "max_length": 32000,
+   "min_length": 2
+  },
+  {
+   "name": "image",
+   "path": "image_urls",
+   "required": true,
+   "kind": "image_list",
+   "count": 6,
+   "max_items": 16,
+   "tooltip": "The URLs of the images to use as a reference for the generation. A maximum of 16 images are allowed. Each socket may carry a batch; they are sent in socket order (the first picture of socket 1 is number 1)."
+  },
+  {
+   "name": "image_size",
+   "path": "image_size",
+   "required": false,
+   "kind": "image_size",
+   "options": [
+    "square_hd",
+    "square",
+    "portrait_4_3",
+    "portrait_16_9",
+    "landscape_4_3",
+    "landscape_16_9",
+    "auto",
+    "custom"
+   ],
+   "default": "auto",
+   "width_max": 14142,
+   "height_max": 14142,
+   "tooltip": "The size of the generated image. Use 'auto' to infer from input images. 'custom' uses the width and height below."
+  },
+  {
+   "name": "background",
+   "path": "background",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "transparent",
+    "opaque"
+   ],
+   "default": "auto",
+   "tooltip": "Background for the generated image"
+  },
+  {
+   "name": "quality",
+   "path": "quality",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "auto",
+    "low",
+    "medium",
+    "high"
+   ],
+   "default": "high",
+   "tooltip": "Quality for the generated image. Use 'auto' to let the model pick the best quality for the prompt."
+  },
+  {
+   "name": "num_images",
+   "path": "num_images",
+   "required": false,
+   "kind": "int",
+   "default": 1,
+   "min": 1,
+   "max": 4,
+   "tooltip": "Number of images to generate"
+  },
+  {
+   "name": "output_format",
+   "path": "output_format",
+   "required": false,
+   "kind": "enum",
+   "options": [
+    "jpeg",
+    "png",
+    "webp"
+   ],
+   "default": "png",
+   "tooltip": "Output format for the images"
+  },
+  {
+   "name": "mask",
+   "path": "mask_url",
+   "required": false,
+   "kind": "mask",
+   "tooltip": "The URL of the mask image to use for the generation. This indicates what part of the image to edit."
+  }
+ ],
+ "omitted": [
+  {
+   "path": "sync_mode",
+   "why": "yes/no sync_mode returns the file inline and drops it from fal's request history - always left off"
+  }
+ ],
+ "outputs": [
+  {
+   "field": "images",
+   "kind": "images",
+   "list": true
+  }
+ ]
+}

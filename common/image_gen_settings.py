@@ -12,6 +12,10 @@ share most settings and still override one shot locally.
 ``number_of_images`` is deliberately **not** shared. Multiplying it across every wired node
 is rarely intended, and in a graph that names files deterministically the extra images all
 land on the same filename and overwrite each other. Set it per node if you really want it.
+
+The class key ``ArkImageGenSettings`` and its widget order are frozen: saved canvases
+(hairstyle, thumbnail, furniture) carry them. ``api_token`` stays for that reason only -
+no current node reads it.
 """
 
 INHERIT = "use node's own"
@@ -52,8 +56,8 @@ class ArkImageGenSettings:
                 }),
                 "api_token": ("STRING", {
                     "default": "",
-                    "tooltip": "Blank = each node's own field, then REPLICATE_API_TOKEN "
-                               "from the environment or a .env file.",
+                    "tooltip": "Not used by any current node - kept only so older saved "
+                               "graphs still load. Leave it empty.",
                 }),
                 "max_concurrent": ("INT", {
                     "default": -1, "min": -1, "max": 32,

@@ -1,0 +1,81 @@
+{
+ "endpoint_id": "veed/fabric-1.0/text",
+ "class_key": "ArkFal_veed_fabric_1_0_text",
+ "title": "VEED Fabric 1.0 Text",
+ "category": "Lip Sync",
+ "folder": "veed_fabric-1.0_text",
+ "page": "https://fal.ai/models/veed/fabric-1.0/text",
+ "description": "VEED Fabric 1.0 text-to-video API",
+ "pricing": {
+  "billing": {
+   "unit": "seconds",
+   "price": 0.08
+  },
+  "text": "480p - $0.08 per second, 720p - $0.15 per second",
+  "tag": "$0.08-0.15/s",
+  "estimate": {
+   "per": "second",
+   "rate": {
+    "widget": "resolution",
+    "map": {
+     "480p": 0.08,
+     "720p": 0.15
+    }
+   },
+   "quantity": {
+    "words": "text",
+    "per_second": 2.5
+   },
+   "label": " of speech"
+  },
+  "checked": "2026-09-29"
+ },
+ "checks": {},
+ "inputs": [
+  {
+   "name": "image",
+   "path": "image_url",
+   "required": true,
+   "kind": "image",
+   "tooltip": ""
+  },
+  {
+   "name": "text",
+   "path": "text",
+   "required": true,
+   "kind": "text",
+   "default": "",
+   "tooltip": "",
+   "max_length": 2000,
+   "min_length": 1
+  },
+  {
+   "name": "voice_description",
+   "path": "voice_description",
+   "required": false,
+   "kind": "text",
+   "default": "",
+   "tooltip": "Optional additional voice description. The primary voice description is auto-generated from the image. You can use simple descriptors like 'British accent' or 'Confident' or provide a detailed description like 'Confident male voice, mid-20s, with notes of...' Empty leaves it out."
+  },
+  {
+   "name": "resolution",
+   "path": "resolution",
+   "required": true,
+   "kind": "enum",
+   "options": [
+    "720p",
+    "480p"
+   ],
+   "default": "720p",
+   "tooltip": "Resolution"
+  }
+ ],
+ "omitted": [],
+ "outputs": [
+  {
+   "field": "video",
+   "kind": "video",
+   "list": false
+  }
+ ]
+}
