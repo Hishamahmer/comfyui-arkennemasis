@@ -14,7 +14,7 @@ comfyui-arkennemasis/
 │   ├── keys.py                 resolve_key(): node field → env var → .env
 │   ├── image_utils.py          tensor ↔ data-URI ↔ bytes, text normalising
 │   ├── throttle.py             serial_lock(), concurrency_gate(), with_retry()
-│   ├── banner.py               the load-time ASCII banner (ARK_BANNER=0 silences it)
+│   ├── banner.py               the one-line "nodes loaded" message at load time (ARK_BANNER=0 silences it)
 │   ├── system_instructions.py  the System Instructions node
 │   ├── shot_selector.py        the Shot Selector node (lazy input + ExecutionBlocker)
 │   ├── subject_line.py         the Subject Line node (gender stated once, not per prompt)

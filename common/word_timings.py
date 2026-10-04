@@ -79,6 +79,8 @@ def transcribe_words(audio, model_id, language="auto", device=None):
     """[{word, start, end}, ...] for one clip. Raises with a readable reason."""
     import torch
     import transformers.pipelines.automatic_speech_recognition as asr_module
+    from huggingface_hub import snapshot_download
+    from huggingface_hub.errors import LocalEntryNotFoundError
     from transformers import pipeline
 
     # The pipeline imports torchcodec whenever it is installed, only to ask whether the
@@ -95,9 +97,16 @@ def transcribe_words(audio, model_id, language="auto", device=None):
     if language and language != "auto":
         kwargs["generate_kwargs"] = {"language": language}
 
+    # A cached model loads from its own folder. By name, the pipeline first asks huggingface.co
+    # about an optional file, and a minute without DNS (2026-09-28) failed a whole ad that way
+    # with every file on disk. Only a model never downloaded is fetched by name.
+    try:
+        source = snapshot_download(model_id, local_files_only=True)
+    except LocalEntryNotFoundError:
+        source = model_id
     asr = pipeline(
         "automatic-speech-recognition",
-        model=model_id,
+        model=source,
         device=device,
         torch_dtype=torch.float16 if device != -1 else torch.float32,
     )
