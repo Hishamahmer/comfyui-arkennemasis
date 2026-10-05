@@ -36,11 +36,18 @@ from .nodes import (
 
 DEFAULT = "default"
 
-# Observed in this machine's Codex CLI state, smartest first. `gpt-5.6-sol` is the
-# model the CLI itself defaults to, so it is the safest "smartest" choice. The list is
-# a convenience, not a contract — the backend is undocumented and can change under us,
-# which is what `model_override` is for.
+# The models the Codex backend lists for this account, in its own order (GET /models as
+# Codex 0.159.2, 2026-10-05). `gpt-6.1-sol`, "Latest workhorse model", comes first and is
+# what the Codex app itself defaults to here (config.toml), so it is the safest choice;
+# `gpt-6-astra` is "Frontier intelligence for the most demanding work". All of them take
+# images and `speed: fast` (service_tier=priority). The list is a convenience, not a
+# contract — the backend is undocumented and can change under us, which is what
+# `model_override` is for.
 MODELS = [
+    "gpt-6.1-sol",
+    "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna",
     "gpt-5.6-sol",
     "gpt-5.6-terra",
     "gpt-5.6-luna",
@@ -132,8 +139,10 @@ class ArkCodexLLM:
                 "image_3": ("IMAGE",),
                 "image_4": ("IMAGE",),
                 "model": (MODELS, {
-                    "tooltip": "Smartest first. Availability depends on your ChatGPT "
-                               "plan; if one is refused, try the next.",
+                    "tooltip": "In the Codex backend's own order: gpt-6.1-sol (the latest "
+                               "workhorse) first, gpt-6-astra for the most demanding work. "
+                               "Availability depends on your ChatGPT plan; if one is "
+                               "refused, try the next.",
                 }),
                 "model_override": ("STRING", {
                     "default": "",
