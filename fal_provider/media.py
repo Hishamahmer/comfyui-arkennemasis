@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import io
 import os
+import subprocess
 import tempfile
 import wave
 
@@ -144,6 +145,129 @@ def video_file_bytes(video):
     if not data:
         raise InputError("fal: the video input could not be encoded to MP4.")
     return data, "video/mp4", "input.mp4"
+
+
+def video_upload(video, say=None):
+    """A VIDEO -> (bytes, content_type, file_name, seconds), a padded video (padded_end) cut to its real end first,
+    so fal is sent - and the price is worked out on - only the part that is really there."""
+    data, ctype, fname = video_file_bytes(video)
+    seconds = video_duration(video)
+    if ctype not in CUTTABLE.values():
+        return data, ctype, fname, seconds
+    tmp = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+    try:
+        tmp.write(data)
+        tmp.close()
+        cut = cut_padding(tmp.name)
+        if cut:
+            end, total = cut
+            with open(tmp.name, "rb") as handle:
+                data = handle.read()
+            ctype, fname, seconds = "video/mp4", "input.mp4", end
+            if say:
+                say("the video sent in runs %.1f s, but its picture ends at %.1f s (its last frame held on over "
+                    "silence): sending only those %.1f s" % (total, end, end))
+    finally:
+        for p in (tmp.name, tmp.name + ".cut.mp4"):
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+    return data, ctype, fname, seconds
+
+
+# ---------------------------------------------------------------------------------------
+# padded videos
+# ---------------------------------------------------------------------------------------
+# fal can send back a video longer than what was made. On 13 Oct VEED Fabric 1.0 animated a 60 s voice and returned
+# a 206.8 s file: 1500 frames at 25 fps, then its LAST frame held for 146.8 s over silence. A player shows 3:26, and
+# the next model takes the file as it is: Sync Lipsync 2 Pro priced it as 206.8 s ($17.24 instead of about $5) and,
+# reading 1501 frames over 206.8 s as a 7 fps video, returned a 7 fps (choppy) lip sync. So every video fal returns
+# is cut back to where its picture really ends (node._download), and a padded video going to fal is cut the same way
+# before it is sent (video_upload).
+
+HELD_FRAME_SECONDS = 1.0      # a last frame held on longer than this (and 10x a normal frame) is padding ...
+SILENT_DBFS = -60.0           # ... when the sound under the hold is this quiet, or there is none
+CUTTABLE = {".mp4": "video/mp4", ".mov": "video/quicktime", ".m4v": "video/x-m4v"}
+
+
+def _tools():
+    from ..common.video_assemble import find_ffmpeg, find_ffprobe
+    return find_ffmpeg(), find_ffprobe()
+
+
+def _sound_dbfs(ffmpeg, path, start):
+    """The level (dBFS RMS) of a file's sound from `start` s to its end; None when there is no sound there."""
+    raw = subprocess.run([ffmpeg, "-v", "error", "-ss", "%.3f" % start, "-i", path, "-vn", "-ac", "1", "-ar", "16000",
+                          "-f", "s16le", "-"], capture_output=True).stdout
+    pcm = np.frombuffer(raw[:len(raw) // 2 * 2], np.int16).astype(np.float64)
+    if pcm.size == 0:
+        return None
+    return 20.0 * np.log10(max(float(np.sqrt(np.mean(pcm ** 2))), 1.0) / 32768.0)
+
+
+def padded_end(path):
+    """(real end, file length, frame length) in seconds when a video's LAST frame is held on for seconds past the
+    picture's real end with silence (or no sound) under it; None for any other video. Read off the video stream's own
+    packets (ffprobe), so it costs no decoding unless the last frame is suspiciously long."""
+    if os.path.splitext(path)[1].lower() not in CUTTABLE:
+        return None
+    ffmpeg, ffprobe = _tools()
+    if not (ffmpeg and ffprobe):
+        return None
+    out = subprocess.run([ffprobe, "-v", "error", "-select_streams", "v:0", "-show_entries",
+                          "packet=pts_time,duration_time", "-of", "csv=p=0", path],
+                         capture_output=True, text=True).stdout
+    packets = []
+    for line in out.splitlines():
+        parts = line.strip().split(",")
+        try:
+            packets.append((float(parts[0]), float(parts[1])))
+        except (ValueError, IndexError):
+            continue
+    if len(packets) < 10:
+        return None
+    packets.sort()
+    frame = sorted(d for _, d in packets)[len(packets) // 2]          # a normal frame's length
+    if frame <= 0:
+        return None
+    # the held frame, at the very end or with a stray packet or two after it: fal's 13 Oct file ends on a 0.02 s
+    # packet with no picture in it, after the 146.8 s hold
+    held = [(p, d) for p, d in packets[-4:] if d >= max(HELD_FRAME_SECONDS, 10 * frame)]
+    if not held:
+        return None
+    last_pts, _ = held[0]
+    real_end = last_pts + frame
+    total = max(p + d for p, d in packets)
+    # listened to from half a second in: the sound may run a little past the picture (encoder delay, rounding),
+    # and the hold is at least HELD_FRAME_SECONDS long
+    level = _sound_dbfs(ffmpeg, path, real_end + 0.5)
+    if level is not None and level > SILENT_DBFS:
+        return None                                    # real sound goes on under the long frame: not padding
+    return round(real_end, 3), round(total, 3), frame
+
+
+def cut_padding(path):
+    """Cut a padded video (padded_end) back to its real end, in place, at its own frame rate. Returns (real end,
+    file length) when it cut, else None (the file is left as it was)."""
+    found = padded_end(path)
+    if not found:
+        return None
+    end, total, frame = found
+    ffmpeg, _ = _tools()
+    tmp = path + ".cut.mp4"
+    proc = subprocess.run([ffmpeg, "-v", "error", "-y", "-i", path, "-t", "%.3f" % end, "-map", "0:v:0", "-map", "0:a?",
+                           "-vf", "fps=%g" % round(1.0 / frame, 3), "-c:v", "libx264", "-crf", "12", "-preset", "medium",
+                           "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", tmp],
+                          capture_output=True, text=True)
+    if proc.returncode != 0 or not os.path.isfile(tmp) or os.path.getsize(tmp) == 0:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        return None
+    os.replace(tmp, path)
+    return end, total
 
 
 # ---------------------------------------------------------------------------------------

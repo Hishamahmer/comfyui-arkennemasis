@@ -75,6 +75,19 @@ the failed node's freed slot would otherwise let the next one submit first.
 **If ComfyUI restarts mid-wait** the job keeps running on fal. Put the request id from the
 log into **fal Recover Result** (menu `arkennemasis/fal/Tools`) to download it - free.
 
+**A padded video is cut back to its real end (`media.padded_end` / `cut_padding`).** On 13 Oct
+VEED Fabric 1.0 animated a 60 s voice and fal returned a 206.8 s file: 1500 frames at 25 fps,
+then the last frame held for 146.8 s over silence. Players showed 3:26, and the next node took
+it as it was: Sync Lipsync 2 Pro estimated 206.8 s ($17.24 instead of about $5) and, reading
+1501 frames over 206.8 s as a 7 fps video, returned a choppy 7 fps lip sync. Now:
+- every video a node downloads (step 7), or reuses from an earlier run, whose last frame (or a
+  frame among its last four packets) is held for over 1 s and 10 normal frames, with silence or no
+  sound under the hold from half a second in, is cut in place to where its picture ends, at its own
+  frame rate; the node says so ("fal's video runs 206.8 s, but its picture ends at 60.0 s ...");
+- a video sent INTO a fal node (step 4) is checked the same way: a padded one goes out cut, and
+  its price is worked out on the real length. The file on disk is left alone.
+A still frame with real sound under it is never cut. Proven by `tests/fal/test_padding.py`.
+
 ## The model file
 
 | key | what it is |

@@ -123,6 +123,15 @@ def fal_key():
 # ----------------------------------------------------------------------------------------
 
 _SSL = ssl.create_default_context()
+# + certifi's bundle (14 Oct 2026): fal's file hosts (v3.fal.media, v3b.fal.media) moved to a certificate from
+# "SSL.com TLS Issuing ECC CA R2", whose newer SSL.com root this Windows store does not have (Python, unlike a browser,
+# cannot fetch it), so every result download failed with CERTIFICATE_VERIFY_FAILED after the job had run and been
+# billed. Adding trust only: the Windows store stays as it was.
+try:
+    import certifi
+    _SSL.load_verify_locations(cafile=certifi.where())
+except Exception:                                               # noqa: BLE001 - no certifi: the default store alone
+    pass
 
 
 def _request(method, url, *, headers=None, body=None, timeout=60):

@@ -325,9 +325,8 @@ def _prepare(spec, kw, say):
                 if value is None:
                     continue
                 provided.add(sock)
-                if is_video:
-                    data, ctype, fname = media.video_file_bytes(value)
-                    seconds = media.video_duration(value)
+                if is_video:                         # a padded video goes out (and is priced) cut to its real end
+                    data, ctype, fname, seconds = media.video_upload(value, say)
                 else:
                     data, ctype, fname = media.audio_wav_bytes(value), "audio/wav", "%s.wav" % sock
                     seconds = media.audio_duration(value)
@@ -461,9 +460,20 @@ def _download(spec, handle, answer, say):
             path, filename, _ = _save_target(folder, ext)
             size = client.download(f["url"], path, log=say)
             say("saved %s (%.1f MB)" % (filename, size / 1e6))
+            if kind == "video":
+                _unpad(path, say)
             paths.append(path)
         field_files[field] = paths
     return field_files
+
+
+def _unpad(path, say):
+    """A video fal returned, cut back to where its picture really ends when fal padded it (media.padded_end: its last
+    frame held on for seconds over silence, VEED Fabric 13 Oct)."""
+    cut = media.cut_padding(path)
+    if cut:
+        say("fal's video runs %.1f s, but its picture ends at %.1f s (its last frame held on over silence): cut to "
+            "%.1f s" % (cut[1], cut[0], cut[0]))
 
 
 def _ui_entry(path):
@@ -583,6 +593,10 @@ def check_run(spec, kw, node_id):
     if kw.get("reuse_identical_run", True):
         prev = _previous_run(run_hash)
         if prev:
+            for o in spec["outputs"]:                # a padded video saved before the cut existed is cut now
+                if o["kind"] == "video":
+                    for p in (prev.get("field_files") or {}).get(o["field"]) or []:
+                        _unpad(p, say)
             values, ui = _build(spec, prev.get("result") or {}, prev.get("field_files") or {}, say)
             _ledger("reused", endpoint=spec["endpoint_id"], title=spec["title"],
                     request_id=prev.get("request_id"), run_hash=run_hash)
