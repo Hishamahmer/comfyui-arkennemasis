@@ -58,7 +58,10 @@ IMAGE_MODEL = "gpt-image-2"
 # stops the real image arriving; nothing here wants them either way.
 PARTIAL_IMAGES = 0
 # The chat model is only the host that invokes the tool; it makes no pixels itself.
-HOST_MODEL = "gpt-5.5"
+# Since Oct 2026 the backend refuses gpt-5.5 for ChatGPT-login requests (HTTP 400 "The 'gpt-5.5' model is not
+# supported when using Codex with a ChatGPT account"); gpt-6.1-sol works. Low effort: the host only calls the tool.
+HOST_MODEL = "gpt-6.1-sol"
+HOST_EFFORT = "low"
 INSTRUCTIONS = ("You are an assistant that must fulfill image generation and image "
                 "editing requests by using the image_generation tool when provided.")
 
@@ -451,6 +454,7 @@ class ArkCodexImageGen:
             "tool_choice": {"type": "allowed_tools", "mode": "required",
                             "tools": [{"type": "image_generation"}]},
             "stream": True,
+            "reasoning": {"effort": HOST_EFFORT},
         }
         tier = SERVICE_TIER.get(speed)
         if tier:
